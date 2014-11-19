@@ -1,0 +1,39 @@
+server:
+  minThreads: 1
+  applicationConnectors:
+    - type: http
+      acceptorThreads: 1
+      selectorThreads: 1
+client:
+  minThreads: 4
+  maxThreads: 4
+  timeout: 10s
+  connectionTimeout: 10s
+  retries: 3
+  gzipEnabledForRequests: false
+meterManagerClient:
+  apiKey: API_KEY_HERE
+  baseUri: https://api.boundary.com/
+metricsClient:
+  baseUri: https://metrics-api.boundary.com/
+  apiKey: chmbk5ou9qbddpatai0rfubz8bc@metrics.boundary.com:api.4476f18389-16
+# Logging settings.
+logging:
+  # The default level of all loggers. Can be OFF, ERROR, WARN, INFO, DEBUG, TRACE, or ALL.
+  level: INFO
+  # Logger-specific levels.
+  loggers:
+    # Overrides the level of com.example.dw.Thing and sets it to DEBUG.
+    #"org.apache.http.wire": DEBUG
+    com.boundary: TRACE
+orgId: ChMBk5Ou9QBdDPaTai0rfUbZ8bC
+monitoredEntities:
+    - uri: https://192.168.208.241/sdk/vimService
+      username: root
+      password: Quanta1291
+    - uri: https://192.168.208.242/sdk/vimService
+      username: root
+      password: Quanta1291
+#    - uri: https://192.168.36.146/sdk/vimService
+#      username: root
+#      password: vmware
