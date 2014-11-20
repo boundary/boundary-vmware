@@ -6,8 +6,7 @@
 
   <groupId>com.boundary.metrics.vmware</groupId>
   <artifactId>vmware-metrics-collector</artifactId>
-  <version>1.0-SNAPSHOT</version>
-
+  <version>1.0.0</version>
   <properties>
     <java-source-version>1.7</java-source-version>
     <java-target-version>1.7</java-target-version>
