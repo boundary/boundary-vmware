@@ -1,3 +1,4 @@
+# Boundary Integration to VMWare configuration
 server:
   minThreads: 1
   applicationConnectors:
@@ -12,28 +13,24 @@ client:
   retries: 3
   gzipEnabledForRequests: false
 meterManagerClient:
-  apiKey: API_KEY_HERE
+  apiKey: <boundary enterprise api key>
   baseUri: https://api.boundary.com/
 metricsClient:
   baseUri: https://metrics-api.boundary.com/
-  apiKey: chmbk5ou9qbddpatai0rfubz8bc@metrics.boundary.com:api.4476f18389-16
+  apiKey: <boundary enterprise metrics api key>
 # Logging settings.
 logging:
   # The default level of all loggers. Can be OFF, ERROR, WARN, INFO, DEBUG, TRACE, or ALL.
   level: INFO
   # Logger-specific levels.
   loggers:
-    # Overrides the level of com.example.dw.Thing and sets it to DEBUG.
+    # Overrides the level of com.example.dw.<package name or class> 
+    # and sets it to DEBUG.
     #"org.apache.http.wire": DEBUG
     com.boundary: TRACE
 orgId: 
 monitoredEntities:
-    - uri: https://192.168.208.241/sdk/vimService
-      username: root
-      password: Quanta1291
-    - uri: https://192.168.208.242/sdk/vimService
-      username: root
-      password: Quanta1291
-#    - uri: https://192.168.36.146/sdk/vimService
-#      username: root
-#      password: vmware
+    # The following can configuration can be repeated for other instances
+    - uri: https://<esx host or vcenter host>/sdk/vimService
+      username: <user>
+      password: <password>
