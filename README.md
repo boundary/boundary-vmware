@@ -20,6 +20,7 @@ $ git clone https://github.com/boundary/boundary-vmware.git
      ```bash
 $ mvn install
      ```
+3. After the build runs successfully you are able to run the integration.
 
 Configuration
 -------------
@@ -66,11 +67,13 @@ monitoredEntities:
 
 Starting
 --------
-To start the integration run the following command:
+
+1. To star the integration run the following:
 ```
 $ java -jar target/vmware-metrics-collector-1.0.0.jar server src/main/resources/example.yml
 ```
 
 Stopping
 --------
-Run control-c in the shell where the integration was started.
+
+1. To stop the integration run control-c in the shell where the integration was started.
