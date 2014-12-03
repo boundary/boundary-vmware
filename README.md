@@ -12,10 +12,10 @@ Prerequisites
 
 Building
 --------
-1. Clone the Github repository []()
+1. Clone the Github repository:
      ```bash
 $ git clone https://github.com/boundary/boundary-vmware.git
-     ```     
+     ```
 2. Run the following maven command:
      ```bash
 $ mvn install
