@@ -15,7 +15,7 @@
   <classpathentry kind="var" path="M2_REPO/com/google/code/findbugs/jsr305/2.0.3/jsr305-2.0.3.jar"/>
   <classpathentry kind="var" path="M2_REPO/joda-time/joda-time/2.3/joda-time-2.3.jar"/>
   <classpathentry kind="var" path="M2_REPO/io/dropwizard/dropwizard-jackson/0.7.1/dropwizard-jackson-0.7.1.jar"/>
-  <classpathentry kind="var" path="M2_REPO/com/fasterxml/jackson/core/jackson-core/2.3.3/jackson-core-2.3.3.jar"/>
+  <classpathentry kind="var" path="M2_REPO/com/fasterxml/jackson/core/jackson-core/2.4.0/jackson-core-2.4.0.jar"/>
   <classpathentry kind="var" path="M2_REPO/com/fasterxml/jackson/core/jackson-databind/2.3.3/jackson-databind-2.3.3.jar"/>
   <classpathentry kind="var" path="M2_REPO/com/fasterxml/jackson/datatype/jackson-datatype-guava/2.3.3/jackson-datatype-guava-2.3.3.jar"/>
   <classpathentry kind="var" path="M2_REPO/com/fasterxml/jackson/module/jackson-module-afterburner/2.3.3/jackson-module-afterburner-2.3.3.jar"/>
@@ -29,7 +29,7 @@
   <classpathentry kind="var" path="M2_REPO/com/fasterxml/classmate/1.0.0/classmate-1.0.0.jar"/>
   <classpathentry kind="var" path="M2_REPO/org/glassfish/web/javax.el/2.2.6/javax.el-2.2.6.jar"/>
   <classpathentry kind="var" path="M2_REPO/io/dropwizard/dropwizard-configuration/0.7.1/dropwizard-configuration-0.7.1.jar"/>
-  <classpathentry kind="var" path="M2_REPO/com/fasterxml/jackson/dataformat/jackson-dataformat-yaml/2.3.3/jackson-dataformat-yaml-2.3.3.jar"/>
+  <classpathentry kind="var" path="M2_REPO/com/fasterxml/jackson/dataformat/jackson-dataformat-yaml/2.4.0/jackson-dataformat-yaml-2.4.0.jar"/>
   <classpathentry kind="var" path="M2_REPO/commons-lang/commons-lang/2.6/commons-lang-2.6.jar"/>
   <classpathentry kind="var" path="M2_REPO/io/dropwizard/dropwizard-logging/0.7.1/dropwizard-logging-0.7.1.jar"/>
   <classpathentry kind="var" path="M2_REPO/com/codahale/metrics/metrics-logback/3.0.2/metrics-logback-3.0.2.jar"/>
