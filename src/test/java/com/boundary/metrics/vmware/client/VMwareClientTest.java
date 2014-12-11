@@ -1,4 +1,4 @@
-package com.boundary.metrics.vmware.client;
+package com.boundary.metrics.vmware;
 
 import static org.junit.Assert.*;
 
@@ -149,3 +149,4 @@ public class VMwareClientTest {
 
 	}
 }
+
