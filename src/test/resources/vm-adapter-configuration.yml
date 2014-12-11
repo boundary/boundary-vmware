@@ -1,0 +1,36 @@
+# Boundary Integration to VMWare configuration
+server:
+  minThreads: 1
+  applicationConnectors:
+    - type: http
+      acceptorThreads: 1
+      selectorThreads: 1
+client:
+  minThreads: 4
+  maxThreads: 4
+  timeout: 10s
+  connectionTimeout: 10s
+  retries: 3
+  gzipEnabledForRequests: false
+meterManagerClient:
+  apiKey: 6OThKB6oaF4TkCXPFIWxoHuLzX1
+  baseUri: https://api.somewhere.com/
+metricsClient:
+  baseUri: https://metrics-api.somewhere.com/
+  apiKey: gvadl8iv3apedefswh1fczuy4ca@metrics.somewhere.com:api.16732a19324-11
+# Logging settings.
+logging:
+  # The default level of all loggers. Can be OFF, ERROR, WARN, INFO, DEBUG, TRACE, or ALL.
+  level: INFO
+  # Logger-specific levels.
+  loggers:
+    # Overrides the level of com.example.dw.<package name or class> 
+    # and sets it to DEBUG.
+    #"org.apache.http.wire": DEBUG
+    com.boundary: TRACE
+orgId: GvADl8Iv3ApEDeTswh1fCzUy4cA
+monitoredEntities:
+    # The following can configuration can be repeated for other instances
+    - uri: https://lab.austin.private-vmware.net/sdk/vimService
+      username:  someco.net\lab-monkey
+      password: Lerma123$27
