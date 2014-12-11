@@ -1,7 +1,10 @@
-package com.boundary.metrics.vmware;
+package com.boundary.metrics.vmware.client;
 
 import static org.junit.Assert.*;
 
+import java.io.File;
+import java.io.FileReader;
+import java.io.Reader;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
@@ -15,6 +18,7 @@ import org.junit.Test;
 
 import com.boundary.metrics.vmware.poller.VMwareClient;
 import com.google.common.collect.ImmutableList;
+import com.google.common.io.Resources;
 import com.vmware.connection.Connection;
 import com.vmware.vim25.ArrayOfPerfCounterInfo;
 import com.vmware.vim25.DynamicProperty;
@@ -48,9 +52,11 @@ public class VMwareClientTest {
 
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
+		
+		File propertiesFile = new File(Resources.getResource("vmware-client.properties").toURI());
+		Reader reader = new FileReader(propertiesFile);
 		clientProperties = new Properties();
-		clientProperties.load(VMwareClientTest.class
-				.getResourceAsStream("vmware-client.properties"));
+		clientProperties.load(reader);
 		url = clientProperties.getProperty(URL);
 		user = clientProperties.getProperty(USER);
 		password = clientProperties.getProperty(PASSWORD);
