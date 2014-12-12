@@ -71,7 +71,7 @@ public class VMwarePerfAdapter extends Application<VMwarePerfAdapterConfiguratio
         for (MonitoredEntity entity : configuration.getMonitoredEntities()) {
         	// For each monitored entity we create a client and poller, and then pass to our scheduler
         	// to be processed by individual threads at the polling interval
-            Connection connection = new VMwareClient(entity.getUri(), entity.getUsername(), entity.getPassword());
+            Connection connection = new VMwareClient(entity.getUri(),entity.getUsername(),entity.getPassword(),entity.getName());
             VMwarePerfPoller poller = new VMwarePerfPoller(connection, entity.getMetrics(), configuration.getOrgId(), metricsClient, meterManagerClient);
             scheduler.scheduleAtFixedRate(poller, 0, 20, TimeUnit.SECONDS);
             environment.metrics().registerAll(poller);
