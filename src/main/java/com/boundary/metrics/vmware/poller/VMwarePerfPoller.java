@@ -264,9 +264,11 @@ public class VMwarePerfPoller implements Runnable, MetricSet {
                 LOG.warn("Server does not have {} metric, skipping", counterName);
             }
         }
-
-        LOG.info("Found {} metrics on VMware host {}: {}", this.countersIdMap.size(), client.getHost(),
-                COMMA_JOINER.join(this.countersIdMap.keySet()));
+        LOG.info("Found {} metrics on VMware host {}: {}",
+        		this.countersIdMap.size(), client.getHost(),client.getName());
+        for (String counter: this.countersIdMap.keySet()) {
+        	LOG.info("counter: {}", counter);
+        }
     }
 
     /**
@@ -315,6 +317,7 @@ public class VMwarePerfPoller implements Runnable, MetricSet {
 
         GetMOREF getMOREFs = new GetMOREF(client);
         Map<String, ManagedObjectReference> entities = getMOREFs.inFolderByType(root, "VirtualMachine");
+
         for (Map.Entry<String, ManagedObjectReference> entity : entities.entrySet()) {
             ManagedObjectReference mor = entity.getValue();
             String entityName = entity.getKey();
@@ -364,8 +367,8 @@ public class VMwarePerfPoller implements Runnable, MetricSet {
                                 LOG.warn("Metric {} has more than one value, only using the first", metricFullName);
                             }
 
-                            // Prefix the VM name with the host address, we can form unique names that way
-                            int obsDomainId = meterManagerClient.createOrGetMeterMetadata(orgId, client.getHost() + "-" + entityName).getObservationDomainId();
+                            // Prefix the VM name with the name from the monitored entity configuration, we can form unique names that way
+                            int obsDomainId = meterManagerClient.createOrGetMeterMetadata(orgId, client.getName() + "-" + entityName).getObservationDomainId();
 
                             if (metricInfo.getUnitInfo().getKey().equalsIgnoreCase("kiloBytes")) {
                                 sampleValue = (long)sampleValue * 1024; // Convert KB to Bytes
@@ -373,16 +376,17 @@ public class VMwarePerfPoller implements Runnable, MetricSet {
                                 // Convert hundredth of a percent to a decimal percent
                                 sampleValue = new Long((long)sampleValue).doubleValue() / 10000.0;
                             }
-
+                            String name = metrics.get(metricFullName).getName();
+                            if (name != null) {
                             Measurement measurement = Measurement.builder()
-                                    .setMetric(metrics.get(metricFullName).getName())
+                                    .setMetric(name)
                                     .setSourceId(obsDomainId)
                                     .setTimestamp(sampleTime)
                                     .setMeasurement(sampleValue)
                                     .build();
 
                             Measurement dummyMeasurement = Measurement.builder()
-                                    .setMetric(metrics.get(metricFullName).getName())
+                                    .setMetric(name)
                                     .setSourceId(obsDomainId)
                                     .setTimestamp(sampleTime.minusSeconds(10))
                                     .setMeasurement(sampleValue)
@@ -393,6 +397,10 @@ public class VMwarePerfPoller implements Runnable, MetricSet {
 
                             LOG.info("{} @ {} = {} {}", metricFullName, sampleTime,
                                     sampleValue, metricInfo.getUnitInfo().getKey());
+                            }
+                            else {
+                            	LOG.warn("Skipping collection of metric: {}",metricFullName);
+                            }
                         } else {
                             LOG.warn("Didn't receive any samples when polling for {} on {} between {} and {}",
                                     metricFullName, client.getHost(), lastPoll, now);
