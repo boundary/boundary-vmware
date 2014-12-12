@@ -52,7 +52,7 @@ public class SubAccountClient {
      * Returns the authorization credentials to work with 
      * HLM (Host Level Metrics)
      * 
-     * @param orgId
+     * @param orgId Boundary organization id
      * @return String with credentials
      */
     public String getMetricCredentials(String orgId) {

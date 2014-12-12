@@ -30,6 +30,14 @@ public class MonitoredEntity {
      */
     private final Map<String, Metric> metrics;
 
+    /**
+     * Constructor
+     * 
+     * @param uri URI to vCenter or ESXi server
+     * @param username name used to authenticate
+     * @param password password used to authenticate
+     * @param name Identifier of the monitored entity
+     */
     public MonitoredEntity(@JsonProperty("uri") URI uri,
                            @JsonProperty("username") String username,
                            @JsonProperty("password") String password,
@@ -90,7 +98,7 @@ public class MonitoredEntity {
 
     /**
      * Returns the metrics associatd with this monitored entity
-     * @return
+     * @return {@link Map}
      */
     public Map<String, Metric> getMetrics() {
         return metrics;

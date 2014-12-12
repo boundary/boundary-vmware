@@ -30,16 +30,22 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import static com.google.common.base.Preconditions.checkNotNull;
 /**
  * <h1>Background Information</h1>
- * </p>
+ * <p>
  * Useful information about on VI SDK performance counters.
+ * </p>
  * <p>
  * A performance counter is represented by:
  * </p>
+ * <p>
  * <code>[group].[counter].[rollUpType]</code>
  * </p>
+ * <p>
  * example of which would be:
+ * </p>
+ * <p>
  * <code>disk.usage.average</code>
  * </p>
+ * <p>
  * Performance counters have seven predefined groups:
  * </p>
  * <ul>
@@ -48,10 +54,10 @@ import static com.google.common.base.Preconditions.checkNotNull;
  * <li>Memory</li>
  * <li>Network</li>
  * <li>Disk</li>
- * <li>System></li>
+ * <li>System</li>
  * <li>Cluster Services</li>
  * </ul>
- * </p>
+ * <p>
  * Along with the groups there are six rollup types:
  * </p>
  * <ul>
@@ -127,8 +133,8 @@ public class VMwarePerfPoller implements Runnable, MetricSet {
     /**
      * Performance counters are likely to differ between versions of VMware products but shouldn't change for the host
      * during the lifetime of polling, so we can safely cache them
-     * @throws InvalidPropertyFaultMsg
-     * @throws RuntimeFaultFaultMsg
+     * @throws InvalidPropertyFaultMsg thrown if an kind of property error
+     * @throws RuntimeFaultFaultMsg thrown if any kind of runtime error
      */
     public void fetchAvailableMetrics() throws InvalidPropertyFaultMsg, RuntimeFaultFaultMsg {
         ImmutableMap.Builder<String, Integer> countersIdMap = ImmutableMap.builder();
