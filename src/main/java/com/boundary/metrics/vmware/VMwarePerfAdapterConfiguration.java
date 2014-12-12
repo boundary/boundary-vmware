@@ -119,7 +119,7 @@ public class VMwarePerfAdapterConfiguration extends Configuration {
 
     /**
      * Returns the Boundary organization id associated with the metric client
-     * @return
+     * @return {@link String}
      */
     public String getOrgId() {
         return orgId;
