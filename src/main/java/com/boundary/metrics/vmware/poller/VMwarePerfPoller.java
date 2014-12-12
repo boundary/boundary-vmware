@@ -28,6 +28,42 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+/**
+ * <h1>Background Information</h1>
+ * </p>
+ * Useful information about on VI SDK performance counters.
+ * <p>
+ * A performance counter is represented by:
+ * </p>
+ * <code>[group].[counter].[rollUpType]</code>
+ * </p>
+ * example of which would be:
+ * <code>disk.usage.average</code>
+ * </p>
+ * Performance counters have seven predefined groups:
+ * </p>
+ * <ul>
+ * <li>CPU</li>
+ * <li>ResCPU</li>
+ * <li>Memory</li>
+ * <li>Network</li>
+ * <li>Disk</li>
+ * <li>System></li>
+ * <li>Cluster Services</li>
+ * </ul>
+ * </p>
+ * Along with the groups there are six rollup types:
+ * </p>
+ * <ul>
+ * <li>average</li>
+ * <li>latest</li>
+ * <li>maximum</li>
+ * <li>minimum</li>
+ * <li>none</li>
+ * <li>summation</li>
+ * </ul>
+ *
+ */
 
 public class VMwarePerfPoller implements Runnable, MetricSet {
 
@@ -58,7 +94,14 @@ public class VMwarePerfPoller implements Runnable, MetricSet {
         this.metricsClient = metricsClient;
     }
 
+    /**
+     * This is the main processing function that handles fetching the performance counters
+     * from the end point. This function is called
+     */
     public void run() {
+    	// The lock is used in case the sampling of the metrics takes longer than the poll interval.
+    	// If during collection cycle with thread A is in progress and another thread B tries to collect metrics
+    	// then thread B fails to get the lock and skips collecting metrics
         if (lock.compareAndSet(false, true)) {
             final Timer.Context timer = pollTimer.time();
             try {
@@ -91,6 +134,7 @@ public class VMwarePerfPoller implements Runnable, MetricSet {
         ImmutableMap.Builder<String, Integer> countersIdMap = ImmutableMap.builder();
         ImmutableMap.Builder<Integer, PerfCounterInfo> countersInfoMap = ImmutableMap.builder();
 
+        // Get the PerformanceManager object which is used to get metrics from counters
         ManagedObjectReference pm = client.getServiceContent().getPerfManager();
 
         ObjectSpec oSpec = new ObjectSpec();
