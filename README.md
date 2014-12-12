@@ -13,13 +13,15 @@ Prerequisites
 Building
 --------
 1. Clone the Github repository:
-     ```bash
-$ git clone https://github.com/boundary/boundary-vmware.git
+    ```bash
+    $ git clone https://github.com/boundary/boundary-vmware.git
      ```
+     
 2. Run the following maven command:
      ```bash
-$ mvn install
+    $ mvn install
      ```
+     
 3. After the build runs successfully you are able to run the integration.
 
 Configuration
