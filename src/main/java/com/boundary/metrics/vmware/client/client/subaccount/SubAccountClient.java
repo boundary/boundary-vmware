@@ -18,7 +18,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
  * Handles calling of the SubAccount API to get authentication tokens
  *
  */
-public class SubaccountClient {
+public class SubAccountClient {
 
     private final WebResource baseResource;
     private static final Joiner PATH_JOINER = Joiner.on('/');
@@ -30,7 +30,7 @@ public class SubaccountClient {
      * @param baseUrl Url to make REST call
      * @param apiKey Authorization key
      */
-    public SubaccountClient(Client client, URI baseUrl, String apiKey) {
+    public SubAccountClient(Client client, URI baseUrl, String apiKey) {
         checkNotNull(client);
         checkNotNull(baseUrl);
         checkArgument(!Strings.isNullOrEmpty(apiKey));
