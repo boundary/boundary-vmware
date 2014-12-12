@@ -109,7 +109,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
  * <h2>ESXi host</h2>
  * VMWare's <code>HostSystem</code> managed object represents the physical compute
  * resources with the metrics to be collected as follows:
- * <p>
+ * 
  * <ul>
  * <li><code>cpu.usage.average</code></li>
  * <li><code>cpu.usage.minimum</code></li>
@@ -118,7 +118,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
  * <li><code>memory.consumed.?</code></li>
  * <li><code>memory.swapused.?</code></li>
  * </ul>
- * </p>
+ *
  * <h2>Virtual Machine</h2>
  * VMWare's <code>Virtual Machine</code> managed object is to have
  * the metrics collect from each instance as follows:
@@ -134,13 +134,13 @@ import static com.google.common.base.Preconditions.checkNotNull;
  * <h2>Data Store</h2>
  * VMWare's <code>Datastore</code> managed object is to have
  * the metrics collect from each instance as follows:
- * <p>
+ *
  * <ul>
  * <li><code>disk.capacity.?</code></li>
  * <li><code>disk.provisioned.?</code></li>
  * <li><code>disk.used.?</code></li>
  * </ul>
- * </p>
+ *
  *
  */
 
@@ -175,7 +175,7 @@ public class VMwarePerfPoller implements Runnable, MetricSet {
 
     /**
      * This is the main processing function that handles fetching the performance counters
-     * from the end point. This function is called
+     * from the end point.
      */
     public void run() {
     	// The lock is used in case the sampling of the metrics takes longer than the poll interval.
