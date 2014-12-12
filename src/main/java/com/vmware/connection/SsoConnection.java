@@ -56,17 +56,17 @@ public class SsoConnection implements Connection {
     private PrivateKey privateKey;
     private X509Certificate certificate;
 
-    /**
+    /**	
      * You may optionally specify the system property sso.pkey.file=/fully/qualified/path
      * to load your SSL private key from a file.
-     * @see com.vmware.sso.client.utils.SecurityUtil
+     * {@link com.vmware.sso.client.utils.SecurityUtil}
      */
     public final String pkeyFileName = System.getProperty("sso.pkey.file");
 
     /**
      * You may optionally specify the system property sso.cert.file=/fully/qualified/path
      * to load your SSL cert from a file.
-     * @see com.vmware.sso.client.utils.SecurityUtil
+     * {@link com.vmware.sso.client.utils.SecurityUtil}
      */
     public final String certFileName = System.getProperty("sso.cert.file");
 
@@ -75,11 +75,11 @@ public class SsoConnection implements Connection {
      * will call getDefaultSsoUrl to attempt to calculate what the URL should have been.
      *
      * @return the URL for the SSO services
-     * @throws java.net.MalformedURLException
+     * @throws MalformedURLException thrown when a bad URL is returned
      */
     public URL getSsoUrl() throws MalformedURLException {
         if (ssoUrl != null) {
-            return ssoUrl;
+            return ssoUrl;   
         }
         String ssoUrlString = System.getProperty(SSO_URL, getDefaultSsoUrl());
         ssoUrl = new URL(ssoUrlString);
@@ -181,7 +181,7 @@ public class SsoConnection implements Connection {
 
     /**
      * the cached headers gleaned from the last connection atttempt
-     * @return
+     * @return {@link Map}
      */
     @SuppressWarnings("rawtypes")
 	@Override
@@ -191,8 +191,8 @@ public class SsoConnection implements Connection {
 
     /**
      * A service instance reference used to boot strap the client
-     * <p/>
-     * @return the top level ServiceInstanceReference
+     * 
+     * @return the top level ServiceInstanceReference {@link ManagedObjectReference}
      */
     @Override
     public ManagedObjectReference getServiceInstanceReference() {
@@ -288,7 +288,7 @@ public class SsoConnection implements Connection {
     }
 
     /**
-     * Load a cached key & cert from the file system if no X509Certificate is present on the
+     * Load a cached key &amp; cert from the file system if no X509Certificate is present on the
      * file system, calls "generate"
      */
     public void loadUserCert() {
@@ -309,7 +309,7 @@ public class SsoConnection implements Connection {
     }
 
     /**
-     * generates a new key & cert and caches them for next time.
+     * generates a new key &amp; cert and caches them for next time.
      */
     public void generate() {
         SecurityUtil userCert = SecurityUtil.generateKeyCertPair();
@@ -336,7 +336,7 @@ public class SsoConnection implements Connection {
     /**
      * properly disconnect the connection and set stale objects to "null" to help the garbage collector
      * in resource constrained environments.
-     * @return
+     * @return {@link Connection}
      */
     @Override
     public Connection disconnect() {
@@ -361,7 +361,7 @@ public class SsoConnection implements Connection {
 
     /**
      * gets the URL used for this connection
-     * @return
+     * @return {@link URL}
      */
     @Override
     public URL getURL() {

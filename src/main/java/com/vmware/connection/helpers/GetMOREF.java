@@ -42,6 +42,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * 
+ * Handles the traversal of the VMWware infrastructure managed object hierarchia
+ *
+ */
 public class GetMOREF extends BaseHelper {
 
     private static final Logger LOG = LoggerFactory.getLogger(GetMOREF.class);
@@ -49,6 +54,10 @@ public class GetMOREF extends BaseHelper {
     private VimPortType vimPort;
     private ServiceContent serviceContent;
 
+    /**
+     * Constructor
+     * @param connection Instance of a {@link Connection}
+     */
     public GetMOREF(final Connection connection) {
         super(connection);
     }
@@ -82,10 +91,11 @@ public class GetMOREF extends BaseHelper {
      *
      * @param container       - container to look in
      * @param morefType       - type to filter for
+     * @param retrieveOptions - {@link RetrieveOptions}
      * @param morefProperties - properties to include
      * @return com.vmware.vim25.RetrieveResult for this query
-     * @throws com.vmware.vim25.RuntimeFaultFaultMsg
-     * @throws com.vmware.vim25.InvalidPropertyFaultMsg
+     * @throws com.vmware.vim25.RuntimeFaultFaultMsg thrown when a runtime error ocurrs
+     * @throws com.vmware.vim25.InvalidPropertyFaultMsg thrown when an invalid property ocurrs
      */
     public RetrieveResult containerViewByType(
             final ManagedObjectReference container,
@@ -154,14 +164,14 @@ public class GetMOREF extends BaseHelper {
      * Returns all the MOREFs of the specified type that are present under the
      * folder
      *
-     * @param folder    {@link com.vmware.vim25.ManagedObjectReference} of the folder to begin the search
-     *                  from
+     * @param folder {@link com.vmware.vim25.ManagedObjectReference} of the folder to begin the search from
      * @param morefType Type of the managed entity that needs to be searched
+     * @param retrieveOptions {@link RetrieveOptions}
      * @return Map of name and MOREF of the managed objects present. If none
      *         exist then empty Map is returned
-     * @throws com.vmware.vim25.InvalidPropertyFaultMsg
+     * @throws com.vmware.vim25.InvalidPropertyFaultMsg thrown if there is a property error
      *
-     * @throws com.vmware.vim25.RuntimeFaultFaultMsg
+     * @throws com.vmware.vim25.RuntimeFaultFaultMsg thrown if there is a runtime error
      *
      */
     public Map<String, ManagedObjectReference> inFolderByType(
@@ -217,11 +227,12 @@ public class GetMOREF extends BaseHelper {
      *                        search from
      * @param morefType       Type of the managed entity that needs to be searched
      * @param morefProperties Array of properties to be fetched for the moref
+     * @param retrieveOptions {@link RetrieveOptions}
      * @return Map of MOREF and Map of name value pair of properties requested of
      *         the managed objects present. If none exist then empty Map is
      *         returned
-     * @throws com.vmware.vim25.InvalidPropertyFaultMsg
-     * @throws com.vmware.vim25.RuntimeFaultFaultMsg
+     * @throws com.vmware.vim25.InvalidPropertyFaultMsg thrown if there is a property error
+     * @throws com.vmware.vim25.RuntimeFaultFaultMsg thrown if there is a runtime error.
      */
     public Map<ManagedObjectReference, Map<String, Object>> inContainerByType(
             ManagedObjectReference container, String morefType,
@@ -250,13 +261,13 @@ public class GetMOREF extends BaseHelper {
      * Returns all the MOREFs of the specified type that are present under the
      * container
      *
-     * @param folder    {@link com.vmware.vim25.ManagedObjectReference} of the container to begin the
-     *                  search from
+     * @param folder {@link com.vmware.vim25.ManagedObjectReference} of the container to begin the search from
      * @param morefType Type of the managed entity that needs to be searched
+     * @param retrieveOptions {@link RetrieveOptions}
      * @return Map of name and MOREF of the managed objects present. If none
      *         exist then empty Map is returned
-     * @throws com.vmware.vim25.InvalidPropertyFaultMsg
-     * @throws com.vmware.vim25.RuntimeFaultFaultMsg
+     * @throws com.vmware.vim25.InvalidPropertyFaultMsg thrown if there is a property error
+     * @throws com.vmware.vim25.RuntimeFaultFaultMsg thrown if there is a runtime error
      */
     public Map<String, ManagedObjectReference> inContainerByType(
             ManagedObjectReference folder, String morefType, RetrieveOptions retrieveOptions)
@@ -312,10 +323,10 @@ public class GetMOREF extends BaseHelper {
      * Get the MOR of the Virtual Machine by its name.
      *
      * @param vmName           The name of the Virtual Machine
-     * @param propCollectorRef
+     * @param propCollectorRef {@link ManagedObjectReference}
      * @return The Managed Object reference for this VM
-     * @throws com.vmware.vim25.RuntimeFaultFaultMsg
-     * @throws com.vmware.vim25.InvalidPropertyFaultMsg
+     * @throws com.vmware.vim25.RuntimeFaultFaultMsg thrown on a run time error
+     * @throws com.vmware.vim25.InvalidPropertyFaultMsg thrown if there is an error with a property
      */
     public ManagedObjectReference vmByVMname(
             final String vmName, final ManagedObjectReference propCollectorRef
@@ -429,7 +440,7 @@ public class GetMOREF extends BaseHelper {
      * @param props     Array of properties to be looked up
      * @return Map of the property name and its corresponding value
      * @throws com.vmware.vim25.InvalidPropertyFaultMsg If a property does not exist
-     * @throws com.vmware.vim25.RuntimeFaultFaultMsg
+     * @throws com.vmware.vim25.RuntimeFaultFaultMsg Runtime error
      */
     public Map<String, Object> entityProps(
             ManagedObjectReference entityMor, String[] props)
@@ -480,8 +491,8 @@ public class GetMOREF extends BaseHelper {
      *                   {@link com.vmware.vim25.ManagedObjectReference} passed
      * @return Map of {@link com.vmware.vim25.ManagedObjectReference} and their corresponding name
      *         value pair of properties
-     * @throws com.vmware.vim25.InvalidPropertyFaultMsg
-     * @throws com.vmware.vim25.RuntimeFaultFaultMsg
+     * @throws com.vmware.vim25.InvalidPropertyFaultMsg thrown when there is property error
+     * @throws com.vmware.vim25.RuntimeFaultFaultMsg thrown when there is a runtime error
      */
     public Map<ManagedObjectReference, Map<String, Object>> entityProps(
             List<ManagedObjectReference> entityMors, String[] props)
