@@ -19,10 +19,12 @@ import com.vmware.sso.client.utils.SecurityUtil;
 import com.vmware.sso.client.utils.Utils;
 import com.vmware.vim25.*;
 import com.vmware.vsphere.soaphandlers.HeaderCookieExtractionHandler;
+
 import org.w3c.dom.Element;
 
 import javax.xml.ws.BindingProvider;
 import javax.xml.ws.handler.MessageContext;
+
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.security.PrivateKey;
@@ -385,4 +387,10 @@ public class SsoConnection implements Connection {
             super(s, t);
         }
     }
+
+	@Override
+	public String getName() {
+		// TODO Auto-generated method stub
+		return null;
+	}
 }
