@@ -79,3 +79,9 @@ Stopping
 --------
 
 1. To stop the integration run control-c in the shell where the integration was started.
+
+
+Reference
+---------
+[Technical Note On Performance Counters](http://www.vmware.com/files/pdf/technote_PerformanceCounters.pdf)
+
