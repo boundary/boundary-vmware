@@ -77,7 +77,7 @@ public class VMWareTestUtils {
 			final String user = clientProperties.getProperty(USER);
 			final String password = clientProperties.getProperty(PASSWORD);
 
-			client = new VMwareClient(new URI(url), user, password);
+			client = new VMwareClient(new URI(url), user, password,VMWareTestUtils.class.toString());
 
 		} catch (Exception e) {
 

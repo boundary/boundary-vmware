@@ -45,6 +45,8 @@ public interface Connection {
     void setPassword(String password);
 
     String getPassword();
+    
+    String getName();
 
     VimService getVimService();
 

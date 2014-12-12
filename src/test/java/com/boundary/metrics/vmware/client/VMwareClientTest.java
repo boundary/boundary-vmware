@@ -70,7 +70,7 @@ public class VMwareClientTest {
 
 	@Before
 	public void setUp() throws Exception {
-		vmClient = new VMwareClient(new URI(url), user, password);
+		vmClient = new VMwareClient(new URI(url), user, password,this.getClass().toString());
 		vmClient.connect();
 	}
 
@@ -85,7 +85,7 @@ public class VMwareClientTest {
 
 	@Test
 	public void testClientConnection() throws URISyntaxException {
-		Connection client = new VMwareClient(new URI(url), user, password);
+		Connection client = new VMwareClient(new URI(url),user,password,this.getClass().toString());
 
 		client.connect();
 	}
@@ -107,14 +107,12 @@ public class VMwareClientTest {
 
 	@Test
 	public void testGetVimPort() {
-		ServiceContent content = vmClient.getServiceContent();
 		VimPortType vimPortType = vmClient.getVimPort();
 		assertNotNull(vimPortType);
 	}
 
 	@Test
 	public void testGetVimService() {
-		ServiceContent content = vmClient.getServiceContent();
 		VimService vimService = vmClient.getVimService();
 		assertNotNull(vimService);
 	}
