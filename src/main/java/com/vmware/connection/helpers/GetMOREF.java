@@ -19,7 +19,21 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.vmware.connection.Connection;
 import com.vmware.connection.helpers.builders.*;
-import com.vmware.vim25.*;
+import com.vmware.vim25.DynamicProperty;
+import com.vmware.vim25.InvalidPropertyFaultMsg;
+import com.vmware.vim25.ManagedObjectReference;
+import com.vmware.vim25.ObjectContent;
+import com.vmware.vim25.ObjectSpec;
+import com.vmware.vim25.PropertyFilterSpec;
+import com.vmware.vim25.PropertySpec;
+import com.vmware.vim25.RetrieveOptions;
+import com.vmware.vim25.RetrieveResult;
+import com.vmware.vim25.RuntimeFaultFaultMsg;
+import com.vmware.vim25.SelectionSpec;
+import com.vmware.vim25.ServiceContent;
+import com.vmware.vim25.TraversalSpec;
+import com.vmware.vim25.VimPortType;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

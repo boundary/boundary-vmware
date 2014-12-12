@@ -5,7 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import org.hibernate.validator.constraints.NotEmpty;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class SubaccountInfo {
+public class SubAccountInfo {
 
     @JsonProperty
     @NotEmpty
