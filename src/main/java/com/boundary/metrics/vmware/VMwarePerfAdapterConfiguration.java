@@ -5,15 +5,21 @@ import com.boundary.metrics.vmware.client.client.metrics.MetricsClient;
 import com.boundary.metrics.vmware.poller.MonitoredEntity;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.sun.jersey.api.client.Client;
+
 import io.dropwizard.Configuration;
 import io.dropwizard.client.JerseyClientConfiguration;
+
 import org.hibernate.validator.constraints.NotEmpty;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
+
 import java.net.URI;
 import java.util.List;
 
+/**
+ * Handles configuration of the VMware Adapter Configuration
+ */
 public class VMwarePerfAdapterConfiguration extends Configuration {
 
     static class MeterManagerConfiguration {
@@ -61,6 +67,10 @@ public class VMwarePerfAdapterConfiguration extends Configuration {
     @NotNull
     private List<MonitoredEntity> monitoredEntities;
 
+    /**
+     * Returns a list of monitoried entities
+     * @return {@link MonitoredEntity}
+     */
     public List<MonitoredEntity> getMonitoredEntities() {
         return monitoredEntities;
     }
@@ -70,6 +80,10 @@ public class VMwarePerfAdapterConfiguration extends Configuration {
     @JsonProperty
     private JerseyClientConfiguration client = new JerseyClientConfiguration();
 
+    /**
+     * Returns the Jesery client configuration
+     * @return {@link JerseyClientConfiguration}
+     */
     public JerseyClientConfiguration getClient() { return client; }
 
     @JsonProperty
@@ -77,6 +91,11 @@ public class VMwarePerfAdapterConfiguration extends Configuration {
     @NotNull
     private MeterManagerConfiguration meterManagerClient = new MeterManagerConfiguration();
 
+    /**
+     * Returns the meter manager configuration
+     * 
+     * @return {@link MeterManagerConfiguration}
+     */
     public MeterManagerConfiguration getMeterManagerClient() {
         return meterManagerClient;
     }
@@ -85,7 +104,11 @@ public class VMwarePerfAdapterConfiguration extends Configuration {
     @Valid
     @NotNull
     private MetricClientConfiguration metricsClient = new MetricClientConfiguration();
-
+    
+    /**
+     * Returns the {@link MetricClientConfiguration} instances associated from the configuration
+     * @return {@link MetricClientConfiguration}
+     */
     public MetricClientConfiguration getMetricsClient() {
         return metricsClient;
     }
@@ -94,6 +117,10 @@ public class VMwarePerfAdapterConfiguration extends Configuration {
     @NotEmpty
     private String orgId;
 
+    /**
+     * Returns the Boundary organization id associated with the metric client
+     * @return
+     */
     public String getOrgId() {
         return orgId;
     }
