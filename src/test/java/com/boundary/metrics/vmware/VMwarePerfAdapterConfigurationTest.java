@@ -76,7 +76,11 @@ public class VMwarePerfAdapterConfigurationTest {
 		List<MonitoredEntity> entities = configuration.getMonitoredEntities();
 		assertNotNull("Check for Null: getMonitoredEntities()",entities);
 		assertEquals("Check size: getMonitoriedEntities()",1,entities.size());
+		MonitoredEntity entity = entities.get(0);
+		assertEquals("check getName()","foobar",entity.getName());
 	}
+	
+	
 
 	@Test
 	public void testGetClient() {
@@ -86,6 +90,8 @@ public class VMwarePerfAdapterConfigurationTest {
 				"gvadl8iv3apedefswh1fczuy4ca@metrics.somewhere.com:api.16732a19324-11",client.getApiKey());
 		assertEquals("Check getBaseUri()","https://metrics-api.somewhere.com/",client.getBaseUri().toString());
 	}
+	
+	
 
 	@Test
 	public void testGetMeterManagerClient() {

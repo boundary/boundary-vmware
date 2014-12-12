@@ -34,3 +34,4 @@ monitoredEntities:
     - uri: https://lab.austin.private-vmware.net/sdk/vimService
       username:  someco.net\lab-monkey
       password: Lerma123$27
+      name: foobar
