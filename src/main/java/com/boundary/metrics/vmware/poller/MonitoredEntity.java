@@ -1,3 +1,17 @@
+// Copyright 2014 Boundary, Inc.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
 package com.boundary.metrics.vmware.poller;
 
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -28,7 +42,7 @@ public class MonitoredEntity {
     /**
      * Map of VMware performance counter full names to Boundary metric descriptions
      */
-    private final Map<String, Metric> metrics;
+    private final Map<String, Metric> vmMetrics;
 
     /**
      * Constructor
@@ -54,20 +68,25 @@ public class MonitoredEntity {
         // the monitored entity
         // TODO: Externalize the configuration of these counters to allow collection to be
         // changed dynamically.
-        ImmutableMap.Builder<String, Metric> mb = ImmutableMap.builder();
-        mb.put("disk.provisioned.NONE", new Metric("SYSTEM_FS_FREE_TOTAL", "Filesystem Free"));
-        mb.put("mem.consumed.NONE", new Metric("SYSTEM_MEM_USED", "Memory Used"));
-        mb.put("power.power.NONE", new Metric("Power Consumption"));
-        mb.put("cpu.usage.NONE", new Metric("SYSTEM_CPU_TOTAL", "CPU Utilization"));
-        mb.put("mem.granted.NONE", new Metric("SYSTEM_MEM_TOTAL", "Memory Available to OS"));
-//        mb.put("net.droppedRx.SUMMATION", new Metric("SYSTEM_NET_ERRORS_RX_DROPPED_TOTAL", "Network Receive Packets Dropped"));
-//        mb.put("net.droppedTx.SUMMATION", new Metric("SYSTEM_NET_ERRORS_TX_DROPPED_TOTAL", "Network Transmit Packets Dropped"));
-//        mb.put("net.received.AVERAGE", new Metric("NETRB", "Network Inbound"));
-//        mb.put("net.transmitted.AVERAGE", new Metric("NETWB", "Network Outbound"));
-        mb.put("disk.read.AVERAGE", new Metric("SYSTEM_DISK_READ_BYTES_TOTAL", "Disk Bytes Read"));
-        mb.put("disk.write.AVERAGE", new Metric("SYSTEM_DISK_WRITE_BYTES_TOTAL", "Disk Bytes Written"));
-
-        metrics = mb.build();
+        ImmutableMap.Builder<String,Metric> virtualMachineMetrics = ImmutableMap.builder();
+        virtualMachineMetrics.put("cpu.usage.AVERAGE",
+        		new Metric("SYSTEM_CPU_USAGE_AVERAGE","CPU Average Utilization"));
+        virtualMachineMetrics.put("cpu.usage.MINIUM",
+        		new Metric("SYSTEM_CPU_USAGE_MINIMUM","CPU Minimum Utilization"));
+        virtualMachineMetrics.put("cpu.idle.summation",
+        		new Metric("SYSTEM_CPU_IDLE_TOTAL","CPU Total Idle"));
+        virtualMachineMetrics.put("mem.active.MAXIMUM",
+        		new Metric("SYSTEM_MEMORY_ACTIVE_MAXIMUM","Memory Maximum Active"));
+        virtualMachineMetrics.put("mem.consumed.AVERAGE",
+        		new Metric("SYSTEM_MEMORY_CONSUMED_AVERAGE","Memory Average Consumed"));
+        virtualMachineMetrics.put("mem.swapused.MAXIMUM",
+        		new Metric("SYSTEM_MEMORY_SWAP_USED_MAXIMUM", "Memory Swap Used Maximum"));
+        virtualMachineMetrics.put("disk.read.AVERAGE",
+        		new Metric("SYSTEM_DISK_READ_AVERAGE", "Disk Read Average"));
+        virtualMachineMetrics.put("disk.write.AVERAGE",
+        		new Metric("SYSTEM_DISK_WRITE_AVERAGE", "Disk Write Average"));
+        
+        vmMetrics = virtualMachineMetrics.build();
     }
 
     /**
@@ -101,7 +120,7 @@ public class MonitoredEntity {
      * @return {@link Map}
      */
     public Map<String, Metric> getMetrics() {
-        return metrics;
+        return vmMetrics;
     }
     
     /**
