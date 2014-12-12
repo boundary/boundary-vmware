@@ -102,6 +102,45 @@ import static com.google.common.base.Preconditions.checkNotNull;
  * <li>none</li>
  * <li>summation</li>
  * </ul>
+ * 
+ * <h1>Managed Objects and Metrics collected by {@link VMwarePerfPoller}</h1>
+ * The list of managed objects and their associated metrics follow.
+ * 
+ * <h2>ESXi host</h2>
+ * VMWare's <code>HostSystem</code> managed object represents the physical compute
+ * resources with the metrics to be collected as follows:
+ * <p>
+ * <ul>
+ * <li><code>cpu.usage.average</code></li>
+ * <li><code>cpu.usage.minimum</code></li>
+ * <li><code>cpu.idle.?</code></li>
+ * <li><code>memory.active.?</code></li>
+ * <li><code>memory.consumed.?</code></li>
+ * <li><code>memory.swapused.?</code></li>
+ * </ul>
+ * </p>
+ * <h2>Virtual Machine</h2>
+ * VMWare's <code>Virtual Machine</code> managed object is to have
+ * the metrics collect from each instance as follows:
+ * <ul>
+ * <li><code>cpu.usage.average</code></li>
+ * <li><code>cpu.usage.maximum</code></li>
+ * <li><code>memory.active.?</code></li>
+ * <li><code>memory.consumed.?</code></li>
+ * <li><code>disk.read.average.?</code></li>
+ * <li><code>disk.write.average.?</code></li>
+ * </ul>
+ *
+ * <h2>Data Store</h2>
+ * VMWare's <code>Datastore</code> managed object is to have
+ * the metrics collect from each instance as follows:
+ * <p>
+ * <ul>
+ * <li><code>disk.capacity.?</code></li>
+ * <li><code>disk.provisioned.?</code></li>
+ * <li><code>disk.used.?</code></li>
+ * </ul>
+ * </p>
  *
  */
 
