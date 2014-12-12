@@ -35,20 +35,34 @@ import java.util.concurrent.TimeUnit;
  */
 public class VMwarePerfAdapter extends Application<VMwarePerfAdapterConfiguration> {
 
+	/**
+	 * Main function
+	 * @param args Command line arguments
+	 * @throws Exception thrown if an error occurrs
+	 */
     public static void main(String[] args) throws Exception {
         new VMwarePerfAdapter().run(args);
     }
 
+    /**
+     * Returns the name of the application
+     */
     @Override
     public String getName() {
         return "VMware-Poller";
     }
 
+    /**
+     * Called to intialize the Drop Wizard application
+     */
     @Override
     public void initialize(Bootstrap<VMwarePerfAdapterConfiguration> bootstrap) {
 
     }
 
+    /**
+     * Main method called to run the Drop Wizard application.
+     */
     @Override
     public void run(VMwarePerfAdapterConfiguration configuration, Environment environment) throws Exception {
         final ScheduledExecutorService scheduler = environment.lifecycle().scheduledExecutorService("vmware-poller-%d")
