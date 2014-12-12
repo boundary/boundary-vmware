@@ -1,3 +1,17 @@
+// Copyright 2014 Boundary, Inc.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
 package com.boundary.metrics.vmware.poller;
 
 import com.boundary.metrics.vmware.client.client.meter.manager.MeterManagerClient;
@@ -13,7 +27,26 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.vmware.connection.Connection;
 import com.vmware.connection.helpers.GetMOREF;
-import com.vmware.vim25.*;
+import com.vmware.vim25.InvalidPropertyFaultMsg;
+import com.vmware.vim25.ManagedObjectReference;
+import com.vmware.vim25.ObjectContent;
+import com.vmware.vim25.ObjectSpec;
+import com.vmware.vim25.PerfCounterInfo;
+import com.vmware.vim25.PerfEntityMetric;
+import com.vmware.vim25.PerfEntityMetricBase;
+import com.vmware.vim25.PerfMetricId;
+import com.vmware.vim25.PerfMetricIntSeries;
+import com.vmware.vim25.PerfMetricSeries;
+import com.vmware.vim25.PerfQuerySpec;
+import com.vmware.vim25.PerfSampleInfo;
+import com.vmware.vim25.PropertyFilterSpec;
+import com.vmware.vim25.PropertySpec;
+import com.vmware.vim25.RetrieveOptions;
+import com.vmware.vim25.RetrieveResult;
+import com.vmware.vim25.RuntimeFaultFaultMsg;
+import com.vmware.vim25.DynamicProperty;
+import com.vmware.vim25.ArrayOfPerfCounterInfo;
+
 import org.joda.time.DateTime;
 import org.joda.time.Duration;
 import org.slf4j.Logger;
@@ -21,6 +54,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
 import javax.xml.ws.soap.SOAPFaultException;
+
 import java.net.MalformedURLException;
 import java.rmi.RemoteException;
 import java.util.List;
@@ -132,7 +166,8 @@ public class VMwarePerfPoller implements Runnable, MetricSet {
 
     /**
      * Performance counters are likely to differ between versions of VMware products but shouldn't change for the host
-     * during the lifetime of polling, so we can safely cache them
+     * during the lifetime of polling, so we can safely cache them.
+     * 
      * @throws InvalidPropertyFaultMsg thrown if an kind of property error
      * @throws RuntimeFaultFaultMsg thrown if any kind of runtime error
      */
@@ -195,8 +230,18 @@ public class VMwarePerfPoller implements Runnable, MetricSet {
                 COMMA_JOINER.join(this.countersIdMap.keySet()));
     }
 
+    /**
+     * Extracts performance metrics from Managed Objects on the monitored entity
+     * 
+     * @throws MalformedURLException Bad URL
+     * @throws RemoteException Endpoint exception
+     * @throws InvalidPropertyFaultMsg Bad Property
+     * @throws RuntimeFaultFaultMsg Runtime error
+     * @throws SOAPFaultException WebServer error
+     */
     public void fetchPerfData() throws MalformedURLException, RemoteException,
             InvalidPropertyFaultMsg, RuntimeFaultFaultMsg, SOAPFaultException {
+    	
         ManagedObjectReference root = client.getServiceContent().getRootFolder();
 
         // 'now' according to the server
