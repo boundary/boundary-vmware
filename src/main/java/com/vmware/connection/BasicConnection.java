@@ -17,6 +17,7 @@ import com.vmware.vim25.*;
 
 import javax.xml.ws.BindingProvider;
 import javax.xml.ws.handler.MessageContext;
+
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Date;
@@ -191,4 +192,10 @@ public class BasicConnection implements Connection {
             super(s, t);
         }
     }
+
+	@Override
+	public String getName() {
+		// TODO Auto-generated method stub
+		return null;
+	}
 }
