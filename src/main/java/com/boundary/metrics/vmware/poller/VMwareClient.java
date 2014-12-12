@@ -4,6 +4,7 @@ import com.boundary.metrics.vmware.util.TimeUtils;
 import com.google.common.base.Throwables;
 import com.vmware.connection.Connection;
 import com.vmware.vim25.*;
+
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,6 +12,7 @@ import org.slf4j.LoggerFactory;
 import javax.net.ssl.*;
 import javax.xml.ws.BindingProvider;
 import javax.xml.ws.handler.MessageContext;
+
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
@@ -27,6 +29,7 @@ public class VMwareClient implements Connection {
     private URI uri;
     private String username;
     private String password;
+	private String name;
     private VimService vimService;
     private VimPortType vimPort;
     private UserSession userSession;
@@ -35,10 +38,13 @@ public class VMwareClient implements Connection {
     @SuppressWarnings("rawtypes")
     private Map headers;
 
-    public VMwareClient(URI url, String username, String password) {
+
+
+    public VMwareClient(URI url, String username, String password,String name) {
         this.uri = url;
         this.username = username;
         this.password = password;
+        this.name = name;
     }
 
     @Override
@@ -79,6 +85,11 @@ public class VMwareClient implements Connection {
     @Override
     public String getPassword() {
         return password;
+    }
+    
+    @Override
+    public String getName() {
+    	return this.name;
     }
 
     @Override
