@@ -13,12 +13,23 @@ import java.net.URI;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
-
+/**
+ * 
+ * Handles calling of the SubAccount API to get authentication tokens
+ *
+ */
 public class SubaccountClient {
 
     private final WebResource baseResource;
     private static final Joiner PATH_JOINER = Joiner.on('/');
 
+    /**
+     * Constructor
+     * 
+     * @param client Jersey Client
+     * @param baseUrl Url to make REST call
+     * @param apiKey Authorization key
+     */
     public SubaccountClient(Client client, URI baseUrl, String apiKey) {
         checkNotNull(client);
         checkNotNull(baseUrl);
@@ -37,10 +48,17 @@ public class SubaccountClient {
         this.baseResource = client.resource(baseUrl);
     }
 
+    /**
+     * Returns the authorization credentials to work with 
+     * HLM (Host Level Metrics)
+     * 
+     * @param orgId
+     * @return String with credentials
+     */
     public String getMetricCredentials(String orgId) {
-        SubaccountInfo subaccountInfo = baseResource
+        SubAccountInfo subaccountInfo = baseResource
                 .path(PATH_JOINER.join(orgId, "subaccount"))
-                .get(SubaccountInfo.class);
+                .get(SubAccountInfo.class);
         return subaccountInfo.getCredentials();
         // TODO error handling
     }
