@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package com.boundary.metrics.vmware.client.client.metrics;
+package com.boundary.metrics.vmware.client.metrics;
 
 import com.google.common.base.Charsets;
 import com.google.common.base.Joiner;
@@ -90,7 +90,7 @@ public class MetricsClient {
     public void addMeasurements(int sourceId, Map<String, Number> measurements, Optional<DateTime> optionalTimestamp) {
         List<List<Object>> payload = Lists.newArrayList();
         final long timestamp = optionalTimestamp.or(new DateTime()).getMillis();
-        for (Map.Entry<String, Number> m : measurements.entrySet()) {
+        for (Map.Entry<String,Number> m : measurements.entrySet()) {
             payload.add(ImmutableList.<Object>of(String.valueOf(sourceId), m.getKey(), m.getValue(), timestamp));
         }
         sendMeasurements(payload);

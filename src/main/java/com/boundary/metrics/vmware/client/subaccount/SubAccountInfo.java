@@ -12,10 +12,24 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package com.boundary.metrics.vmware.resource;
+package com.boundary.metrics.vmware.client.subaccount;
 
-import javax.ws.rs.Path;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import org.hibernate.validator.constraints.NotEmpty;
 
-@Path("/")
-public class VMWarePerfPollerMonitor {
+@JsonIgnoreProperties(ignoreUnknown = true)
+public class SubAccountInfo {
+
+    @JsonProperty
+    @NotEmpty
+    private String email;
+
+    @JsonProperty
+    @NotEmpty
+    private String apiToken;
+
+    public String getCredentials() {
+        return email + ":" + apiToken;
+    }
 }

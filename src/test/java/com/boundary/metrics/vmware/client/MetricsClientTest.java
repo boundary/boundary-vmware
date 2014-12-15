@@ -20,13 +20,10 @@ import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 
-import com.boundary.metrics.vmware.client.client.meter.manager.MeterMetadata;
-
-public class MeterMetadataTest {
-
-	MeterMetadata meterMetadata;
+public class MetricsClientTest {
 
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
@@ -38,36 +35,34 @@ public class MeterMetadataTest {
 
 	@Before
 	public void setUp() throws Exception {
-		meterMetadata = new MeterMetadata();
 	}
 
 	@After
 	public void tearDown() throws Exception {
-		meterMetadata = null;
 	}
 
+	@Ignore
 	@Test
-	public void testNull() {
-		assertNotNull(meterMetadata);
+	public void testMetricsClient() {
+		fail("Not yet implemented");
 	}
 
+	@Ignore
 	@Test
-	public void testGetId() {
-		assertNull(meterMetadata.getId());
+	public void testCreateMetric() {
+		fail("Not yet implemented");
 	}
 
+	@Ignore
 	@Test
-	public void testGetName() {
-		assertNull(meterMetadata.getName());
+	public void testAddMeasurementsIntMapOfStringNumberOptionalOfDateTime() {
+		fail("Not yet implemented");
 	}
 
+	@Ignore
 	@Test
-	public void testGetObservationDomainId() {
-		assertNull(meterMetadata.getName());
+	public void testAddMeasurementsListOfMeasurement() {
+		fail("Not yet implemented");
 	}
 
-	@Test
-	public void testGetOrgId() {
-		assertNull(meterMetadata.getOrgId());
-	}
 }
