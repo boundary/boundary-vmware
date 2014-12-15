@@ -12,39 +12,73 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package com.boundary.metrics.vmware.client.client.metrics;
+package com.boundary.metrics.vmware.client.metrics;
 
 import org.joda.time.DateTime;
 
+/**
+ * Uses builder pattern to create {@link Measurement} instances
+ */
 public class MeasurementBuilder {
 
-    MeasurementBuilder() { }
+	/**
+	 * Constructor
+	 */
+    MeasurementBuilder() { 
+    	
+    }
 
     private int sourceId;
     private String metric;
     private Number measurement;
     private DateTime timestamp;
 
+    /**
+     * 
+     * @param sourceId
+     * @return {@link MeasurementBuilder}
+     */
     public MeasurementBuilder setSourceId(int sourceId) {
         this.sourceId = sourceId;
         return this;
     }
 
+    /**
+     * Sets the metric identifier
+     * 
+     * @param metric metric identifier
+     * @return {@link MeasurementBuilder}
+     */
     public MeasurementBuilder setMetric(String metric) {
         this.metric = MetricUtils.normalizeMetricName(metric);
         return this;
     }
 
+    /**
+     * Sets the value of the measurement
+     * @param measurement {@link Number} value
+     * @return {@link MeasurementBuilder}
+     */
     public MeasurementBuilder setMeasurement(Number measurement) {
         this.measurement = measurement;
         return this;
     }
 
+    /**
+     * Sets the timestamp of the measurement
+     * 
+     * @param timestamp Time of the measurement
+     * @return {@link MeasurementBuilder}
+     */
     public MeasurementBuilder setTimestamp(DateTime timestamp) {
         this.timestamp = timestamp;
         return this;
     }
 
+    /**
+     * Returns a {@link Measurement} instance
+     * @return {@link Measurement}
+     */
     public Measurement build() {
         return new Measurement(sourceId, metric, measurement, timestamp);
     }
