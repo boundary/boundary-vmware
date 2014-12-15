@@ -12,19 +12,24 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package com.boundary.metrics.vmware.client.client.metrics;
+package com.boundary.metrics.vmware.client.metrics;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import org.hibernate.validator.constraints.NotEmpty;
-import org.joda.time.DateTime;
+import static com.google.common.base.Preconditions.checkNotNull;
 
 import javax.annotation.concurrent.Immutable;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 
-import static com.google.common.base.Preconditions.checkNotNull;
+import org.hibernate.validator.constraints.NotEmpty;
+import org.joda.time.DateTime;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+/**
+ * Data structure that is used to communicate a time series measurement
+ * of a metric definition
+ */
 @Immutable
 public class Measurement {
 

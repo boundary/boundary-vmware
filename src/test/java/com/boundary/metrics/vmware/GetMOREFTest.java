@@ -1,7 +1,20 @@
+// Copyright 2014 Boundary, Inc.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
 package com.boundary.metrics.vmware;
 
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.fail;
 
 import java.util.Map;
 
@@ -23,7 +36,6 @@ import com.vmware.vim25.TraversalSpec;
 
 /**
  * Regression tests for the {@GetMOREF} class
- * @author davidg
  *
  */
 public class GetMOREFTest {
@@ -92,7 +104,7 @@ public class GetMOREFTest {
 		getManagedObjects("Datacenter");
 	}
 	
-	@Ignore("Broken Test")
+	@Ignore("No permissions to access these managed objects")
 	@Test
 	public void testInFolderByTypeHostSystem() throws RuntimeFaultFaultMsg, InvalidPropertyFaultMsg {
         ManagedObjectReference root = client.getServiceContent().getRootFolder();
@@ -123,7 +135,7 @@ public class GetMOREFTest {
 		}
 	}
 	
-	@Ignore("None of these managed objects on target")
+	@Ignore("No permissions to access these managed objects")
 	@Test
 	public void testInFolderByTypeComputeResource() throws RuntimeFaultFaultMsg, InvalidPropertyFaultMsg {
 		getManagedObjects("ComputeResources");

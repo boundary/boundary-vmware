@@ -14,11 +14,31 @@
 
 package com.boundary.metrics.vmware.poller;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
+import java.net.MalformedURLException;
+import java.rmi.RemoteException;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.atomic.AtomicBoolean;
+
+import javax.annotation.Nullable;
+import javax.xml.ws.soap.SOAPFaultException;
+
+import org.joda.time.DateTime;
+import org.joda.time.Duration;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.boundary.metrics.vmware.client.client.meter.manager.MeterManagerClient;
-import com.boundary.metrics.vmware.client.client.metrics.*;
+import com.boundary.metrics.vmware.client.metrics.Measurement;
+import com.boundary.metrics.vmware.client.metrics.MetricsClient;
 import com.boundary.metrics.vmware.util.TimeUtils;
-import com.codahale.metrics.*;
+import com.codahale.metrics.Meter;
 import com.codahale.metrics.Metric;
+import com.codahale.metrics.MetricRegistry;
+import com.codahale.metrics.MetricSet;
+import com.codahale.metrics.Timer;
 import com.google.common.base.Function;
 import com.google.common.base.Joiner;
 import com.google.common.collect.FluentIterable;
@@ -27,6 +47,8 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.vmware.connection.Connection;
 import com.vmware.connection.helpers.GetMOREF;
+import com.vmware.vim25.ArrayOfPerfCounterInfo;
+import com.vmware.vim25.DynamicProperty;
 import com.vmware.vim25.InvalidPropertyFaultMsg;
 import com.vmware.vim25.ManagedObjectReference;
 import com.vmware.vim25.ObjectContent;
@@ -44,24 +66,6 @@ import com.vmware.vim25.PropertySpec;
 import com.vmware.vim25.RetrieveOptions;
 import com.vmware.vim25.RetrieveResult;
 import com.vmware.vim25.RuntimeFaultFaultMsg;
-import com.vmware.vim25.DynamicProperty;
-import com.vmware.vim25.ArrayOfPerfCounterInfo;
-
-import org.joda.time.DateTime;
-import org.joda.time.Duration;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import javax.annotation.Nullable;
-import javax.xml.ws.soap.SOAPFaultException;
-
-import java.net.MalformedURLException;
-import java.rmi.RemoteException;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.atomic.AtomicBoolean;
-
-import static com.google.common.base.Preconditions.checkNotNull;
 /**
  * <h1>Background Information</h1>
  * <p>
@@ -109,7 +113,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
  * <h2>ESXi host</h2>
  * VMWare's <code>HostSystem</code> managed object represents the physical compute
  * resources with the metrics to be collected as follows:
- * <p>
+ * 
  * <ul>
  * <li><code>cpu.usage.average</code></li>
  * <li><code>cpu.usage.minimum</code></li>
@@ -118,7 +122,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
  * <li><code>memory.consumed.?</code></li>
  * <li><code>memory.swapused.?</code></li>
  * </ul>
- * </p>
+ *
  * <h2>Virtual Machine</h2>
  * VMWare's <code>Virtual Machine</code> managed object is to have
  * the metrics collect from each instance as follows:
@@ -134,13 +138,13 @@ import static com.google.common.base.Preconditions.checkNotNull;
  * <h2>Data Store</h2>
  * VMWare's <code>Datastore</code> managed object is to have
  * the metrics collect from each instance as follows:
- * <p>
+ *
  * <ul>
  * <li><code>disk.capacity.?</code></li>
  * <li><code>disk.provisioned.?</code></li>
  * <li><code>disk.used.?</code></li>
  * </ul>
- * </p>
+ *
  *
  */
 
@@ -150,7 +154,7 @@ public class VMwarePerfPoller implements Runnable, MetricSet {
     private static final Joiner COMMA_JOINER = Joiner.on(", ").skipNulls();
 
     private final Connection client;
-    private final Map<String, com.boundary.metrics.vmware.client.client.metrics.Metric> metrics;
+    private final Map<String, com.boundary.metrics.vmware.client.metrics.Metric> metrics;
     private final AtomicBoolean lock = new AtomicBoolean(false);
     private final String orgId;
     private final MetricsClient metricsClient;
@@ -164,7 +168,7 @@ public class VMwarePerfPoller implements Runnable, MetricSet {
     private DateTime lastPoll;
     private Duration skew;
 
-    public VMwarePerfPoller(Connection client, Map<String, com.boundary.metrics.vmware.client.client.metrics.Metric> metrics, String orgId,
+    public VMwarePerfPoller(Connection client, Map<String, com.boundary.metrics.vmware.client.metrics.Metric> metrics, String orgId,
                             MetricsClient metricsClient, MeterManagerClient meterManagerClient) {
         this.client = checkNotNull(client);
         this.metrics = checkNotNull(metrics);
@@ -175,7 +179,7 @@ public class VMwarePerfPoller implements Runnable, MetricSet {
 
     /**
      * This is the main processing function that handles fetching the performance counters
-     * from the end point. This function is called
+     * from the end point.
      */
     public void run() {
     	// The lock is used in case the sampling of the metrics takes longer than the poll interval.
@@ -447,7 +451,7 @@ public class VMwarePerfPoller implements Runnable, MetricSet {
     };
 
     @Override
-    public Map<String, Metric> getMetrics() {
+    public Map<String,Metric> getMetrics() {
         return ImmutableMap.of(
                 MetricRegistry.name(getClass(), "poll-timer", client.getHost()), (Metric)pollTimer,
                 MetricRegistry.name(getClass(), "overrun-meter", client.getHost()), overrunMeter

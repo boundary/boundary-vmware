@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package com.boundary.metrics.vmware.client.client.metrics;
+package com.boundary.metrics.vmware.client.metrics;
 
 import com.google.common.base.Charsets;
 import com.google.common.base.Joiner;
@@ -68,8 +68,8 @@ public class MetricsClient {
     /**
      * Creates or updates a metric if the metric alrady exists
      * 
-     * @param metricName
-     * @param unit
+     * @param metricName Boundary metric identifier
+     * @param unit Boundary metric unit
      */
     public void createMetric(String metricName, String unit) {
         CreateUpdateMetric metricRequest = new CreateUpdateMetric(metricName, unit);
@@ -80,21 +80,36 @@ public class MetricsClient {
         response.close();
     }
 
+    /**
+     * Adds metric measurements and sends to Boundary APIs
+     * 
+     * @param sourceId meter source id
+     * @param measurements measurements to associate with the source
+     * @param optionalTimestamp time of the metrics
+     */
     public void addMeasurements(int sourceId, Map<String, Number> measurements, Optional<DateTime> optionalTimestamp) {
         List<List<Object>> payload = Lists.newArrayList();
         final long timestamp = optionalTimestamp.or(new DateTime()).getMillis();
-        for (Map.Entry<String, Number> m : measurements.entrySet()) {
+        for (Map.Entry<String,Number> m : measurements.entrySet()) {
             payload.add(ImmutableList.<Object>of(String.valueOf(sourceId), m.getKey(), m.getValue(), timestamp));
         }
         sendMeasurements(payload);
     }
 
+    /**
+     * 
+     * @param measurements Metrics measurements
+     */
     public void addMeasurements(List<Measurement> measurements) {
         sendMeasurements(FluentIterable.from(measurements)
                 .transform(MetricUtils.toBulkEntry())
                 .toList());
     }
 
+    /**
+     * Sends measurements to the Boundary metric API
+     * @param payload List of measurements
+     */
     private void sendMeasurements(final List<List<Object>> payload) {
         asyncWebResource.path(PATH_JOINER.join("v1", "measurements"))
                 .header(HttpHeaders.AUTHORIZATION, "Basic " + new String(Base64.encode(authentication), Charsets.US_ASCII))
