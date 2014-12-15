@@ -18,8 +18,8 @@ import com.vmware.vim25.VimPortType;
 
 /**
  * This is a keep-alive utility class. It will keep an instance of a connection alive by polling the "currentTime"
- * method on the remote Host or vCenter that the supplied connection & VimPortType were talking to.
- * @see com.vmware.vim25.VimPortType
+ * method on the remote Host or vCenter that the supplied connection &amp; VimPortType were talking to.
+ * {@link com.vmware.vim25.VimPortType}
  */
 public class KeepAlive implements Runnable {
     public static final Long DEFAULT_INTERVAL = 300000l;
@@ -32,8 +32,8 @@ public class KeepAlive implements Runnable {
     /**
      * this class is immutable and acts on the supplied vimPort and serviceInstanceReference the default
      * interval is set to 300000 milliseconds
-     * @param vimPort
-     * @param serviceInstanceReference
+     * @param vimPort {@link VimPortType}
+     * @param serviceInstanceReference {@link ManagedObjectReference}
      */
     public KeepAlive(final VimPortType vimPort, final ManagedObjectReference serviceInstanceReference) {
         this(vimPort,serviceInstanceReference,DEFAULT_INTERVAL);
@@ -41,9 +41,9 @@ public class KeepAlive implements Runnable {
 
     /**
      * builds an instance of this object
-     * @param vimPort
-     * @param serviceInstanceReference
-     * @param interval
+     * @param vimPort {@link VimPortType}
+     * @param serviceInstanceReference {@link ManagedObjectReference}
+     * @param interval How often to wake up                                                                            
      */
     public KeepAlive(final VimPortType vimPort, final ManagedObjectReference serviceInstanceReference, final Long interval) {
         this.vimPort = vimPort;
@@ -67,9 +67,9 @@ public class KeepAlive implements Runnable {
 
     /**
      * calls "currentTime" against the supplied objects
-     * @param vimPort
-     * @param serviceInstanceRef
-     * @throws com.vmware.vim25.RuntimeFaultFaultMsg
+     * @param vimPort {@link VimPortType}
+     * @param serviceInstanceRef {@link ManagedObjectReference}
+     * @throws com.vmware.vim25.RuntimeFaultFaultMsg thrown when a runtime error ocurrs
      */
     public static void run(final VimPortType vimPort, final ManagedObjectReference serviceInstanceRef) throws RuntimeFaultFaultMsg {
         vimPort.currentTime(serviceInstanceRef);
@@ -123,9 +123,9 @@ public class KeepAlive implements Runnable {
      * Returns a thread you can start to run a keep alive on your connection. You supply it with your copy of
      * the vimPort and serviceInstanceRef to ping. Call start on the thread when you need to start the keep-alive.
      *
-     * @param vimPort
-     * @param serviceInstanceRef
-     * @return
+     * @param vimPort {@link VimPortType}
+     * @param serviceInstanceRef {@link ManagedObjectReference}
+     * @return {@link Thread}
      */
     public static Thread keepAlive(VimPortType vimPort, ManagedObjectReference serviceInstanceRef) {
         return keepAlive(vimPort, serviceInstanceRef, DEFAULT_INTERVAL);
@@ -133,10 +133,10 @@ public class KeepAlive implements Runnable {
 
     /**
      * constructs a new embedded thread to keep alive
-     * @param vimPort
-     * @param serviceInstanceRef
-     * @param interval
-     * @return
+     * @param vimPort {@link VimPortType}
+     * @param serviceInstanceRef {@link ManagedObjectReference}
+     * @param interval Keep alive interval
+     * @return {@link Thread}
      */
     public static Thread keepAlive(VimPortType vimPort, ManagedObjectReference serviceInstanceRef, Long interval) {
         Thread thread = new Thread(new KeepAlive(vimPort, serviceInstanceRef, interval));

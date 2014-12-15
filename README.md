@@ -4,6 +4,9 @@ boundary-vmware
 Boundary Enterprise Integration with VMWare. The integration connects to one or more
 ESXi servers or VCenter to collect metrics from the physical and virtual servers running on the VMWare infrastructure.
 
+
+[![Build Status](https://travis-ci.org/boundary/boundary-vmware.svg)](https://travis-ci.org/boundary/boundary-vmware)
+
 Prerequisites
 ----------
 - Git version 2.2.1 or later
@@ -13,13 +16,15 @@ Prerequisites
 Building
 --------
 1. Clone the Github repository:
-     ```bash
-$ git clone https://github.com/boundary/boundary-vmware.git
+    ```bash
+    $ git clone https://github.com/boundary/boundary-vmware.git
      ```
+     
 2. Run the following maven command:
      ```bash
-$ mvn install
+    $ mvn install
      ```
+     
 3. After the build runs successfully you are able to run the integration.
 
 Configuration
@@ -63,6 +68,7 @@ monitoredEntities:
     - uri: https://<esx host or vcenter host>/sdk/vimService
       username: <user>
       password: <password>
+      name: <name>
 ```
 
 Starting

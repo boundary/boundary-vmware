@@ -14,22 +14,22 @@
 
 package com.boundary.metrics.vmware;
 
-import com.boundary.metrics.vmware.client.client.meter.manager.MeterManagerClient;
-import com.boundary.metrics.vmware.client.client.metrics.MetricsClient;
-import com.boundary.metrics.vmware.poller.MonitoredEntity;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.sun.jersey.api.client.Client;
-
 import io.dropwizard.Configuration;
 import io.dropwizard.client.JerseyClientConfiguration;
 
-import org.hibernate.validator.constraints.NotEmpty;
+import java.net.URI;
+import java.util.List;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 
-import java.net.URI;
-import java.util.List;
+import org.hibernate.validator.constraints.NotEmpty;
+
+import com.boundary.metrics.vmware.client.client.meter.manager.MeterManagerClient;
+import com.boundary.metrics.vmware.client.metrics.MetricsClient;
+import com.boundary.metrics.vmware.poller.MonitoredEntity;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.sun.jersey.api.client.Client;
 
 /**
  * Handles configuration of the VMware Adapter Configuration

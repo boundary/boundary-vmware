@@ -1,3 +1,17 @@
+// Copyright 2014 Boundary, Inc.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
 package com.boundary.metrics.vmware;
 
 import io.dropwizard.configuration.ConfigurationFactory;
@@ -18,9 +32,12 @@ import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 
+import static org.junit.Assume.*;
+
 import com.boundary.metrics.vmware.poller.VMwareClient;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
+import com.google.common.base.Joiner;
 import com.google.common.io.Resources;
 import com.vmware.connection.Connection;
 
@@ -37,8 +54,7 @@ public class VMWareTestUtils {
 	public static VMwarePerfAdapterConfiguration getConfiguration(String resource) throws Exception {
 
 		VMwarePerfAdapterConfiguration configuration = null;
-		File validFile = new File(Resources.getResource(resource).toURI());
-		System.out.println(resource);
+		File configFile = new File(Resources.getResource(resource).toURI());
 
 		Validator validator = Validation.buildDefaultValidatorFactory()
 				.getValidator();
@@ -47,9 +63,8 @@ public class VMWareTestUtils {
 				Jackson.newObjectMapper(), "dw");
 
 		try {
-			configuration = factory.build(validFile);
+			configuration = factory.build(configFile);
 		} catch (JsonParseException e) {
-
 			e.printStackTrace();
 		} catch (JsonMappingException e) {
 			e.printStackTrace();
@@ -67,6 +82,13 @@ public class VMWareTestUtils {
 	 * @return {@link Connection} VMware connection instance
 	 */
 	public static Connection getVMWareConnection(String resource) {
+		// If our configuration file is missing that do not run
+		// tests. The configuration file has credentials so we
+		// are not able to include in our repository.
+		Joiner join = Joiner.on("//");
+		String path = join.join("src/test/resources",resource);
+		assumeTrue(new File(path).exists());
+		
 		VMwareClient client = null;
 		try {
 			File propertiesFile = new File(Resources.getResource(resource).toURI());
