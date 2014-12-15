@@ -65,6 +65,7 @@ monitoredEntities:
     - uri: https://<esx host or vcenter host>/sdk/vimService
       username: <user>
       password: <password>
+      name: <name>
 ```
 
 Starting
