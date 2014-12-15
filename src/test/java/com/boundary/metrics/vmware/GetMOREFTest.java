@@ -15,7 +15,6 @@
 package com.boundary.metrics.vmware;
 
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.fail;
 
 import java.util.Map;
 
@@ -105,7 +104,7 @@ public class GetMOREFTest {
 		getManagedObjects("Datacenter");
 	}
 	
-	@Ignore("Broken Test")
+	@Ignore("No permissions to access these managed objects")
 	@Test
 	public void testInFolderByTypeHostSystem() throws RuntimeFaultFaultMsg, InvalidPropertyFaultMsg {
         ManagedObjectReference root = client.getServiceContent().getRootFolder();
@@ -136,7 +135,7 @@ public class GetMOREFTest {
 		}
 	}
 	
-	@Ignore("None of these managed objects on target")
+	@Ignore("No permissions to access these managed objects")
 	@Test
 	public void testInFolderByTypeComputeResource() throws RuntimeFaultFaultMsg, InvalidPropertyFaultMsg {
 		getManagedObjects("ComputeResources");

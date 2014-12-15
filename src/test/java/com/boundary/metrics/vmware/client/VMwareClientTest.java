@@ -15,6 +15,7 @@
 package com.boundary.metrics.vmware.client;
 
 import static org.junit.Assert.*;
+import static org.junit.Assume.*;
 
 import java.io.File;
 import java.io.FileReader;
@@ -31,6 +32,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.boundary.metrics.vmware.poller.VMwareClient;
+import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableList;
 import com.google.common.io.Resources;
 import com.vmware.connection.Connection;
@@ -66,8 +68,16 @@ public class VMwareClientTest {
 
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
+		// If our configuration file is missing that do not run
+		// tests. The configuration file has credentials so we
+		// are not able to include in our repository.
+		String propertyFile = "vmware-client.properties";
+		Joiner propertyFileJoin = Joiner.on("//");
+		String propertyFilePath = propertyFileJoin.join("src/test/resources",propertyFile);
+		assumeTrue(new File(propertyFilePath).exists());
 		
-		File propertiesFile = new File(Resources.getResource("vmware-client.properties").toURI());
+		File propertiesFile = new File(Resources.getResource(propertyFile).toURI());
+		assumeTrue(propertiesFile.exists());
 		Reader reader = new FileReader(propertiesFile);
 		clientProperties = new Properties();
 		clientProperties.load(reader);
