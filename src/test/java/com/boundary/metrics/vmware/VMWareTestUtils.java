@@ -32,9 +32,12 @@ import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 
+import static org.junit.Assume.*;
+
 import com.boundary.metrics.vmware.poller.VMwareClient;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
+import com.google.common.base.Joiner;
 import com.google.common.io.Resources;
 import com.vmware.connection.Connection;
 
@@ -51,8 +54,7 @@ public class VMWareTestUtils {
 	public static VMwarePerfAdapterConfiguration getConfiguration(String resource) throws Exception {
 
 		VMwarePerfAdapterConfiguration configuration = null;
-		File validFile = new File(Resources.getResource(resource).toURI());
-		System.out.println(resource);
+		File configFile = new File(Resources.getResource(resource).toURI());
 
 		Validator validator = Validation.buildDefaultValidatorFactory()
 				.getValidator();
@@ -61,9 +63,8 @@ public class VMWareTestUtils {
 				Jackson.newObjectMapper(), "dw");
 
 		try {
-			configuration = factory.build(validFile);
+			configuration = factory.build(configFile);
 		} catch (JsonParseException e) {
-
 			e.printStackTrace();
 		} catch (JsonMappingException e) {
 			e.printStackTrace();
@@ -81,6 +82,13 @@ public class VMWareTestUtils {
 	 * @return {@link Connection} VMware connection instance
 	 */
 	public static Connection getVMWareConnection(String resource) {
+		// If our configuration file is missing that do not run
+		// tests. The configuration file has credentials so we
+		// are not able to include in our repository.
+		Joiner join = Joiner.on("//");
+		String path = join.join("src/test/resources",resource);
+		assumeTrue(new File(path).exists());
+		
 		VMwareClient client = null;
 		try {
 			File propertiesFile = new File(Resources.getResource(resource).toURI());

@@ -15,7 +15,7 @@
 package com.boundary.metrics.vmware.client;
 
 import static org.junit.Assert.*;
-
+import static org.junit.Assume.*;
 import io.dropwizard.client.JerseyClientBuilder;
 import io.dropwizard.setup.Environment;
 
@@ -38,6 +38,7 @@ import com.boundary.metrics.vmware.client.client.meter.manager.MeterManagerClien
 import com.boundary.metrics.vmware.client.client.meter.manager.MeterMetadata;
 import com.codahale.metrics.MetricRegistry;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.base.Joiner;
 import com.google.common.base.Optional;
 import com.google.common.io.Resources;
 import com.sun.jersey.api.client.Client;
@@ -58,12 +59,25 @@ public class MeterManagerClientTest {
 
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
+		// If our configuration file is missing that do not run
+		// tests. The configuration file has credentials so we
+		// are not able to include in our repository.
+		String configFile = "vmware-adapter-test.yml";
+		Joiner configJoin = Joiner.on("//");
+		String configFilePath = configJoin.join("src/test/resources",configFile);
+		assumeTrue(new File(configFilePath).exists());
+		
 		ObjectMapper mapper = new ObjectMapper();
 		MetricRegistry registry = new MetricRegistry();
 		environment = new Environment("test", mapper, null, registry, ClassLoader.getSystemClassLoader());
-		configuration = VMWareTestUtils.getConfiguration("vmware-adapter-test.yml");
+		configuration = VMWareTestUtils.getConfiguration(configFile);
+
+		String propertyFile = "meter-manager-client.properties";
+		Joiner propertyFileJoin = Joiner.on("//");
+		String propertyFilePath = propertyFileJoin.join("src/test/resources",configFile);
+		assumeTrue(new File(propertyFilePath).exists());
 		
-		File propertiesFile = new File(Resources.getResource("meter-manager-client.properties").toURI());
+		File propertiesFile = new File(Resources.getResource(propertyFile).toURI());
 		Reader reader = new FileReader(propertiesFile);
 		clientProperties = new Properties();
 		clientProperties.load(reader);

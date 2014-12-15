@@ -15,13 +15,13 @@
 package com.boundary.metrics.vmware;
 
 import static org.junit.Assert.*;
+import static org.junit.Assume.assumeTrue;
 import io.dropwizard.client.JerseyClientConfiguration;
 import io.dropwizard.configuration.ConfigurationFactory;
 import io.dropwizard.jackson.Jackson;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.URI;
 import java.util.List;
 
 import javax.validation.Validation;
@@ -38,8 +38,7 @@ import com.boundary.metrics.vmware.VMwarePerfAdapterConfiguration.MetricClientCo
 import com.boundary.metrics.vmware.poller.MonitoredEntity;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
+import com.google.common.base.Joiner;
 import com.google.common.io.Resources;
 
 /**
@@ -51,9 +50,15 @@ public class VMwarePerfAdapterConfigurationTest {
 
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
+		// If our configuration file is missing that do not run
+		// tests. The configuration file has credentials so we
+		// are not able to include in our repository.
+		String configFile = "vm-adapter-configuration.yml";
+		Joiner join = Joiner.on("//");
+		String path = join.join("src/test/resources",configFile);
+		assumeTrue(new File(path).exists());
 		
-		File validFile = new File(Resources.getResource("vm-adapter-configuration.yml").toURI());
-
+		File validFile = new File(Resources.getResource(configFile).toURI());
 		Validator validator = Validation.buildDefaultValidatorFactory().getValidator();
 		ConfigurationFactory<VMwarePerfAdapterConfiguration> factory =
 	            new ConfigurationFactory<VMwarePerfAdapterConfiguration>(VMwarePerfAdapterConfiguration.class, validator, Jackson.newObjectMapper(), "dw");
