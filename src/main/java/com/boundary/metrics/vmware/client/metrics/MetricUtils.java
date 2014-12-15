@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package com.boundary.metrics.vmware.client.client.metrics;
+package com.boundary.metrics.vmware.client.metrics;
 
 import com.google.common.base.Function;
 import com.google.common.collect.ImmutableList;

@@ -14,14 +14,6 @@
 
 package com.boundary.metrics.vmware;
 
-import com.boundary.metrics.vmware.client.client.meter.manager.MeterManagerClient;
-import com.boundary.metrics.vmware.client.client.metrics.MetricsClient;
-import com.boundary.metrics.vmware.poller.MonitoredEntity;
-import com.boundary.metrics.vmware.poller.VMwareClient;
-import com.boundary.metrics.vmware.poller.VMwarePerfPoller;
-import com.boundary.metrics.vmware.resource.VMWarePerfPollerMonitor;
-import com.sun.jersey.api.client.Client;
-import com.vmware.connection.Connection;
 import io.dropwizard.Application;
 import io.dropwizard.client.JerseyClientBuilder;
 import io.dropwizard.setup.Bootstrap;
@@ -30,25 +22,48 @@ import io.dropwizard.setup.Environment;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
+import com.boundary.metrics.vmware.client.client.meter.manager.MeterManagerClient;
+import com.boundary.metrics.vmware.client.metrics.MetricsClient;
+import com.boundary.metrics.vmware.poller.MonitoredEntity;
+import com.boundary.metrics.vmware.poller.VMwareClient;
+import com.boundary.metrics.vmware.poller.VMwarePerfPoller;
+import com.boundary.metrics.vmware.resource.VMWarePerfPollerMonitor;
+import com.sun.jersey.api.client.Client;
+import com.vmware.connection.Connection;
+
 /**
  * Main class that drives the VMWare integration.
  */
 public class VMwarePerfAdapter extends Application<VMwarePerfAdapterConfiguration> {
 
+	/**
+	 * Main function
+	 * @param args Command line arguments
+	 * @throws Exception thrown if an error occurrs
+	 */
     public static void main(String[] args) throws Exception {
         new VMwarePerfAdapter().run(args);
     }
 
+    /**
+     * Returns the name of the application
+     */
     @Override
     public String getName() {
         return "VMware-Poller";
     }
 
+    /**
+     * Called to intialize the Drop Wizard application
+     */
     @Override
     public void initialize(Bootstrap<VMwarePerfAdapterConfiguration> bootstrap) {
 
     }
 
+    /**
+     * Main method called to run the Drop Wizard application.
+     */
     @Override
     public void run(VMwarePerfAdapterConfiguration configuration, Environment environment) throws Exception {
         final ScheduledExecutorService scheduler = environment.lifecycle().scheduledExecutorService("vmware-poller-%d")

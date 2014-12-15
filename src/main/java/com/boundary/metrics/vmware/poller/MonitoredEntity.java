@@ -23,7 +23,7 @@ import javax.annotation.concurrent.Immutable;
 
 import org.hibernate.validator.constraints.NotEmpty;
 
-import com.boundary.metrics.vmware.client.client.metrics.Metric;
+import com.boundary.metrics.vmware.client.metrics.Metric;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.collect.ImmutableMap;
 

@@ -4,6 +4,9 @@ boundary-vmware
 Boundary Enterprise Integration with VMWare. The integration connects to one or more
 ESXi servers or VCenter to collect metrics from the physical and virtual servers running on the VMWare infrastructure.
 
+
+[![Build Status](https://travis-ci.org/boundary/boundary-vmware.svg)](https://travis-ci.org/boundary/boundary-vmware)
+
 Prerequisites
 ----------
 - Git version 2.2.1 or later
@@ -65,6 +68,7 @@ monitoredEntities:
     - uri: https://<esx host or vcenter host>/sdk/vimService
       username: <user>
       password: <password>
+      name: <name>
 ```
 
 Starting
