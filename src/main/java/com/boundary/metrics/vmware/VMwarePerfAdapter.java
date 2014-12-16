@@ -39,7 +39,7 @@ import com.vmware.connection.Connection;
  */
 public class VMwarePerfAdapter extends Application<VMwarePerfAdapterConfiguration> {
 	
-	private static final Logger LOG = LoggerFactory.getLogger(VMwareClient.class);
+	private static final Logger LOG = LoggerFactory.getLogger(VMwarePerfAdapter.class);
 
 	/**
 	 * Main function
