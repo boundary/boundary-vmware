@@ -202,9 +202,7 @@ public class VMwarePerfPoller implements Runnable, MetricSet {
             } catch (Throwable e) {
                 LOG.error("Encountered unexpected error while polling for performance data", e);
             } finally {
-            	// Disconnect our client so that we try to reconnect
-            	// after an error
-            	client.disconnect();
+            	// Release the lock and stop our timer
                 lock.set(false);
                 timer.stop();
             }
