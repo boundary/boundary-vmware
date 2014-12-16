@@ -22,6 +22,9 @@ import io.dropwizard.setup.Environment;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.boundary.metrics.vmware.client.client.meter.manager.MeterManagerClient;
 import com.boundary.metrics.vmware.client.metrics.MetricsClient;
 import com.boundary.metrics.vmware.poller.MonitoredEntity;
@@ -35,6 +38,8 @@ import com.vmware.connection.Connection;
  * Main class that drives the VMWare integration.
  */
 public class VMwarePerfAdapter extends Application<VMwarePerfAdapterConfiguration> {
+	
+	private static final Logger LOG = LoggerFactory.getLogger(VMwareClient.class);
 
 	/**
 	 * Main function
@@ -80,12 +85,15 @@ public class VMwarePerfAdapter extends Application<VMwarePerfAdapterConfiguratio
         // The metrics client is responsible interacting with the HLM (Host Level Metrics) API
         final MetricsClient metricsClient = configuration.getMetricsClient().build(httpClient);
         environment.jersey().register(new VMWarePerfPollerMonitor());
+        
+        LOG.info("Collecting metrics from {} endpoints",configuration.getMonitoredEntities().size());
 
         // Each of the MonitoredEntity's represent and end point where we can collect metrics from since the VMWare Infrastructure SDK/API
         // is symetric with respect connection to vCenter or ESXi server.
         for (MonitoredEntity entity : configuration.getMonitoredEntities()) {
         	// For each monitored entity we create a client and poller, and then pass to our scheduler
         	// to be processed by individual threads at the polling interval
+        	LOG.info("Configure client and poller for: {}",entity.getName());
             Connection connection = new VMwareClient(entity.getUri(),entity.getUsername(),entity.getPassword(),entity.getName());
             VMwarePerfPoller poller = new VMwarePerfPoller(connection, entity.getMetrics(), configuration.getOrgId(), metricsClient, meterManagerClient);
             scheduler.scheduleAtFixedRate(poller, 0, 20, TimeUnit.SECONDS);
