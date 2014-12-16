@@ -20,7 +20,7 @@ public abstract class BaseHelper {
     Connection connection = null;
 
     public BaseHelper(final Connection connection) {
-    	this.connection = connection.connect();
+    	this.connection = connection;
     }
 
     public BaseHelper() { }
