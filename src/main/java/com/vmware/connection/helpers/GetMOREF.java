@@ -68,10 +68,12 @@ public class GetMOREF extends BaseHelper {
      */
     private void init() {
         try {
-            if (vimPort == null)
-                 vimPort = connection.connect().getVimPort();
-            if (serviceContent == null)
-                serviceContent = connection.connect().getServiceContent();
+            if (vimPort == null) {
+                 vimPort = connection.getVimPort();
+            }
+            if (serviceContent == null) {
+                serviceContent = connection.getServiceContent();
+            }
         } catch (Throwable cause) {
             LOG.error("Encountered error initializing MOREF", cause);
             Throwables.propagate(cause);
