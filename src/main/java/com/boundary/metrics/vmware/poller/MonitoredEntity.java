@@ -71,9 +71,9 @@ public class MonitoredEntity {
         ImmutableMap.Builder<String,Metric> virtualMachineMetrics = ImmutableMap.builder();
         virtualMachineMetrics.put("cpu.usage.AVERAGE",
         		new Metric("SYSTEM_CPU_USAGE_AVERAGE","CPU Average Utilization"));
-        virtualMachineMetrics.put("cpu.usage.MINIUM",
+        virtualMachineMetrics.put("cpu.usage.MINIMUM",
         		new Metric("SYSTEM_CPU_USAGE_MINIMUM","CPU Minimum Utilization"));
-        virtualMachineMetrics.put("cpu.idle.summation",
+        virtualMachineMetrics.put("cpu.idle.SUMMATION",
         		new Metric("SYSTEM_CPU_IDLE_TOTAL","CPU Total Idle"));
         virtualMachineMetrics.put("mem.active.MAXIMUM",
         		new Metric("SYSTEM_MEMORY_ACTIVE_MAXIMUM","Memory Maximum Active"));
