@@ -212,7 +212,7 @@ public class VMwareClient implements Connection {
                 // Display summary information about the product name, server type, and product version
                 AboutInfo about = serviceContent.getAbout();
                 LOG.info("Successfully connected to {} ({}) using API version {} (of type {})",
-                        getHost(), about.getFullName(), about.getApiVersion(), about.getApiType());
+                        getName(), about.getFullName(), about.getApiVersion(), about.getApiType());
             } catch (Exception e) {
                 LOG.error("Unable to connect to " + getHost(), e);
             }

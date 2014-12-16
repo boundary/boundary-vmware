@@ -188,16 +188,23 @@ public class VMwarePerfPoller implements Runnable, MetricSet {
         if (lock.compareAndSet(false, true)) {
             final Timer.Context timer = pollTimer.time();
             try {
-                if (!client.isConnected()) {
-                    client.connect();
-                }
+            	// We can call connect() and it handles its connection state by connecting if needed
+                client.connect();
+                
+                // If we do not have the metrics we are going to collect then
+                // fetch them
                 if (countersIdMap == null || countersInfoMap == null) {
                     fetchAvailableMetrics();
                 }
+                
+                // Collect the metrics
                 fetchPerfData();
             } catch (Throwable e) {
-                LOG.error("Encountered unexpected error whilst polling for performance data", e);
+                LOG.error("Encountered unexpected error while polling for performance data", e);
             } finally {
+            	// Disconnect our client so that we try to reconnect
+            	// after an error
+            	client.disconnect();
                 lock.set(false);
                 timer.stop();
             }
