@@ -14,24 +14,36 @@
 
 package com.boundary.metrics.vmware.poller;
 
-import com.boundary.metrics.vmware.util.TimeUtils;
-import com.google.common.base.Throwables;
-import com.vmware.connection.Connection;
-import com.vmware.vim25.*;
-
-import org.joda.time.DateTime;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import javax.net.ssl.*;
-import javax.xml.ws.BindingProvider;
-import javax.xml.ws.handler.MessageContext;
-
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
 import java.security.cert.CertificateException;
 import java.util.Map;
+
+import javax.net.ssl.HostnameVerifier;
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLSession;
+import javax.net.ssl.SSLSessionContext;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509TrustManager;
+import javax.xml.ws.BindingProvider;
+import javax.xml.ws.handler.MessageContext;
+
+import org.joda.time.DateTime;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.boundary.metrics.vmware.util.TimeUtils;
+import com.google.common.base.Throwables;
+import com.vmware.connection.Connection;
+import com.vmware.vim25.AboutInfo;
+import com.vmware.vim25.ManagedObjectReference;
+import com.vmware.vim25.RuntimeFaultFaultMsg;
+import com.vmware.vim25.ServiceContent;
+import com.vmware.vim25.UserSession;
+import com.vmware.vim25.VimPortType;
+import com.vmware.vim25.VimService;
 
 /**
  * VMware Connection with no SSL validation
@@ -48,14 +60,22 @@ public class VMwareClient implements Connection {
     private VimPortType vimPort;
     private UserSession userSession;
     private ServiceContent serviceContent;
-    private ManagedObjectReference SVC_INST_REF;
+    private ManagedObjectReference SERVICE_INSTANCE_REFERENCE;
     @SuppressWarnings("rawtypes")
     private Map headers;
 
 
-
-    public VMwareClient(URI url, String username, String password,String name) {
-        this.uri = url;
+    /**
+     * Creates a vSphere client connection provided the end point
+     * and authentication tokens (username and password).
+     * 
+     * @param url {@link URI} Web service end point.
+     * @param username {@link String} user to authenticate with
+     * @param password {@link String} password to use for authentication
+     * @param name {@link String} Name of end point for logging and tagging
+     */
+    public VMwareClient(URI uri, String username, String password,String name) {
+        this.uri = uri;
         this.username = username;
         this.password = password;
         this.name = name;
@@ -136,13 +156,26 @@ public class VMwareClient implements Connection {
         return headers;
     }
 
+    /**
+     * Returns a reference to the "ServiceInstance" managed object
+     * of the connected end point.
+     * 
+     * @return {@link ManagedObjectReference}
+     */
     @Override
     public ManagedObjectReference getServiceInstanceReference() {
-        return SVC_INST_REF;
+        return SERVICE_INSTANCE_REFERENCE;
     }
 
+    /**
+     * Invokes a connection to the Web Service end point using the provide
+     * credentials.
+     * 
+     * @return {@link Connection}
+     */
     @Override
     public Connection connect() {
+    	LOG.debug("Monitored entity {} is connecting.",getName());
         if (!isConnected()) {
             try {
                 // Variables of the following types for access to the API methods
@@ -151,7 +184,7 @@ public class VMwareClient implements Connection {
                 // -- VimService for access to the vSphere Web service
                 // -- VimPortType for access to methods
                 // -- ServiceContent for access to managed object services
-                SVC_INST_REF = new ManagedObjectReference();
+            	SERVICE_INSTANCE_REFERENCE = new ManagedObjectReference();
 
                 // Declare a host name verifier that will automatically enable
                 // the connection. The host name verifier is invoked during
@@ -181,8 +214,8 @@ public class VMwareClient implements Connection {
                 HttpsURLConnection.setDefaultHostnameVerifier(hv);
 
                 // Set up the manufactured managed object reference for the ServiceInstance
-                SVC_INST_REF.setType("ServiceInstance");
-                SVC_INST_REF.setValue("ServiceInstance");
+                SERVICE_INSTANCE_REFERENCE.setType("ServiceInstance");
+                SERVICE_INSTANCE_REFERENCE.setValue("ServiceInstance");
 
                 // Create a VimService object to obtain a VimPort binding provider.
                 // The BindingProvider provides access to the protocol fields
@@ -201,7 +234,7 @@ public class VMwareClient implements Connection {
                 ctxt.put(BindingProvider.SESSION_MAINTAIN_PROPERTY, true);
 
                 // Retrieve the ServiceContent object and login
-                serviceContent = vimPort.retrieveServiceContent(SVC_INST_REF);
+                serviceContent = vimPort.retrieveServiceContent(SERVICE_INSTANCE_REFERENCE);
                 headers = (Map) ((BindingProvider) vimPort).getResponseContext().get(
                                 MessageContext.HTTP_RESPONSE_HEADERS);
                 userSession = vimPort.login(serviceContent.getSessionManager(),
@@ -220,18 +253,41 @@ public class VMwareClient implements Connection {
         return this;
     }
 
+    /**
+     * State of the connection to the end point which is either: true (connected) or false (note connected)
+     * 
+     * @return {@link boolean} connection state
+     */
     @Override
     public boolean isConnected() {
+    	boolean  result = false;
+    	
+    	// If our userSession is null it indicates we never had successfull connection
+    	// so we can reliably return false
         if (userSession == null) {
             LOG.info("UserSession is null, disconnected");
-            return false;
+            result = false;
         }
-        DateTime startTime = TimeUtils.toDateTime(userSession.getLastActiveTime());
-        return startTime.plusMinutes(30).isBeforeNow();
+        else {
+        	DateTime startTime = TimeUtils.toDateTime(userSession.getLastActiveTime());
+        	DateTime currentTime = new DateTime();
+        	DateTime endTime = startTime.plusMinutes(30);
+        	result = endTime.isBeforeNow();
+        	LOG.info("Testing for a stale connection: startTime: {}, endTime: {}, currentTime: {}, stale: {}",
+        			startTime,endTime,currentTime,result);
+        }
+        
+        return result;
     }
 
+    /**
+     * Disconnect from the end point.
+     * 
+     * @return {@link Connection}
+     */
     @Override
     public Connection disconnect() {
+    	LOG.debug("Monitored entity {} is disconnectiong",getName());
         try {
             vimPort.logout(serviceContent.getSessionManager());
         } catch (RuntimeFaultFaultMsg e) {
@@ -246,6 +302,12 @@ public class VMwareClient implements Connection {
         return this;
     }
 
+    /**
+     * Returns the web service end point {@link URL}
+     * associated with this client.
+     * 
+     * @return {@link URL}
+     */
     @Override
     public URL getURL() {
         try {
@@ -255,9 +317,12 @@ public class VMwareClient implements Connection {
         }
     }
 
-    // Authentication is handled by using a TrustManager and supplying
-    // a host name verifier method. (The host name verifier is declared
-    // in the main function.)
+    
+    /**
+	 * Authentication is handled by using a TrustManager and supplying
+     * a host name verifier method. (The host name verifier is declared
+     * in the main function.)
+     */
     private static class TrustAllTrustManager implements TrustManager, X509TrustManager {
 
         @Override
