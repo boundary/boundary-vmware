@@ -34,6 +34,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.io.Resources;
 
 public class InventoryCatalogTest {
+	
+	
+	private final String TEST_CATALOG_FILE="test-catalog.json";
 
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
@@ -55,10 +58,9 @@ public class InventoryCatalogTest {
 	public void test() {
 		ObjectMapper mapper = new ObjectMapper();
 		InventoryCatalog inventory = null;
-		String configFile = "collection-catalog.json";
 
 		try {
-			File catalogFile = new File(Resources.getResource(configFile)
+			File catalogFile = new File(Resources.getResource(TEST_CATALOG_FILE)
 					.toURI());
 			inventory = mapper.readValue(catalogFile, InventoryCatalog.class);
 		} catch (URISyntaxException e) {
