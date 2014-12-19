@@ -1,0 +1,80 @@
+{
+   "catalog": [
+                {
+                  "managed-object": "VirtualMachines",
+                  "performance-counters": [  {
+                  							   "counter-name": "cpu.usage.AVERAGE",
+                  							   "metric-identifer": "SYSTEM_CPU_USAGE_AVERAGE"
+                  							 },
+                  							 {
+                  							   "counter-name": "cpu.usage.MINIMUM",
+                  							   "metric-identifier": "SYSTEM_CPU_USAGE_MINIMUM"
+                  							 },
+                  							 {
+                  							   "counter-name": "cpu.idle.SUMMATION",
+                  							   "metric-identifier": "SYSTEM_CPU_IDLE_TOTAL"
+                  							 },
+                  							 {
+                  							   "counter-name": "mem.active.MAXIMUM",
+                  							   "metric-identifier": "SYSTEM_MEMORY_ACTIVE_MAXIMUM"
+                  							 },
+                  						     {
+                  						       "counter-name": "mem.consumed.AVERAGE",
+                                               "metric-identifier": "SYSTEM_MEMORY_CONSUMED_AVERAGE"
+                  						     },
+                  						     {
+                  						       "counter-name": "mem.consumed.AVERAGE",
+                  						       "metric-identifier": "SYSTEM_MEMORY_CONSUMED_AVERAGE"
+                  						     },
+                  						     {
+                  						       "counter-name": "disk.read.AVERAGE",
+                  						       "metric-identifer": "SYSTEM_DISK_READ_AVERAGE"
+                  						     },
+                  						     {
+                  						       "counter-name": "disk.write.AVERAGE",
+                  						       "metric-identifier": "SYSTEM_DISK_WRITE_AVERAGE"
+                  						     }
+                                          ]
+                },
+                {
+                   "managed-object": "HostSystem",
+                   "performance-counters": [  {
+                  							    "counter-name": "cpu.usage.AVERAGE",
+                  							    "metric-identifer": "SYSTEM_CPU_USAGE_AVERAGE"
+                  							  },
+                  							  {
+                  							    "counter-name": "cpu.usage.MINIMUM",
+                  							    "metric-identifier": "SYSTEM_CPU_USAGE_MINIMUM"
+                  							  },
+                  							  {
+                  							    "counter-name": "cpu.usage.IDLE",
+                  							    "metric-identifier": "SYSTEM_CPU_USAGE_IDLE"
+                  							  },
+                  							  {
+                  							   "counter-name": "mem.active.MAXIMUM",
+                  							   "metric-identifier": "SYSTEM_MEMORY_ACTIVE_MAXIMUM"
+                  							  },
+                  							  {
+                  							   "counter-name": "mem.active.MAXIMUM",
+                  							   "metric-identifier": "SYSTEM_MEMORY_ACTIVE_MAXIMUM"
+                  							  },
+                  							  {
+                  						       "counter-name": "mem.consumed.AVERAGE",
+                  						       "metric-identifier": "SYSTEM_MEMORY_CONSUMED_AVERAGE"
+                  						      },
+                  						      {
+                  						       "counter-name": "mem.swapused.AVERAGE",
+                  						       "metric-identifier": "SYSTEM_MEMORY_CONSUMED_AVERAGE"
+                  						      }
+                                           ]
+                },
+                {
+                   "managed-object": "Datastore",
+                   "performance-counters": [  {
+                  							    "counter-name": "cpu.usage.AVERAGE",
+                  							    "metric-identifer": "SYSTEM_CPU_USAGE_AVERAGE"
+                  							  }
+                                           ]
+                }
+              ]
+}
