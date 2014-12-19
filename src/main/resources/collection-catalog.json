@@ -3,8 +3,8 @@
                 {
                   "managedObject": "VirtualMachines",
                   "performanceCounters": [  {
-                  							   "counterName": "cpu.usage.AVERAGE",
-                  							   "metric-identifer": "SYSTEM_CPU_USAGE_AVERAGE"
+                  							   "counterName": "cpu.usage.average",
+                  							   "metricIdentifier": "SYSTEM_CPU_USAGE_AVERAGE"
                   							 },
                   							 {
                   							   "counterName": "cpu.usage.MINIMUM",
@@ -28,7 +28,7 @@
                   						     },
                   						     {
                   						       "counterName": "disk.read.AVERAGE",
-                  						       "metric-identifer": "SYSTEM_DISK_READ_AVERAGE"
+                  						       "metricIdentifier": "SYSTEM_DISK_READ_AVERAGE"
                   						     },
                   						     {
                   						       "counterName": "disk.write.AVERAGE",
@@ -40,7 +40,7 @@
                    "managedObject": "HostSystem",
                    "performanceCounters": [  {
                   							    "counterName": "cpu.usage.AVERAGE",
-                  							    "metric-identifer": "SYSTEM_CPU_USAGE_AVERAGE"
+                  							    "metricIdentifier": "SYSTEM_CPU_USAGE_AVERAGE"
                   							  },
                   							  {
                   							    "counterName": "cpu.usage.MINIMUM",
@@ -72,7 +72,7 @@
                    "managedObject": "Datastore",
                    "performanceCounters": [  {
                   							    "counterName": "cpu.usage.AVERAGE",
-                  							    "metricIdentifer": "SYSTEM_CPU_USAGE_AVERAGE"
+                  							    "metricIdentifier": "SYSTEM_CPU_USAGE_AVERAGE"
                   							  }
                                            ]
                 }
