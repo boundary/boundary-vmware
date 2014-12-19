@@ -247,20 +247,22 @@ public class VMwarePerfPoller implements Runnable, MetricSet {
         // Get the PerformanceManager object which is used to get metrics from counters
         ManagedObjectReference pm = client.getServiceContent().getPerfManager();
 
-        ObjectSpec oSpec = new ObjectSpec();
-        oSpec.setObj(pm);
+        ObjectSpec objectSpec = new ObjectSpec();
+        objectSpec.setObj(pm);
 
-        PropertySpec pSpec = new PropertySpec();
-        pSpec.setType("PerformanceManager");
-        pSpec.getPathSet().add("perfCounter");
+        PropertySpec propertySpec = new PropertySpec();
+        propertySpec.setType("PerformanceManager");
+        propertySpec.getPathSet().add("perfCounter");
 
-        PropertyFilterSpec fSpec = new PropertyFilterSpec();
-        fSpec.getObjectSet().add(oSpec);
-        fSpec.getPropSet().add(pSpec);
+        PropertyFilterSpec filterSpec = new PropertyFilterSpec();
+        filterSpec.getObjectSet().add(objectSpec);
+        filterSpec.getPropSet().add(propertySpec);
 
-        RetrieveOptions ro = new RetrieveOptions();
-        RetrieveResult retrieveResult = client.getVimPort().retrievePropertiesEx(client.getServiceContent().getPropertyCollector(), ImmutableList.of(fSpec), ro);
-
+        RetrieveOptions retrieveOptions = new RetrieveOptions();
+        RetrieveResult retrieveResult = client.getVimPort().retrievePropertiesEx(
+        		client.getServiceContent().getPropertyCollector(),
+        		ImmutableList.of(filterSpec),retrieveOptions);
+        
         for (ObjectContent oc : retrieveResult.getObjects()) {
             if (oc.getPropSet() != null) {
                 for (DynamicProperty dp : oc.getPropSet()) {
@@ -268,8 +270,8 @@ public class VMwarePerfPoller implements Runnable, MetricSet {
                     if (perfCounters != null) {
                         for (PerfCounterInfo performanceCounterInfo : perfCounters) {
                             int counterId = performanceCounterInfo.getKey();
-                            performanceCounterMap.put(toFullName(performanceCounterInfo), counterId);
-                            performanceCounterInfoMap.put(counterId, performanceCounterInfo);
+                            performanceCounterMapBuilder.put(toFullName(performanceCounterInfo), counterId);
+                            performanceCounterInfoMapBuilder.put(counterId, performanceCounterInfo);
                         }
                     }
                 }
@@ -280,7 +282,7 @@ public class VMwarePerfPoller implements Runnable, MetricSet {
         this.performanceCounterInfoMap = performanceCounterInfoMapBuilder.build();
 
         /**
-         * Loop through the metrics we are configured to collect 
+         * Get the units for the metrics to be created
          */
         for (String counterName : metrics.keySet()) {
             if (this.performanceCounterMap.containsKey(counterName)) {
