@@ -152,12 +152,14 @@ public class VMwareClientTest {
 		pSpec.setType("PerformanceManager");
 		pSpec.getPathSet().add("perfCounter");
 
-		PropertyFilterSpec fSpec = new PropertyFilterSpec();
-		fSpec.getObjectSet().add(oSpec);
-		fSpec.getPropSet().add(pSpec);
+		PropertyFilterSpec propertyFilter = new PropertyFilterSpec();
+		propertyFilter.getObjectSet().add(oSpec);
+		propertyFilter.getPropSet().add(pSpec);
 		
-        RetrieveOptions ro = new RetrieveOptions();
-        RetrieveResult retrieveResult = vmClient.getVimPort().retrievePropertiesEx(vmClient.getServiceContent().getPropertyCollector(), ImmutableList.of(fSpec), ro);
+        RetrieveOptions retriveOptions = new RetrieveOptions();
+        RetrieveResult retrieveResult = vmClient.getVimPort().retrievePropertiesEx(
+        		vmClient.getServiceContent().getPropertyCollector(),
+        		ImmutableList.of(propertyFilter), retriveOptions);
 
         for (ObjectContent oc : retrieveResult.getObjects()) {
             if (oc.getPropSet() != null) {
@@ -168,12 +170,12 @@ public class VMwareClientTest {
                         	System.out.println("id: " + Integer.toString(perfCounter.getKey()));
                         	System.out.println("groupInfo: " + perfCounter.getGroupInfo().getKey());
                         	System.out.println("nameInfo: " + perfCounter.getNameInfo().getKey());
-                        	System.out.println("nameInfo: " + perfCounter.getRollupType().toString().toUpperCase());
+                        	System.out.println("RollupType: " + perfCounter.getRollupType().toString().toUpperCase());
                         }
                     }
                 }
             }
-        }
+        }        
 
 	}
 }
