@@ -11,6 +11,7 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import com.boundary.metrics.vmware.VMWareTestUtils;
 import com.boundary.metrics.vmware.client.metrics.Metric;
 import com.vmware.vim25.ElementDescription;
 import com.vmware.vim25.PerfCounterInfo;
@@ -59,25 +60,12 @@ public class VMWareMetadataTest {
 		assertEquals("Check BLUE item",m.get("BLUE"),new Integer(3));
 	}
 
-	private PerfCounterInfo buildPerfCounterInfo(String group,int key,Integer level,String name,PerfSummaryType rollupType,PerfStatsType statsType) {
-		PerfCounterInfo info = new PerfCounterInfo();
-		ElementDescription edGroup = new ElementDescription();
-		edGroup.setKey(group);
-		info.setGroupInfo(edGroup);
-		info.setKey(key);
-		info.setLevel(level);
-		ElementDescription edName = new ElementDescription();
-		edName.setKey(name);
-		info.setNameInfo(edName);
-		info.setRollupType(rollupType);
-		info.setStatsType(statsType);
-		return info; 
-	}
+	
 	@Test
 	public void testSetPerformanceCounterInfoMap() {
-		PerfCounterInfo one = buildPerfCounterInfo("cpu",100,new Integer(4),"usage",PerfSummaryType.AVERAGE,PerfStatsType.ABSOLUTE);
-		PerfCounterInfo two = buildPerfCounterInfo("mem",101,new Integer(4),"swapused",PerfSummaryType.MAXIMUM,PerfStatsType.ABSOLUTE);
-		PerfCounterInfo three = buildPerfCounterInfo("disk",102,new Integer(1),"write",PerfSummaryType.AVERAGE,PerfStatsType.RATE);
+		PerfCounterInfo one = VMWareTestUtils.buildPerfCounterInfo("cpu",100,new Integer(4),"usage",PerfSummaryType.AVERAGE,PerfStatsType.ABSOLUTE);
+		PerfCounterInfo two = VMWareTestUtils.buildPerfCounterInfo("mem",101,new Integer(4),"swapused",PerfSummaryType.MAXIMUM,PerfStatsType.ABSOLUTE);
+		PerfCounterInfo three = VMWareTestUtils.buildPerfCounterInfo("disk",102,new Integer(1),"write",PerfSummaryType.AVERAGE,PerfStatsType.RATE);
 		Map<Integer,PerfCounterInfo> infoMap = new HashMap<Integer,PerfCounterInfo>();
 		infoMap.put(one.getKey(),one);
 		infoMap.put(two.getKey(),two);

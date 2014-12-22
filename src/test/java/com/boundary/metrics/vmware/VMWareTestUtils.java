@@ -40,6 +40,10 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.google.common.base.Joiner;
 import com.google.common.io.Resources;
 import com.vmware.connection.Connection;
+import com.vmware.vim25.ElementDescription;
+import com.vmware.vim25.PerfCounterInfo;
+import com.vmware.vim25.PerfStatsType;
+import com.vmware.vim25.PerfSummaryType;
 
 public class VMWareTestUtils {
 	
@@ -107,5 +111,31 @@ public class VMWareTestUtils {
 		}
 
 		return client;
+	}
+	
+	/**
+	 * Helper method to generate {@link PerfCounterInfo} instances
+	 * 
+	 * @param group group name of the performance counter
+	 * @param key unique key of the performance counter
+	 * @param level level of the performance counter
+	 * @param name name of the performance counter
+	 * @param rollupType counter's rollup type (NONE, AVERAGE, etc)
+	 * @param statsType counter type (ABSOLUTE, RATE,etc)
+	 * @return {@link PerfCounterInfo}
+	 */
+	static public PerfCounterInfo buildPerfCounterInfo(String group,int key,Integer level,String name,PerfSummaryType rollupType,PerfStatsType statsType) {
+		PerfCounterInfo info = new PerfCounterInfo();
+		ElementDescription edGroup = new ElementDescription();
+		edGroup.setKey(group);
+		info.setGroupInfo(edGroup);
+		info.setKey(key);
+		info.setLevel(level);
+		ElementDescription edName = new ElementDescription();
+		edName.setKey(name);
+		info.setNameInfo(edName);
+		info.setRollupType(rollupType);
+		info.setStatsType(statsType);
+		return info; 
 	}
 }
