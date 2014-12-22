@@ -19,6 +19,7 @@ import static org.junit.Assume.*;
 
 import java.io.File;
 import java.io.FileReader;
+import java.io.IOException;
 import java.io.Reader;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -55,6 +56,8 @@ import com.vmware.vim25.VimService;
 public class VMwareClientTest {
 
 	private Connection vmClient;
+	
+	private final static String CLIENT_PROPERTY_FILE = "vmware-client.properties";
 
 	private static Properties clientProperties;
 
@@ -71,20 +74,9 @@ public class VMwareClientTest {
 		// If our configuration file is missing that do not run
 		// tests. The configuration file has credentials so we
 		// are not able to include in our repository.
-		String propertyFile = "vmware-client.properties";
-		Joiner propertyFileJoin = Joiner.on("//");
-		String propertyFilePath = propertyFileJoin.join("src/test/resources",propertyFile);
-		assumeTrue(new File(propertyFilePath).exists());
 		
-		File propertiesFile = new File(Resources.getResource(propertyFile).toURI());
+		File propertiesFile = new File(Resources.getResource(CLIENT_PROPERTY_FILE).toURI());
 		assumeTrue(propertiesFile.exists());
-		Reader reader = new FileReader(propertiesFile);
-		clientProperties = new Properties();
-		clientProperties.load(reader);
-		url = clientProperties.getProperty(URL);
-		user = clientProperties.getProperty(USER);
-		password = clientProperties.getProperty(PASSWORD);
-
 	}
 
 	@AfterClass
@@ -94,24 +86,21 @@ public class VMwareClientTest {
 
 	@Before
 	public void setUp() throws Exception {
-		vmClient = new VMwareClient(new URI(url), user, password,this.getClass().toString());
+		vmClient = VMWareTestClient.createClient(CLIENT_PROPERTY_FILE);
 		vmClient.connect();
 	}
 
 	@After
 	public void tearDown() throws Exception {
+		vmClient.disconnect();
 	}
 
 	@Test
-	public void testPropertiesLoad() {
-		assertNotNull(clientProperties);
-	}
-
-	@Test
-	public void testClientConnection() throws URISyntaxException {
-		Connection client = new VMwareClient(new URI(url),user,password,this.getClass().toString());
+	public void testClientConnection() throws URISyntaxException, IOException {
+		Connection client =  VMWareTestClient.createClient(CLIENT_PROPERTY_FILE);
 
 		client.connect();
+		client.disconnect();
 	}
 
 	@Test
