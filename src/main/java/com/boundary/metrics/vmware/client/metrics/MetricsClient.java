@@ -66,7 +66,7 @@ public class MetricsClient {
     }
 
     /**
-     * Creates or updates a metric if the metric alrady exists
+     * Creates or updates a metric if the metric already exists
      * 
      * @param metricName Boundary metric identifier
      * @param unit Boundary metric unit
