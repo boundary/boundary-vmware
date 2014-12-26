@@ -21,6 +21,7 @@ import javax.annotation.Nullable;
 import com.google.common.base.Function;
 import com.google.common.collect.ImmutableMap;
 import com.vmware.vim25.PerfCounterInfo;
+import com.vmware.vim25.PerfMetricId;
 
 /**
  * Contains all of the Performance Counter Metadata
@@ -69,7 +70,7 @@ public class PerformanceCounterMetadata {
 	 * @param perfCounterInfo {@link PerfCounterInfo}
 	 * @return String full name of the counter.
 	 */
-	private static String toFullName(PerfCounterInfo perfCounterInfo) {
+	public static String toFullName(PerfCounterInfo perfCounterInfo) {
         return toFullName.apply(perfCounterInfo);
     }
 
@@ -84,4 +85,16 @@ public class PerformanceCounterMetadata {
                     input.getNameInfo().getKey(), input.getRollupType().toString().toUpperCase());
         }
     };
+    
+    public static String toString(PerfMetricId input) {
+    	return toStringFunction.apply(input);
+    }
+    
+    public static final Function<PerfMetricId, String> toStringFunction = new Function<PerfMetricId, String>() {
+      @Nullable
+      @Override
+      public String apply(@Nullable PerfMetricId input) {
+          return input == null ? null : String.format("CounterID: %s, InstanceId: %s", input.getCounterId(), input.getInstance());
+      }
+  };
 }
