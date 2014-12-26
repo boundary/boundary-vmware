@@ -1,3 +1,17 @@
+// Copyright 2014 Boundary, Inc.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
 package com.boundary.metrics.vmware.poller;
 
 import java.util.Map;
@@ -18,21 +32,21 @@ import com.vmware.vim25.RuntimeFaultFaultMsg;
  * vSphere endpoint by the {@link VMWareMetricCollector}
  *
  */
-public class VMWareCollectionJob {
+public class MetricCollectionJob {
 	
 	private final VMWareMetadata metadata;
-	private final Connection vmwareClient;
+	private final VMwareClient vmwareClient;
 	private final MetricsClient metricsClient;
 	private final MeterManagerClient meterClient;
 	
 	/**
 	 * Consteructor
 	 * @param metadata {@link VMWareMetadata} all data required to collect metrics
-	 * @param vmwareClient Handles connection to vSphere end point
-	 * @param metricsClient Handles metrics API connection to Boundary
-	 * @param meterManagerClient Handles meter API connection to Boundary
+	 * @param vmwareClient {@link VMwareClient} Handles connection to vSphere end point
+	 * @param metricsClient {@link MetricsClient} Handles metrics API connection to Boundary
+	 * @param meterManagerClient {@link MeterManagerClient} Handles meter API connection to Boundary
 	 */
-	public VMWareCollectionJob(VMWareMetadata metadata,Connection vmwareClient,
+	public MetricCollectionJob(VMWareMetadata metadata,VMwareClient vmwareClient,
 			MetricsClient metricsClient,MeterManagerClient meterClient) {
 		this.metadata = metadata;
 		this.vmwareClient = vmwareClient;
@@ -42,10 +56,6 @@ public class VMWareCollectionJob {
 
 	public ManagedObjectReference getRootMOR() {
 		return vmwareClient.getServiceContent().getRootFolder();
-	}
-
-	public DateTime getTimeAtEndPoint() throws RuntimeFaultFaultMsg {
-		return TimeUtils.toDateTime(vmwareClient.getVimPort().currentTime(vmwareClient.getServiceInstanceReference()));
 	}
 
 	public String getHost() {
@@ -60,7 +70,7 @@ public class VMWareCollectionJob {
 		return metadata.getMetrics();
 	}
 
-	public Connection getVMWareClient() {
+	public VMwareClient getVMWareClient() {
 		return this.vmwareClient;
 	}
 
