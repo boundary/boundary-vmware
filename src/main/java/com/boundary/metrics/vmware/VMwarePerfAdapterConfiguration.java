@@ -26,7 +26,7 @@ import javax.validation.constraints.NotNull;
 import org.hibernate.validator.constraints.NotEmpty;
 
 import com.boundary.metrics.vmware.client.client.meter.manager.MeterManagerClient;
-import com.boundary.metrics.vmware.client.metrics.MetricsClient;
+import com.boundary.metrics.vmware.client.metrics.MetricClient;
 import com.boundary.metrics.vmware.poller.MonitoredEntity;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.sun.jersey.api.client.Client;
@@ -71,8 +71,8 @@ public class VMwarePerfAdapterConfiguration extends Configuration {
             return apiKey;
         }
 
-        public MetricsClient build(Client httpClient) {
-            return new MetricsClient(httpClient, getBaseUri(), apiKey);
+        public MetricClient build(Client httpClient) {
+            return new MetricClient(httpClient, getBaseUri(), apiKey);
         }
     }
 

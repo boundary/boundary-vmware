@@ -32,7 +32,7 @@ import org.slf4j.LoggerFactory;
 
 import com.boundary.metrics.vmware.client.client.meter.manager.MeterManagerClient;
 import com.boundary.metrics.vmware.client.metrics.Measurement;
-import com.boundary.metrics.vmware.client.metrics.MetricsClient;
+import com.boundary.metrics.vmware.client.metrics.MetricClient;
 import com.boundary.metrics.vmware.util.TimeUtils;
 import com.codahale.metrics.Meter;
 import com.codahale.metrics.Metric;
@@ -157,7 +157,7 @@ public class VMwarePerfPoller implements Runnable, MetricSet {
     private final Map<String, com.boundary.metrics.vmware.client.metrics.Metric> metrics;
     private final AtomicBoolean lock = new AtomicBoolean(false);
     private final String orgId;
-    private final MetricsClient metricsClient;
+    private final MetricClient metricsClient;
     private final MeterManagerClient meterManagerClient;
 
     private final Timer pollTimer = new Timer();
@@ -169,7 +169,7 @@ public class VMwarePerfPoller implements Runnable, MetricSet {
     private Duration skew;
 
     public VMwarePerfPoller(Connection client, Map<String, com.boundary.metrics.vmware.client.metrics.Metric> metrics, String orgId,
-                            MetricsClient metricsClient, MeterManagerClient meterManagerClient) {
+                            MetricClient metricsClient, MeterManagerClient meterManagerClient) {
         this.client = checkNotNull(client);
         this.metrics = checkNotNull(metrics);
         this.meterManagerClient = meterManagerClient;

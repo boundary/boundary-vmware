@@ -28,7 +28,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.boundary.metrics.vmware.client.metrics.Measurement;
-import com.boundary.metrics.vmware.client.metrics.MetricsClient;
+import com.boundary.metrics.vmware.client.metrics.MetricClient;
 import com.boundary.metrics.vmware.util.TimeUtils;
 import com.google.common.base.Function;
 import com.google.common.collect.FluentIterable;
