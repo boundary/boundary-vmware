@@ -29,7 +29,7 @@ import com.google.common.base.Joiner;
 import com.google.common.io.Resources;
 import com.vmware.connection.Connection;
 
-public class VMWareTestClient {
+public class VMWareClientFactory {
 	
 	private final static String DEFAULT_PROPERTY_FILE = "vmware-client.properties";
 	
@@ -51,6 +51,6 @@ public class VMWareTestClient {
 		String user = clientProperties.getProperty(USER);
 		String password = clientProperties.getProperty(PASSWORD);
 		
-		return new VMwareClient(new URI(url), user, password,VMWareTestClient.class.toString());
+		return new VMwareClient(new URI(url), user, password,VMWareClientFactory.class.toString());
 	}
 }

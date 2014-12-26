@@ -12,7 +12,7 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import com.boundary.metrics.vmware.client.VMWareTestClient;
+import com.boundary.metrics.vmware.client.VMWareClientFactory;
 import com.vmware.connection.Connection;
 import com.vmware.vim25.InvalidPropertyFaultMsg;
 import com.vmware.vim25.PerfCounterInfo;
@@ -37,8 +37,8 @@ public class PerformanceCounterCollectorTest {
 	}
 
 	@Test
-	public void test() throws URISyntaxException, IOException, InvalidPropertyFaultMsg, RuntimeFaultFaultMsg {
-		Connection client = VMWareTestClient.createClient();
+	public void testPerformanceCounterCollector() throws URISyntaxException, IOException, InvalidPropertyFaultMsg, RuntimeFaultFaultMsg {
+		Connection client = VMWareClientFactory.createClient();
 		client.connect();
 		PerformanceCounterCollector collector = new PerformanceCounterCollector(client);
 		
