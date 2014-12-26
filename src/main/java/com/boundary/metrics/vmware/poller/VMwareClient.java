@@ -316,6 +316,16 @@ public class VMwareClient implements Connection {
             throw Throwables.propagate(e);
         }
     }
+    
+    /**
+     * Returns the current time at the vSphere end point
+     * 
+     * @return {@link DateTime}
+     * @throws RuntimeFaultFaultMsg
+     */
+    public DateTime getTimeAtEndPoint() throws RuntimeFaultFaultMsg {
+		return TimeUtils.toDateTime(getVimPort().currentTime(getServiceInstanceReference()));
+	}
 
     
     /**
