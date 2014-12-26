@@ -55,28 +55,7 @@ import com.vmware.vim25.RuntimeFaultFaultMsg;
 public class VMWareMetricCollector {
 	
     private static final Logger LOG = LoggerFactory.getLogger(VMWareMetricCollector.class);
-    
-    private static final Function<PerfMetricId, String> toStringFunction = new Function<PerfMetricId, String>() {
-        @Nullable
-        @Override
-        public String apply(@Nullable PerfMetricId input) {
-            return input == null ? null : String.format("CounterID: %s, InstanceId: %s", input.getCounterId(), input.getInstance());
-        }
-    };
-    
-    private static final Function<PerfCounterInfo, String> toFullName = new Function<PerfCounterInfo, String>() {
-        @Nullable
-        @Override
-        public String apply(@Nullable PerfCounterInfo input) {
-            return input == null ? null : String.format("%s.%s.%s", input.getGroupInfo().getKey(),
-                    input.getNameInfo().getKey(), input.getRollupType().toString().toUpperCase());
-        }
-    };
-    
-    private static String toFullName(PerfCounterInfo perfCounterInfo) {
-        return toFullName.apply(perfCounterInfo);
-    }
-    
+        
     private DateTime lastPoll;
     private Duration skew;
 
@@ -84,6 +63,7 @@ public class VMWareMetricCollector {
 		
 	}
 	
+
     /**
      * Extracts performance metrics from Managed Objects on the monitored entity
      * 
@@ -93,14 +73,14 @@ public class VMWareMetricCollector {
      * @throws RuntimeFaultFaultMsg Runtime error
      * @throws SOAPFaultException WebServer error
      */
-    public void collectMetrics(VMWareCollectionJob job) throws MalformedURLException, RemoteException,
+    public void collectMetrics(MetricCollectionJob job) throws MalformedURLException, RemoteException,
             InvalidPropertyFaultMsg, RuntimeFaultFaultMsg, SOAPFaultException {
     	
         ManagedObjectReference root = job.getRootMOR();
         
         // 'now' according to the server
         
-        DateTime now = job.getTimeAtEndPoint();
+        DateTime now = job.getVMWareClient().getTimeAtEndPoint();
 
         Duration serverSkew = new Duration(now, new DateTime());
         if (serverSkew.isLongerThan(Duration.standardSeconds(1)) &&
@@ -162,7 +142,7 @@ public class VMWareMetricCollector {
 
             LOG.info("Entity: {}, MOR: {}-{}, Interval: {}, Format: {}, MetricIds: {}, Start: {}, End: {}", entityName,
                     mor.getType(), mor.getValue(), querySpec.getIntervalId(), querySpec.getFormat(),
-                    FluentIterable.from(perfMetricIds).transform(toStringFunction), lastPoll, now);
+                    FluentIterable.from(perfMetricIds).transform(PerformanceCounterMetadata.toStringFunction), lastPoll, now);
 
             List<PerfEntityMetricBase> retrievedStats = job.getVMWareClient().getVimPort().queryPerf(
             		job.getVMWareClient().getServiceContent().getPerfManager(), ImmutableList.of(querySpec));
@@ -180,7 +160,7 @@ public class VMWareMetricCollector {
                     for (int x = 0; x < metricValues.size(); x++) {
                         PerfMetricIntSeries metricReading = (PerfMetricIntSeries) metricValues.get(x);
                         PerfCounterInfo metricInfo = performanceCounterInfoMap.get(metricReading.getId().getCounterId());
-                        String metricFullName = toFullName.apply(metricInfo);
+                        String metricFullName = PerformanceCounterMetadata.toFullName(metricInfo);
                         if (!sampleInfos.isEmpty()) {
                             PerfSampleInfo sampleInfo = sampleInfos.get(0);
                             DateTime sampleTime = TimeUtils.toDateTime(sampleInfo.getTimestamp());
