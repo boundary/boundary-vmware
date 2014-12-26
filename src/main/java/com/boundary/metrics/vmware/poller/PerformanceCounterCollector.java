@@ -1,3 +1,16 @@
+// Copyright 2014 Boundary, Inc.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 package com.boundary.metrics.vmware.poller;
 
 import java.util.List;
@@ -17,19 +30,40 @@ import com.vmware.vim25.RetrieveOptions;
 import com.vmware.vim25.RetrieveResult;
 import com.vmware.vim25.RuntimeFaultFaultMsg;
 
+/**
+ * Extracts the performance counters from the end point. Performance counters are then associated with end point
+ * instances so that metrics can be collected.
+ *
+ */
 public class PerformanceCounterCollector {
 
 	Connection vmClient;
 
+	/**
+	 * Constructs a {@link PerformanceCounter} instance. It is assummed that the {@link Connection} that
+	 * is passed is already been connected to the end point.
+	 * 
+	 * @param vmClient
+	 */
 	public PerformanceCounterCollector(Connection vmClient) {
 		this.vmClient = vmClient;
 	}
 
+	/**
+	 * Queries the end point to get all the known performance counters in vSphere
+	 * 
+	 * TODO: As written now the caller is responsible for trapping exceptions, not sure if this is the best
+	 * approach at this point.
+	 * 
+	 * @return {@link PerformanceCounterMetadata} Container to store results
+	 * @throws InvalidPropertyFaultMsg {@link InvalidPropertyFaultMsg}
+	 * @throws RuntimeFaultFaultMsg {@link RuntimeFaultFaultMsg}
+	 */
 	public PerformanceCounterMetadata fetchPerformanceCounters() throws InvalidPropertyFaultMsg, RuntimeFaultFaultMsg {
 		PerformanceCounterMetadata metadata = new PerformanceCounterMetadata();
 		
-		// Get the PerformanceManager object which is used to get metrics from
-		// counters
+		// Get the PerformanceManager object which is used
+		// to get metrics from counters
 		ManagedObjectReference pm = vmClient.getServiceContent().getPerfManager();
 
 		ObjectSpec objectSpec = new ObjectSpec();
@@ -48,6 +82,7 @@ public class PerformanceCounterCollector {
 				vmClient.getServiceContent().getPropertyCollector(),
 						ImmutableList.of(filterSpec), retrieveOptions);
 
+		// Loop over our results to extract the performance counter information
 		for (ObjectContent oc : retrieveResult.getObjects()) {
 			if (oc.getPropSet() != null) {
 				for (DynamicProperty dp : oc.getPropSet()) {
