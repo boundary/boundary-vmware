@@ -37,8 +37,8 @@ public class PerformanceCounterMetadata {
 	 * @param nameMap Mapping
 	 */
 	public PerformanceCounterMetadata() {
-		infoMap = ImmutableMap.builder();
-		nameMap = ImmutableMap.builder();
+		this.infoMap = ImmutableMap.builder();
+		this.nameMap = ImmutableMap.builder();
 	}
 	
 	/**
