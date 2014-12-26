@@ -29,6 +29,9 @@ import com.google.common.base.Joiner;
 import com.google.common.io.Resources;
 import com.vmware.connection.Connection;
 
+/*
+ * Factory class to create {@link VMwareClient} instances
+ */
 public class VMWareClientFactory {
 	
 	private final static String DEFAULT_PROPERTY_FILE = "vmware-client.properties";
