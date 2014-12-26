@@ -15,6 +15,12 @@
 package com.boundary.metrics.vmware.client;
 
 import static org.junit.Assert.*;
+import static org.junit.Assume.assumeTrue;
+
+import java.io.File;
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.util.Random;
 
 import org.junit.After;
 import org.junit.AfterClass;
@@ -23,10 +29,23 @@ import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
 
-public class MetricsClientTest {
+import com.boundary.metrics.vmware.client.metrics.MetricClient;
+import com.google.common.io.Resources;
+import com.sun.jersey.api.client.Client;
+
+public class MetricClientTest {
+
+	private static final String CLIENT_PROPERTY_FILE = "metric-client.properties";
+	private MetricClient metricClient;
 
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
+		// If our configuration file is missing that do not run
+		// tests. The configuration file has credentials so we
+		// are not able to include in our repository.
+		
+		File propertiesFile = new File(Resources.getResource(CLIENT_PROPERTY_FILE).toURI());
+		assumeTrue(propertiesFile.exists());
 	}
 
 	@AfterClass
@@ -35,22 +54,27 @@ public class MetricsClientTest {
 
 	@Before
 	public void setUp() throws Exception {
+		metricClient = MetricClientFactory.createClient(CLIENT_PROPERTY_FILE);
 	}
 
 	@After
 	public void tearDown() throws Exception {
+		metricClient = null;
 	}
 
-	@Ignore
 	@Test
-	public void testMetricsClient() {
-		fail("Not yet implemented");
+	public void testMetricClient() throws URISyntaxException, IOException {
+		MetricClient client = MetricClientFactory.createClient();
+		assertNotNull("check client",client);
+
 	}
 
 	@Ignore
 	@Test
 	public void testCreateMetric() {
-		fail("Not yet implemented");
+		Random number = new Random();
+		
+		metricClient.createMetric("BOUNDARY_" + Integer.toString(number.nextInt()),"number");
 	}
 
 	@Ignore

@@ -20,7 +20,7 @@ import org.joda.time.DateTime;
 
 import com.boundary.metrics.vmware.client.client.meter.manager.MeterManagerClient;
 import com.boundary.metrics.vmware.client.metrics.Metric;
-import com.boundary.metrics.vmware.client.metrics.MetricsClient;
+import com.boundary.metrics.vmware.client.metrics.MetricClient;
 import com.boundary.metrics.vmware.util.TimeUtils;
 import com.vmware.connection.Connection;
 import com.vmware.vim25.ManagedObjectReference;
@@ -36,18 +36,18 @@ public class MetricCollectionJob {
 	
 	private final VMWareMetadata metadata;
 	private final VMwareClient vmwareClient;
-	private final MetricsClient metricsClient;
+	private final MetricClient metricsClient;
 	private final MeterManagerClient meterClient;
 	
 	/**
 	 * Consteructor
 	 * @param metadata {@link VMWareMetadata} all data required to collect metrics
 	 * @param vmwareClient {@link VMwareClient} Handles connection to vSphere end point
-	 * @param metricsClient {@link MetricsClient} Handles metrics API connection to Boundary
+	 * @param metricsClient {@link MetricClient} Handles metrics API connection to Boundary
 	 * @param meterManagerClient {@link MeterManagerClient} Handles meter API connection to Boundary
 	 */
 	public MetricCollectionJob(VMWareMetadata metadata,VMwareClient vmwareClient,
-			MetricsClient metricsClient,MeterManagerClient meterClient) {
+			MetricClient metricsClient,MeterManagerClient meterClient) {
 		this.metadata = metadata;
 		this.vmwareClient = vmwareClient;
 		this.metricsClient = metricsClient;
@@ -86,7 +86,7 @@ public class MetricCollectionJob {
 		return metadata.getOrgId();
 	}
 
-	public MetricsClient getMetricsClient() {
+	public MetricClient getMetricsClient() {
 		return this.metricsClient;
 	}
 }
