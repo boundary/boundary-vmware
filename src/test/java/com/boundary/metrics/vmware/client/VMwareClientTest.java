@@ -14,17 +14,13 @@
 
 package com.boundary.metrics.vmware.client;
 
-import static org.junit.Assert.*;
-import static org.junit.Assume.*;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assume.assumeTrue;
 
 import java.io.File;
-import java.io.FileReader;
 import java.io.IOException;
-import java.io.Reader;
-import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
-import java.util.Properties;
 
 import org.junit.After;
 import org.junit.AfterClass;
@@ -32,8 +28,6 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import com.boundary.metrics.vmware.poller.VMwareClient;
-import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableList;
 import com.google.common.io.Resources;
 import com.vmware.connection.Connection;
@@ -59,16 +53,6 @@ public class VMwareClientTest {
 	
 	private final static String CLIENT_PROPERTY_FILE = "vmware-client.properties";
 
-	private static Properties clientProperties;
-
-	private final static String URL = "com.boundary.metrics.vmware.client.url";
-	private final static String USER = "com.boundary.metrics.vmware.client.user";
-	private final static String PASSWORD = "com.boundary.metrics.vmware.client.password";
-
-	private static String url;
-	private static String user;
-	private static String password;
-
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
 		// If our configuration file is missing that do not run
@@ -81,12 +65,11 @@ public class VMwareClientTest {
 
 	@AfterClass
 	public static void tearDownAfterClass() throws Exception {
-		clientProperties = null;
 	}
 
 	@Before
 	public void setUp() throws Exception {
-		vmClient = VMWareTestClient.createClient(CLIENT_PROPERTY_FILE);
+		vmClient = VMWareClientFactory.createClient(CLIENT_PROPERTY_FILE);
 		vmClient.connect();
 	}
 
@@ -97,7 +80,7 @@ public class VMwareClientTest {
 
 	@Test
 	public void testClientConnection() throws URISyntaxException, IOException {
-		Connection client =  VMWareTestClient.createClient(CLIENT_PROPERTY_FILE);
+		Connection client =  VMWareClientFactory.createClient(CLIENT_PROPERTY_FILE);
 
 		client.connect();
 		client.disconnect();
