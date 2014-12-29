@@ -16,9 +16,8 @@ package com.boundary.metrics.vmware.poller;
 
 import java.util.List;
 
-public class CatalogEntry {
+public class MORCatalogEntry {
 
-	
 	private String managedObject;
 	
 	private List<PerformanceCounterEntry> performanceCounters;
