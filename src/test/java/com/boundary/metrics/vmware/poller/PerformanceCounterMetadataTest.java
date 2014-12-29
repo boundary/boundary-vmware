@@ -14,8 +14,11 @@
 
 package com.boundary.metrics.vmware.poller;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.junit.After;
@@ -25,7 +28,9 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.boundary.metrics.vmware.VMWareTestUtils;
+import com.boundary.metrics.vmware.client.metrics.Metric;
 import com.vmware.vim25.PerfCounterInfo;
+import com.vmware.vim25.PerfMetricId;
 import com.vmware.vim25.PerfStatsType;
 import com.vmware.vim25.PerfSummaryType;
 
@@ -39,8 +44,22 @@ public class PerformanceCounterMetadataTest {
 	public static void tearDownAfterClass() throws Exception {
 	}
 
+	private PerformanceCounterMetadata metadata;
+	private PerfCounterInfo one;
+	private PerfCounterInfo two;
+	private PerfCounterInfo three;
+
 	@Before
 	public void setUp() throws Exception {
+		metadata = new PerformanceCounterMetadata(new HashMap<String,Metric>());
+		one = VMWareTestUtils.buildPerfCounterInfo("cpu",100,new Integer(4),"usage",PerfSummaryType.AVERAGE,PerfStatsType.ABSOLUTE);
+		two = VMWareTestUtils.buildPerfCounterInfo("mem",101,new Integer(4),"swapused",PerfSummaryType.MAXIMUM,PerfStatsType.ABSOLUTE);
+		three = VMWareTestUtils.buildPerfCounterInfo("disk",102,new Integer(1),"write",PerfSummaryType.AVERAGE,PerfStatsType.RATE);
+
+		metadata.put(one);
+		metadata.put(two);
+		metadata.put(three);
+
 	}
 
 	@After
@@ -54,14 +73,6 @@ public class PerformanceCounterMetadataTest {
 
 	@Test
 	public void testPut() {
-		PerformanceCounterMetadata metadata = new PerformanceCounterMetadata();
-		PerfCounterInfo one = VMWareTestUtils.buildPerfCounterInfo("cpu",100,new Integer(4),"usage",PerfSummaryType.AVERAGE,PerfStatsType.ABSOLUTE);
-		PerfCounterInfo two = VMWareTestUtils.buildPerfCounterInfo("mem",101,new Integer(4),"swapused",PerfSummaryType.MAXIMUM,PerfStatsType.ABSOLUTE);
-		PerfCounterInfo three = VMWareTestUtils.buildPerfCounterInfo("disk",102,new Integer(1),"write",PerfSummaryType.AVERAGE,PerfStatsType.RATE);
-
-		metadata.put(one);
-		metadata.put(two);
-		metadata.put(three);
 		
 		Map<String,Integer> nameMap = metadata.getNameMap();
 		Map<Integer,PerfCounterInfo> infoMap = metadata.getInfoMap();
@@ -75,6 +86,36 @@ public class PerformanceCounterMetadataTest {
 		assertEquals("check three name",new Integer(102).intValue(),nameMap.get("disk.write.AVERAGE").intValue());
 		assertEquals("check three info",three.toString(),infoMap.get(102).toString());
 
+	}
+	
+	@Test
+	public void testGetPerformanceMetrics() {
+		Map<String,Metric> metrics = new HashMap<String,Metric>();
+		Metric metric1 = new Metric(one.getNameInfo().getKey(),"ONE");
+		Metric metric2 = new Metric(two.getNameInfo().getKey(),"TWO");
+		Metric metric3 = new Metric(three.getNameInfo().getKey(),"THREE");
+		metrics.put(metric1.getName(),metric1);
+		metrics.put(metric2.getName(),metric2);
+		metrics.put(metric3.getName(),metric3);
+		
+		List<PerfMetricId> performanceMetrics = metadata.getPerformanceMetricIds();
+		for (PerfMetricId perfMetric : performanceMetrics) {
+			
+			assertEquals("check instance","*",perfMetric.getInstance());
+			// TODO: Additional test
+			switch (perfMetric.getCounterId()) {
+			case 100:
+				break;
+			case 101:
+				break;
+			case 102:
+				break;
+			default:
+				assertTrue("check default",false);
+			}
+			
+		}
+		
 	}
 
 }

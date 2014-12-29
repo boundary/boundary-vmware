@@ -63,6 +63,14 @@ public class VMWareMetricCollector {
 		
 	}
 	
+	
+	public Map<String,ManagedObjectReference> getMOR(VMwareClient client,ManagedObjectReference root,
+			String managedObjectType) throws RuntimeFaultFaultMsg, InvalidPropertyFaultMsg {
+        GetMOREF getMOREFs = new GetMOREF(client);
+        Map<String,ManagedObjectReference> entities = getMOREFs.inFolderByType(root,managedObjectType);
+        return entities;
+	}
+	
 
     /**
      * Extracts performance metrics from Managed Objects on the monitored entity
@@ -73,163 +81,221 @@ public class VMWareMetricCollector {
      * @throws RuntimeFaultFaultMsg Runtime error
      * @throws SOAPFaultException WebServer error
      */
-    public void collectMetrics(MetricCollectionJob job) throws MalformedURLException, RemoteException,
-            InvalidPropertyFaultMsg, RuntimeFaultFaultMsg, SOAPFaultException {
-    	
-        ManagedObjectReference root = job.getRootMOR();
-        
-        // 'now' according to the server
-        
-        DateTime now = job.getVMWareClient().getTimeAtEndPoint();
+	public void collectMetrics(MetricCollectionJob job)
+			throws MalformedURLException, RemoteException,
+			InvalidPropertyFaultMsg, RuntimeFaultFaultMsg, SOAPFaultException {
 
-        Duration serverSkew = new Duration(now, new DateTime());
-        if (serverSkew.isLongerThan(Duration.standardSeconds(1)) &&
-                (skew == null || skew.getStandardSeconds() != serverSkew.getStandardSeconds())) {
-            LOG.warn("Server {} and local time skewed by {} seconds", job.getHost(), serverSkew.getStandardSeconds());
-            skew = serverSkew;
-        }
-        if (lastPoll == null) {
-            lastPoll = now.minusSeconds(20);
-        }
+		ManagedObjectReference root = job.getRootMOR();
 
-        // Holder for all our newly found measurements
-        // TODO set an upper size limit on measurements list
-        List<Measurement> measurements = Lists.newArrayList();
+		// 'now' according to the server
 
-        /*
-        * A {@link PerfMetricId} consistents of the performance counter and
-        * the instance it applies to.
-        * 
-        * In our particulary case we are requesting for all of the instances
-        * associated with the performance counter.
-        * 
-        * Will this work when we have a mix of VirtualMachine, HostSystem, and DataSource
-        * managed objects.
-        * 
-        */
-        List<PerfMetricId> perfMetricIds = Lists.newArrayList();
-        Map<String,Integer> performanceCounterMap = job.getPerformanceCounterMap();
-        Map<Integer,PerfCounterInfo> performanceCounterInfoMap = job.getPerformanceCounterInfoMap();
-        
-        for (String counterName : job.getMetrics().keySet()) {
-            if (performanceCounterMap.containsKey(counterName)) {
-                PerfMetricId metricId = new PerfMetricId();
-                /* Get the ID for this counter. */
-                metricId.setCounterId(performanceCounterMap.get(counterName));
-                metricId.setInstance("*");
-                perfMetricIds.add(metricId);
-            }
-        }
+		DateTime now = job.getVMWareClient().getTimeAtEndPoint();
 
-        GetMOREF getMOREFs = new GetMOREF(job.getVMWareClient());
-        Map<String, ManagedObjectReference> entities = getMOREFs.inFolderByType(root, "VirtualMachine");
+		Duration serverSkew = new Duration(now, new DateTime());
+		if (serverSkew.isLongerThan(Duration.standardSeconds(1))
+				&& (skew == null || skew.getStandardSeconds() != serverSkew
+						.getStandardSeconds())) {
+			LOG.warn("Server {} and local time skewed by {} seconds",
+					job.getHost(), serverSkew.getStandardSeconds());
+			skew = serverSkew;
+		}
+		if (lastPoll == null) {
+			lastPoll = now.minusSeconds(20);
+		}
 
-        for (Map.Entry<String, ManagedObjectReference> entity : entities.entrySet()) {
-            ManagedObjectReference mor = entity.getValue();
-            String entityName = entity.getKey();
+		// Holder for all our newly found measurements
+		// TODO set an upper size limit on measurements list
+		List<Measurement> measurements = Lists.newArrayList();
 
-            /*
-            * Create the query specification for queryPerf().
-            * Specify 5 minute rollup interval and CSV output format.
-            */
-            PerfQuerySpec querySpec = new PerfQuerySpec();
-            querySpec.setEntity(mor);
-            querySpec.setIntervalId(20);
-            querySpec.setFormat("normal");
-            querySpec.setStartTime(TimeUtils.toXMLGregorianCalendar(lastPoll));
-            querySpec.setEndTime(TimeUtils.toXMLGregorianCalendar(now));
-            querySpec.getMetricId().addAll(perfMetricIds);
+		/*
+		 * A {@link PerfMetricId} consistents of the performance counter and the
+		 * instance it applies to.
+		 * 
+		 * In our particulary case we are requesting for all of the instances
+		 * associated with the performance counter.
+		 * 
+		 * Will this work when we have a mix of VirtualMachine, HostSystem, and
+		 * DataSource managed objects.
+		 */
 
-            LOG.info("Entity: {}, MOR: {}-{}, Interval: {}, Format: {}, MetricIds: {}, Start: {}, End: {}", entityName,
-                    mor.getType(), mor.getValue(), querySpec.getIntervalId(), querySpec.getFormat(),
-                    FluentIterable.from(perfMetricIds).transform(PerformanceCounterMetadata.toStringFunction), lastPoll, now);
+		Map<String,Integer> nameMap = job.getNameMap();
+		Map<Integer,PerfCounterInfo> infoMap = job.getInfoMap();
 
-            List<PerfEntityMetricBase> retrievedStats = job.getVMWareClient().getVimPort().queryPerf(
-            		job.getVMWareClient().getServiceContent().getPerfManager(), ImmutableList.of(querySpec));
+		//
+		// Loop over the Managed Objects must begin here for each of our
+		// configured types
+		MORCatalog catalog = job.getManagedObjectCatalog();
 
-            /*
-            * Cycle through the PerfEntityMetricBase objects. Each object contains
-            * a set of statistics for a single ManagedEntity.
-            */
-            for(PerfEntityMetricBase singleEntityPerfStats : retrievedStats) {
-                if (singleEntityPerfStats instanceof PerfEntityMetric) {
-                    PerfEntityMetric entityStats = (PerfEntityMetric) singleEntityPerfStats;
-                    List<PerfMetricSeries> metricValues = entityStats.getValue();
-                    List<PerfSampleInfo> sampleInfos = entityStats.getSampleInfo();
+		for (MORCatalogEntry entry : catalog.getCatalog()) {
+			
+			Map<String, ManagedObjectReference> entities = this.getMOR(job.getVMWareClient(),root,entry.getManagedObject());
 
-                    for (int x = 0; x < metricValues.size(); x++) {
-                        PerfMetricIntSeries metricReading = (PerfMetricIntSeries) metricValues.get(x);
-                        PerfCounterInfo metricInfo = performanceCounterInfoMap.get(metricReading.getId().getCounterId());
-                        String metricFullName = PerformanceCounterMetadata.toFullName(metricInfo);
-                        if (!sampleInfos.isEmpty()) {
-                            PerfSampleInfo sampleInfo = sampleInfos.get(0);
-                            DateTime sampleTime = TimeUtils.toDateTime(sampleInfo.getTimestamp());
-                            Number sampleValue = metricReading.getValue().iterator().next();
 
-                            if (skew != null) {
-                                sampleTime = sampleTime.plusSeconds((int)skew.getStandardSeconds());
-                            }
+			for (Map.Entry<String,ManagedObjectReference> entity : entities.entrySet()) {
+				ManagedObjectReference mor = entity.getValue();
+				String entityName = entity.getKey();
 
-                            if (metricReading.getValue().size() > 1) {
-                                LOG.warn("Metric {} has more than one value, only using the first", metricFullName);
-                            }
+				/*
+				 * Create the query specification for queryPerf(). Specify 5
+				 * minute rollup interval and CSV output format.
+				 */
+				PerfQuerySpec querySpec = new PerfQuerySpec();
+				querySpec.setEntity(mor);
+				querySpec.setIntervalId(20);
+				querySpec.setFormat("normal");
+				querySpec.setStartTime(TimeUtils
+						.toXMLGregorianCalendar(lastPoll));
+				querySpec.setEndTime(TimeUtils.toXMLGregorianCalendar(now));
+				querySpec.getMetricId().addAll(job.getMetadata().getPerformanceMetricIds());
 
-                            // Prefix the VM name with the name from the monitored entity configuration, we can form unique names that way
-                            //int obsDomainId = meterManagerClient.createOrGetMeterMetadata(orgId, client.getName() + "-" + entityName).getObservationDomainId();
-                            int obsDomainId = job.getMeterClient().createOrGetMeterMetadata(
-                            		job.getOrgId(), job.getVMWareClient().getName() + "-" + entityName).getObservationDomainId();
+				LOG.info(
+						"Entity: {}, MOR: {}-{}, Interval: {}, Format: {}, MetricIds: {}, Start: {}, End: {}",
+						entityName,
+						mor.getType(),
+						mor.getValue(),
+						querySpec.getIntervalId(),
+						querySpec.getFormat(),
+						FluentIterable.from(job.getMetadata().getPerformanceMetricIds()).transform(
+								PerformanceCounterMetadata.toStringFunction),
+						lastPoll, now);
 
-                            if (metricInfo.getUnitInfo().getKey().equalsIgnoreCase("kiloBytes")) {
-                                sampleValue = (long)sampleValue * 1024; // Convert KB to Bytes
-                            } else if (metricInfo.getUnitInfo().getKey().equalsIgnoreCase("percent")) {
-                                // Convert hundredth of a percent to a decimal percent
-                                sampleValue = new Long((long)sampleValue).doubleValue() / 10000.0;
-                            }
-                            String name = job.getMetrics().get(metricFullName).getName();
-                            if (name != null) {
-                            Measurement measurement = Measurement.builder()
-                                    .setMetric(name)
-                                    .setSourceId(obsDomainId)
-                                    .setTimestamp(sampleTime)
-                                    .setMeasurement(sampleValue)
-                                    .build();
+				List<PerfEntityMetricBase> retrievedStats = job
+						.getVMWareClient()
+						.getVimPort()
+						.queryPerf(
+								job.getVMWareClient().getServiceContent()
+										.getPerfManager(),
+								ImmutableList.of(querySpec));
 
-                            Measurement dummyMeasurement = Measurement.builder()
-                                    .setMetric(name)
-                                    .setSourceId(obsDomainId)
-                                    .setTimestamp(sampleTime.minusSeconds(10))
-                                    .setMeasurement(sampleValue)
-                                    .build();
+				/*
+				 * Cycle through the PerfEntityMetricBase objects. Each object
+				 * contains a set of statistics for a single ManagedEntity.
+				 */
+				for (PerfEntityMetricBase singleEntityPerfStats : retrievedStats) {
+					if (singleEntityPerfStats instanceof PerfEntityMetric) {
+						PerfEntityMetric entityStats = (PerfEntityMetric) singleEntityPerfStats;
+						List<PerfMetricSeries> metricValues = entityStats
+								.getValue();
+						List<PerfSampleInfo> sampleInfos = entityStats
+								.getSampleInfo();
 
-                            measurements.add(measurement);
-                            measurements.add(dummyMeasurement); // Fill in enough data so HLM graph can stream
+						for (int x = 0; x < metricValues.size(); x++) {
+							PerfMetricIntSeries metricReading = (PerfMetricIntSeries) metricValues
+									.get(x);
+							PerfCounterInfo metricInfo = job.getMetadata().getInfoMap()
+									.get(metricReading.getId().getCounterId());
+							String metricFullName = PerformanceCounterMetadata
+									.toFullName(metricInfo);
+							if (!sampleInfos.isEmpty()) {
+								PerfSampleInfo sampleInfo = sampleInfos.get(0);
+								DateTime sampleTime = TimeUtils
+										.toDateTime(sampleInfo.getTimestamp());
+								Number sampleValue = metricReading.getValue()
+										.iterator().next();
 
-                            LOG.info("{} @ {} = {} {}", metricFullName, sampleTime,
-                                    sampleValue, metricInfo.getUnitInfo().getKey());
-                            }
-                            else {
-                            	LOG.warn("Skipping collection of metric: {}",metricFullName);
-                            }
-                        } else {
-                            LOG.warn("Didn't receive any samples when polling for {} on {} between {} and {}",
-                                    metricFullName, job.getVMWareClient().getHost(), lastPoll, now);
-                        }
-                    }
-                } else {
-                    LOG.error("Unrecognized performance entry type received: {}, ignoring",
-                            singleEntityPerfStats.getClass().getName());
-                }
-            }
-        }
+								if (skew != null) {
+									sampleTime = sampleTime
+											.plusSeconds((int) skew
+													.getStandardSeconds());
+								}
 
-        // Send metrics
-        if (!measurements.isEmpty()) {
-            job.getMetricsClient().addMeasurements(measurements);
-        } else {
-            LOG.warn("No measurements collected in last poll for {}", job.getVMWareClient().getName());
-        }
+								if (metricReading.getValue().size() > 1) {
+									LOG.warn(
+											"Metric {} has more than one value, only using the first",
+											metricFullName);
+								}
 
-        // Reset lastPoll time
-        lastPoll = now;
-    }
+								// Prefix the VM name with the name from the
+								// monitored entity configuration, we can form
+								// unique names that way
+								// int obsDomainId =
+								// meterManagerClient.createOrGetMeterMetadata(orgId,
+								// client.getName() + "-" +
+								// entityName).getObservationDomainId();
+								int obsDomainId = job
+										.getMeterClient()
+										.createOrGetMeterMetadata(
+												job.getVMWareClient().getName()
+														+ "-" + entityName)
+										.getObservationDomainId();
+
+								if (metricInfo.getUnitInfo().getKey()
+										.equalsIgnoreCase("kiloBytes")) {
+									sampleValue = (long) sampleValue * 1024; // Convert
+																				// KB
+																				// to
+																				// Bytes
+								} else if (metricInfo.getUnitInfo().getKey()
+										.equalsIgnoreCase("percent")) {
+									// Convert hundredth of a percent to a
+									// decimal percent
+									sampleValue = new Long((long) sampleValue)
+											.doubleValue() / 10000.0;
+								}
+								String name = job.getMetrics()
+										.get(metricFullName).getName();
+								if (name != null) {
+									Measurement measurement = Measurement
+											.builder().setMetric(name)
+											.setSourceId(obsDomainId)
+											.setTimestamp(sampleTime)
+											.setMeasurement(sampleValue)
+											.build();
+
+									Measurement dummyMeasurement = Measurement
+											.builder()
+											.setMetric(name)
+											.setSourceId(obsDomainId)
+											.setTimestamp(
+													sampleTime.minusSeconds(10))
+											.setMeasurement(sampleValue)
+											.build();
+
+									measurements.add(measurement);
+									measurements.add(dummyMeasurement); // Fill
+																		// in
+																		// enough
+																		// data
+																		// so
+																		// HLM
+																		// graph
+																		// can
+																		// stream
+
+									LOG.info("{} @ {} = {} {}", metricFullName,
+											sampleTime, sampleValue, metricInfo
+													.getUnitInfo().getKey());
+								} else {
+									LOG.warn(
+											"Skipping collection of metric: {}",
+											metricFullName);
+								}
+							} else {
+								LOG.warn(
+										"Didn't receive any samples when polling for {} on {} between {} and {}",
+										metricFullName, job.getVMWareClient()
+												.getHost(), lastPoll, now);
+							}
+						}
+					} else {
+						LOG.error(
+								"Unrecognized performance entry type received: {}, ignoring",
+								singleEntityPerfStats.getClass().getName());
+					}
+				}
+			}
+
+			// Send metrics
+			if (!measurements.isEmpty()) {
+				job.getMetricsClient().addMeasurements(measurements);
+			} else {
+				LOG.warn("No measurements collected in last poll for {}", job
+						.getVMWareClient().getName());
+			}
+
+			// Reset lastPoll time
+			lastPoll = now;
+
+		}
+	}
 }

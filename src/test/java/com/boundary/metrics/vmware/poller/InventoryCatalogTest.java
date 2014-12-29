@@ -57,12 +57,12 @@ public class InventoryCatalogTest {
 	@Test
 	public void test() {
 		ObjectMapper mapper = new ObjectMapper();
-		InventoryCatalog inventory = null;
+		MORCatalog inventory = null;
 
 		try {
 			File catalogFile = new File(Resources.getResource(TEST_CATALOG_FILE)
 					.toURI());
-			inventory = mapper.readValue(catalogFile, InventoryCatalog.class);
+			inventory = mapper.readValue(catalogFile, MORCatalog.class);
 		} catch (URISyntaxException e) {
 
 			e.printStackTrace();
@@ -78,10 +78,10 @@ public class InventoryCatalogTest {
 		}
 		
 		assertNotNull("check InventoryCatalog",inventory);
-		List<CatalogEntry> catalog = inventory.getCatalog();
+		List<MORCatalogEntry> catalog = inventory.getCatalog();
 		assertNotNull("check Inventory.getCatalog()",inventory.getCatalog());
 		assertEquals("check Catalog Size",3,catalog.size());
-		CatalogEntry catalogEntry1 = catalog.get(0);
+		MORCatalogEntry catalogEntry1 = catalog.get(0);
 		assertNotNull("check CatalogEntry",catalogEntry1);
 		List<PerformanceCounterEntry> performanceCounters1 = catalogEntry1.getPerformanceCounters();
 		assertNotNull("check CatalogEntry.getPerformanceCounters",performanceCounters1);

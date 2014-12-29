@@ -13,8 +13,11 @@
 // limitations under the License.
 package com.boundary.metrics.vmware.poller;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
+import com.boundary.metrics.vmware.client.metrics.Metric;
 import com.google.common.collect.ImmutableList;
 import com.vmware.connection.Connection;
 import com.vmware.vim25.ArrayOfPerfCounterInfo;
@@ -60,7 +63,7 @@ public class PerformanceCounterCollector {
 	 * @throws RuntimeFaultFaultMsg {@link RuntimeFaultFaultMsg}
 	 */
 	public PerformanceCounterMetadata fetchPerformanceCounters() throws InvalidPropertyFaultMsg, RuntimeFaultFaultMsg {
-		PerformanceCounterMetadata metadata = new PerformanceCounterMetadata();
+		PerformanceCounterMetadata metadata = new PerformanceCounterMetadata(new HashMap<String,Metric>());
 		
 		// Get the PerformanceManager object which is used
 		// to get metrics from counters

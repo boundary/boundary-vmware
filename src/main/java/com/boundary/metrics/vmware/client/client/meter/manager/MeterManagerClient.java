@@ -36,15 +36,18 @@ import static com.google.common.base.Preconditions.checkNotNull;
 public class MeterManagerClient {
 
     private final WebResource baseResource;
+    private final String orgId;
     private static final Joiner PATH_JOINER = Joiner.on('/');
 
     // TODO change into guava cache
     private final Map<String, MeterMetadata> hostnameCache = Maps.newConcurrentMap();
 
-    public MeterManagerClient(Client client, URI baseUrl, String apiKey) {
+    public MeterManagerClient(Client client, URI baseUrl,String orgId,String apiKey) {
         checkNotNull(client);
         checkNotNull(baseUrl);
         checkArgument(!Strings.isNullOrEmpty(apiKey));
+        checkArgument(!Strings.isNullOrEmpty(orgId));
+        this.orgId = orgId;
         final String authorization = "Basic " + new String(Base64.encode(apiKey + ":"), Charsets.US_ASCII);
         client.addFilter(new ClientFilter() {
             @Override
@@ -61,14 +64,13 @@ public class MeterManagerClient {
 
     /**
      * Create a meter with given hostname for org
-     * @param orgId organization id
      * @param hostname hostname of meter, has to be unique
      * @return meter id
      * @throws MeterNameConflictException if name already in use
      */
-    public String createMeter(String orgId, String hostname) throws MeterNameConflictException {
+    public String createMeter(String hostname) throws MeterNameConflictException {
         ImmutableMap<String,String> params = ImmutableMap.of("name", hostname);
-        final ClientResponse response = baseResource.path(PATH_JOINER.join(orgId, "meters"))
+        final ClientResponse response = baseResource.path(PATH_JOINER.join(this.orgId, "meters"))
                 .entity(params, MediaType.APPLICATION_JSON_TYPE)
                 .post(ClientResponse.class);
         if (ClientResponse.Status.CONFLICT.equals(response.getStatusInfo())) {
@@ -84,12 +86,12 @@ public class MeterManagerClient {
         return location.substring(slashIndex + 1);
     }
 
-    public Optional<MeterMetadata> getMeterMetadataById(String orgId, String meterId) {
-        return Optional.fromNullable(baseResource.path(PATH_JOINER.join(orgId, "meters", meterId)).get(MeterMetadata.class));
+    public Optional<MeterMetadata> getMeterMetadataById(String meterId) {
+        return Optional.fromNullable(baseResource.path(PATH_JOINER.join(this.orgId, "meters", meterId)).get(MeterMetadata.class));
     }
 
-    public Optional<MeterMetadata> getMeterMetadataByName(String orgId, String meterName) {
-        MeterMetadata[] meters = baseResource.path(PATH_JOINER.join(orgId, "meters")).queryParam("name", meterName).get(MeterMetadata[].class);
+    public Optional<MeterMetadata> getMeterMetadataByName(String meterName) {
+        MeterMetadata[] meters = baseResource.path(PATH_JOINER.join(this.orgId, "meters")).queryParam("name", meterName).get(MeterMetadata[].class);
         if (meters.length == 1) {
             return Optional.of(meters[0]);
         } else {
@@ -97,16 +99,16 @@ public class MeterManagerClient {
         }
     }
 
-    public MeterMetadata createOrGetMeterMetadata(String orgId, String meterName) {
+    public MeterMetadata createOrGetMeterMetadata(String meterName) {
         MeterMetadata meterMetadata = hostnameCache.get(orgId + "-" + meterName);
         if (meterMetadata != null) {
             return meterMetadata;
         }
         try {
-            String meterId = createMeter(orgId, meterName);
-            meterMetadata = getMeterMetadataById(orgId, meterId).get();
+            String meterId = createMeter(meterName);
+            meterMetadata = getMeterMetadataById(meterId).get();
         } catch (MeterNameConflictException e) {
-            meterMetadata = getMeterMetadataByName(orgId, meterName).get();
+            meterMetadata = getMeterMetadataByName(meterName).get();
         }
 
         hostnameCache.put(orgId + "-" + meterName, meterMetadata);

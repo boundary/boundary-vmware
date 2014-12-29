@@ -20,8 +20,6 @@ import com.vmware.vim25.PerfSummaryType;
 
 public class VMWareMetadataTest {
 	
-	private Map<String,Integer> performanceCounterMap;
-	private Map<Integer,PerfCounterInfo> performanceCounterInfoMap;
 	private Map<String,Metric> metrics;
 	private String orgId;
 
@@ -35,8 +33,7 @@ public class VMWareMetadataTest {
 
 	@Before
 	public void setUp() throws Exception {
-		performanceCounterMap = new HashMap<String,Integer>();
-		performanceCounterInfoMap = new HashMap<Integer,PerfCounterInfo>();
+
 		metrics = new HashMap<String,Metric>();
 		orgId = "";
 	}
@@ -44,45 +41,52 @@ public class VMWareMetadataTest {
 	@After
 	public void tearDown() throws Exception {
 	}
+	
+	
 
 	@Test
 	public void testSetPerformanceCounterMap() {
-		Map<String,Integer> map = new HashMap<String,Integer>();
-		map.put("RED", 1);
-		map.put("GREEN", 2);
-		map.put("BLUE", 3);
+		PerformanceCounterMetadata metadata = new PerformanceCounterMetadata(metrics);
+		PerfCounterInfo one = VMWareTestUtils.buildPerfCounterInfo("cpu",100,new Integer(4),"usage",PerfSummaryType.AVERAGE,PerfStatsType.ABSOLUTE);
+		PerfCounterInfo two = VMWareTestUtils.buildPerfCounterInfo("mem",101,new Integer(4),"swapused",PerfSummaryType.MAXIMUM,PerfStatsType.ABSOLUTE);
+		PerfCounterInfo three = VMWareTestUtils.buildPerfCounterInfo("disk",102,new Integer(1),"write",PerfSummaryType.AVERAGE,PerfStatsType.RATE);
+
+		metadata.put(one);
+		metadata.put(two);
+		metadata.put(three);
 		
-		VMWareMetadata data = new VMWareMetadata(map,performanceCounterInfoMap,metrics,orgId);
-		
-		Map<String,Integer> m = data.getPerformanceCounterMap();
-		assertEquals("Check RED item",m.get("RED"),new Integer(1));
-		assertEquals("Check GREEN item",m.get("GREEN"),new Integer(2));
-		assertEquals("Check BLUE item",m.get("BLUE"),new Integer(3));
+		Map<String,Integer> m = metadata.getNameMap();
+		assertEquals("Check one item",m.get("cpu.usage.AVERAGE"),new Integer(100));
+		assertEquals("Check two item",m.get("mem.swapused.MAXIMUM"),new Integer(101));
+		assertEquals("Check three item",m.get("disk.write.AVERAGE"),new Integer(102));
 	}
 
 	
 	@Test
 	public void testSetPerformanceCounterInfoMap() {
+		PerformanceCounterMetadata metadata = new PerformanceCounterMetadata(metrics);
+		
 		PerfCounterInfo one = VMWareTestUtils.buildPerfCounterInfo("cpu",100,new Integer(4),"usage",PerfSummaryType.AVERAGE,PerfStatsType.ABSOLUTE);
 		PerfCounterInfo two = VMWareTestUtils.buildPerfCounterInfo("mem",101,new Integer(4),"swapused",PerfSummaryType.MAXIMUM,PerfStatsType.ABSOLUTE);
 		PerfCounterInfo three = VMWareTestUtils.buildPerfCounterInfo("disk",102,new Integer(1),"write",PerfSummaryType.AVERAGE,PerfStatsType.RATE);
-		Map<Integer,PerfCounterInfo> infoMap = new HashMap<Integer,PerfCounterInfo>();
-		infoMap.put(one.getKey(),one);
-		infoMap.put(two.getKey(),two);
-		infoMap.put(three.getKey(),three);
+
+		metadata.put(one);
+		metadata.put(two);
+		metadata.put(three);
 		
-		VMWareMetadata data = new VMWareMetadata(performanceCounterMap,infoMap,metrics,orgId);
-		Map<Integer,PerfCounterInfo> newInfoMap = data.getPerformanceCounterInfoMap();
-		assertNotNull("check for Null",newInfoMap);
-		assertEquals("check one",one,newInfoMap.get(100));
-		assertEquals("check two",two,newInfoMap.get(101));
-		assertEquals("check three",three,newInfoMap.get(102));
+		
+		Map<Integer,PerfCounterInfo> infoMap = metadata.getInfoMap();
+		assertNotNull("check for Null",metadata);
+		assertEquals("check one",one,infoMap.get(100));
+		assertEquals("check two",two,infoMap.get(101));
+		assertEquals("check three",three,infoMap.get(102));
 	}
 
 	@Test
 	public void testSetOrgId() {
 		String myOrgId = "foobar";
-		VMWareMetadata data = new VMWareMetadata(performanceCounterMap,performanceCounterInfoMap,metrics,myOrgId);
+		PerformanceCounterMetadata metadata = new PerformanceCounterMetadata(metrics);
+		VMWareMetadata data = new VMWareMetadata(metadata,myOrgId);
 		assertEquals("check orgId",myOrgId,data.getOrgId());
 	}
 
@@ -95,8 +99,8 @@ public class VMWareMetadataTest {
 		m.put("disk.read.AVERAGE",one);
 		m.put("disk.write.AVERAGE",two);
 		m.put("cpu.usage.MINIMUM",three);
-		VMWareMetadata data = new VMWareMetadata(performanceCounterMap,performanceCounterInfoMap,m,orgId);
-		Map<String,Metric> newMetrics = data.getMetrics();
+		PerformanceCounterMetadata metadata = new PerformanceCounterMetadata(m);
+		Map<String,Metric> newMetrics = metadata.getMetrics();
 		assertEquals("check one",one,newMetrics.get("disk.read.AVERAGE"));
 		assertEquals("check two",two,newMetrics.get("disk.write.AVERAGE"));
 		assertEquals("check three",three,newMetrics.get("cpu.usage.MINIMUM"));

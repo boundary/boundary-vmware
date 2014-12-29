@@ -34,24 +34,28 @@ import com.vmware.vim25.RuntimeFaultFaultMsg;
  */
 public class MetricCollectionJob {
 	
-	private final VMWareMetadata metadata;
+	private final PerformanceCounterMetadata metadata;
 	private final VMwareClient vmwareClient;
 	private final MetricClient metricsClient;
 	private final MeterManagerClient meterClient;
+	private final MORCatalog morCatalog;
+	private final String orgId;
 	
 	/**
 	 * Consteructor
-	 * @param metadata {@link VMWareMetadata} all data required to collect metrics
+	 * @param metadata {@link PerformanceCounterMetadata} all data required to collect metrics
 	 * @param vmwareClient {@link VMwareClient} Handles connection to vSphere end point
 	 * @param metricsClient {@link MetricClient} Handles metrics API connection to Boundary
 	 * @param meterManagerClient {@link MeterManagerClient} Handles meter API connection to Boundary
 	 */
-	public MetricCollectionJob(VMWareMetadata metadata,VMwareClient vmwareClient,
-			MetricClient metricsClient,MeterManagerClient meterClient) {
+	public MetricCollectionJob(PerformanceCounterMetadata metadata,VMwareClient vmwareClient,
+			MetricClient metricsClient,MeterManagerClient meterClient,MORCatalog morCatalog,String orgId) {
 		this.metadata = metadata;
 		this.vmwareClient = vmwareClient;
 		this.metricsClient = metricsClient;
 		this.meterClient = meterClient;
+		this.morCatalog = morCatalog;
+		this.orgId = orgId;
 	}
 
 	public ManagedObjectReference getRootMOR() {
@@ -62,8 +66,8 @@ public class MetricCollectionJob {
 		return vmwareClient.getHost();
 	}
 
-	public Map<String, Integer> getPerformanceCounterMap() {
-		return metadata.getPerformanceCounterMap();
+	public Map<String, Integer> getNameMap() {
+		return metadata.getNameMap();
 	}
 
 	public Map<String,Metric> getMetrics() {
@@ -74,8 +78,8 @@ public class MetricCollectionJob {
 		return this.vmwareClient;
 	}
 
-	public Map<Integer, PerfCounterInfo> getPerformanceCounterInfoMap() {
-		return metadata.getPerformanceCounterInfoMap();
+	public Map<Integer, PerfCounterInfo> getInfoMap() {
+		return metadata.getInfoMap();
 	}
 
 	public MeterManagerClient getMeterClient() {
@@ -83,10 +87,23 @@ public class MetricCollectionJob {
 	}
 
 	public String getOrgId() {
-		return metadata.getOrgId();
+		return orgId;
 	}
 
 	public MetricClient getMetricsClient() {
 		return this.metricsClient;
 	}
+
+	public PerformanceCounterMetadata getMetadata() {
+		return metadata;
+	}
+
+	public VMwareClient getVmwareClient() {
+		return vmwareClient;
+	}
+
+	public MORCatalog getManagedObjectCatalog() {
+		return morCatalog;
+	}
+	
 }
