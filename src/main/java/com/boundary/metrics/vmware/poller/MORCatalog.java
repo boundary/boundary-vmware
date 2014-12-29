@@ -21,11 +21,11 @@ import java.util.List;
  * a vSphere end point
  *
  */
-public class InventoryCatalog {
+public class MORCatalog {
 
-	private List<CatalogEntry> catalog;
+	private List<MORCatalogEntry> catalog;
 
-	public List<CatalogEntry> getCatalog() {
+	public List<MORCatalogEntry> getCatalog() {
 		return catalog;
 	}
 }
