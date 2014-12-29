@@ -28,6 +28,7 @@ client:
   gzipEnabledForRequests: false
 meterManagerClient:
   apiKey: 6OThKB6oaF4TkCXPFIWxoHuLzX1
+  orgId: ChMBk5Ou9QBdDPaTai0rfUbZ8bC
   baseUri: https://api.somewhere.com/
 metricsClient:
   baseUri: https://metrics-api.somewhere.com/

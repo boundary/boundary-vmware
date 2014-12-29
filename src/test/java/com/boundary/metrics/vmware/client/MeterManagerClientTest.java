@@ -44,58 +44,12 @@ import com.google.common.io.Resources;
 import com.sun.jersey.api.client.Client;
 
 public class MeterManagerClientTest {
-
-	private static Properties clientProperties;
 	
-	private final static String BASE_URL = "com.boundary.metrics.meter.client.baseuri";
-	private final static String API_KEY = "com.boundary.metrics.meter.client.apikey";
-
-	private static String baseUri;
-	private static String apiKey;
-	private static Environment environment;
-	private static VMwarePerfAdapterConfiguration configuration;
-
 	private static MeterManagerClient client;
 
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
-		// If our configuration file is missing that do not run
-		// tests. The configuration file has credentials so we
-		// are not able to include in our repository.
-		String configFile = "vmware-adapter-test.yml";
-		Joiner configJoin = Joiner.on("//");
-		String configFilePath = configJoin.join("src/test/resources",configFile);
-		assumeTrue(new File(configFilePath).exists());
-		
-		ObjectMapper mapper = new ObjectMapper();
-		MetricRegistry registry = new MetricRegistry();
-		environment = new Environment("test", mapper, null, registry, ClassLoader.getSystemClassLoader());
-		configuration = VMWareTestUtils.getConfiguration(configFile);
-
-		String propertyFile = "meter-manager-client.properties";
-		Joiner propertyFileJoin = Joiner.on("//");
-		String propertyFilePath = propertyFileJoin.join("src/test/resources",configFile);
-		assumeTrue(new File(propertyFilePath).exists());
-		
-		File propertiesFile = new File(Resources.getResource(propertyFile).toURI());
-		Reader reader = new FileReader(propertiesFile);
-		clientProperties = new Properties();
-		clientProperties.load(reader);
-		System.out.println("clientProperties: " + clientProperties);
-		baseUri = clientProperties.getProperty(BASE_URL);
-		apiKey = clientProperties.getProperty(API_KEY);
-		
-		Client httpClient = new JerseyClientBuilder(environment)
-        .using(configuration.getClient())
-        .build("http-client");
-		try {
-			System.out.println(baseUri);
-			URI uri = new URI(baseUri);
-			client = new MeterManagerClient(httpClient,uri,apiKey);
-		} catch (URISyntaxException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		client = VMWareTestUtils.getMeterClient();
 	}
 
 	@AfterClass
@@ -113,8 +67,8 @@ public class MeterManagerClientTest {
 	@Test
 	public void testCreateMeter() {
 		String meterName = "my-test-meter";
-		client.createOrGetMeterMetadata(configuration.getOrgId(),meterName);
-		Optional<MeterMetadata> result = client.getMeterMetadataByName(configuration.getOrgId(), meterName);
+		client.createOrGetMeterMetadata(meterName);
+		Optional<MeterMetadata> result = client.getMeterMetadataByName(meterName);
 		MeterMetadata meter = result.get();
 		assertNotNull("Check for Not Null meter: getMeterMetadataByName()",meter);
 		assertEquals("Check getName()",meterName,meter.getName());
@@ -122,7 +76,7 @@ public class MeterManagerClientTest {
 		String meterId = meter.getId();
 		System.out.println(meterId);
 		
-		result = client.getMeterMetadataById(configuration.getOrgId(),meterId);
+		result = client.getMeterMetadataById(meterId);
 		assertNotNull("Check for Not Null meter: getMeterMetadataById()",meter);
 		assertEquals("Check getName()",meterName,meter.getName());
 		//assertEquals("Check getOrgId()",configuration.getOrgId(),meter.getOrgId());

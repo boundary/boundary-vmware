@@ -13,11 +13,12 @@ client:
   retries: 3
   gzipEnabledForRequests: false
 meterManagerClient:
-  apiKey: <boundary enterprise api key>
+  apiKey: 6OThKB6oaF4TkCXPFIWxoHuLzX1
+  orgId: ChMBk5Ou9QBdDPaTai0rfUbZ8bC
   baseUri: https://api.boundary.com/
 metricsClient:
   baseUri: https://metrics-api.boundary.com/
-  apiKey: <boundary enterprise metrics api key>
+  apiKey: chmbk5ou9qbddpatai0rfubz8bc@metrics.boundary.com:api.4476f18389-16
 # Logging settings.
 logging:
   # The default level of all loggers. Can be OFF, ERROR, WARN, INFO, DEBUG, TRACE, or ALL.
@@ -28,9 +29,10 @@ logging:
     # and sets it to DEBUG.
     #"org.apache.http.wire": DEBUG
     com.boundary: TRACE
-orgId: 
+orgId: ChMBk5Ou9QBdDPaTai0rfUbZ8bC
 monitoredEntities:
     # The following can configuration can be repeated for other instances
-    - uri: https://<esx host or vcenter host>/sdk/vimService
-      username: <user>
-      password: <password>
+    - uri: https://172.17.19.100/sdk/vimService
+      username:  mgmt.sccloudpoc.net\sa-pf01-boundary_lab1ch
+      password: Bound$01
+      name: target

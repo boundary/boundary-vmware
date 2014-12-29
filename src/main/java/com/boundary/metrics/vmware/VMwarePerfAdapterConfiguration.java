@@ -40,19 +40,29 @@ public class VMwarePerfAdapterConfiguration extends Configuration {
         @NotNull
         @JsonProperty
         private URI baseUri = URI.create("https://api.boundary.com");
+        
+        @NotEmpty
+        @JsonProperty
+        private String orgId;
 
         @NotEmpty
         @JsonProperty
         private String apiKey;
 
-        public URI getBaseUri() { return baseUri; }
+        public URI getBaseUri() {
+        	return baseUri;
+        }
+        
+        public String getOrgId() {
+        	return orgId;
+        }
 
         public String getApiKey() {
             return apiKey;
         }
 
         public MeterManagerClient build(Client httpClient) {
-            return new MeterManagerClient(httpClient, getBaseUri(), getApiKey());
+            return new MeterManagerClient(httpClient, getBaseUri(),getOrgId(),getApiKey());
         }
     }
 

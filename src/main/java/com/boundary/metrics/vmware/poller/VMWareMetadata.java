@@ -14,36 +14,32 @@
 
 package com.boundary.metrics.vmware.poller;
 
+import java.util.List;
 import java.util.Map;
 
 import com.boundary.metrics.vmware.client.metrics.Metric;
 import com.vmware.vim25.PerfCounterInfo;
+import com.vmware.vim25.PerfMetricId;
 
 /**
  * Manages all of the metadata required to collect metrics from vSphere
  */
 public class VMWareMetadata {
 	
-    private Map<String,Integer> performanceCounterMap;
-    private Map<Integer,PerfCounterInfo> performanceCounterInfoMap;
-    private Map<String,Metric> metrics;
+    private final PerformanceCounterMetadata metadata;
     private String orgId;
     
-    public VMWareMetadata(Map<String,Integer> performanceCounterMap,
-    		Map<Integer,PerfCounterInfo> performanceCounterInfoMap,
-    		Map<String,Metric> metrics,String orgId) {
-    	this.performanceCounterMap = performanceCounterMap;
-    	this.performanceCounterInfoMap = performanceCounterInfoMap;
-    	this.metrics = metrics;
+    public VMWareMetadata(PerformanceCounterMetadata metadata,String orgId) {
+    	this.metadata = metadata;
     	this.orgId = orgId;
     }
     
-	public Map<String, Integer> getPerformanceCounterMap() {
-		return performanceCounterMap;
+	public Map<String,Integer> getNameMap() {
+		return metadata.getNameMap();
 	}
 
-	public Map<Integer, PerfCounterInfo> getPerformanceCounterInfoMap() {
-		return performanceCounterInfoMap;
+	public Map<Integer,PerfCounterInfo> getInfoMap() {
+		return metadata.getInfoMap();
 	}
 
 	public String getOrgId() {
@@ -51,6 +47,10 @@ public class VMWareMetadata {
 	}
 	
 	public Map<String,Metric> getMetrics() {
-		return metrics;
+		return metadata.getMetrics();
+	}
+
+	public List<PerfMetricId> getPerfMetrics() {
+		return metadata.getPerformanceMetricIds();
 	}
 }

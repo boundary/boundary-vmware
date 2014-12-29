@@ -14,12 +14,16 @@
 
 package com.boundary.metrics.vmware.poller;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 import javax.annotation.Nullable;
 
+import com.boundary.metrics.vmware.client.metrics.Metric;
 import com.google.common.base.Function;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Lists;
 import com.vmware.vim25.PerfCounterInfo;
 import com.vmware.vim25.PerfMetricId;
 
@@ -28,15 +32,20 @@ import com.vmware.vim25.PerfMetricId;
  */
 public class PerformanceCounterMetadata {
 	
+	private Map<String,Metric> metrics;
+	
 	private ImmutableMap.Builder<Integer,PerfCounterInfo> infoMap;
 	private ImmutableMap.Builder<String,Integer> nameMap;
+
+	private List<PerfMetricId> performanceMetricIds;
 	
 	/**
 	 * Constructore
 	 * @param infoMap Mapping of performance counter id and {@link PerfCounterInfo}
 	 * @param nameMap Mapping
 	 */
-	public PerformanceCounterMetadata() {
+	public PerformanceCounterMetadata(Map<String,Metric> metrics) {
+		this.metrics = metrics;
 		this.infoMap = ImmutableMap.builder();
 		this.nameMap = ImmutableMap.builder();
 	}
@@ -51,6 +60,10 @@ public class PerformanceCounterMetadata {
 		nameMap.put(toFullName(counterInfo), counterInfo.getKey());
 	}
 	
+	public Map<String, Metric> getMetrics() {
+		return metrics;
+	}
+
 	public Map<String,Integer> getNameMap() {
 		return nameMap.build();
 	}
@@ -63,6 +76,22 @@ public class PerformanceCounterMetadata {
 	 */
 	public Map<Integer,PerfCounterInfo> getInfoMap() {
 		return infoMap.build();
+	}
+	
+	public List<PerfMetricId> getPerformanceMetricIds() {
+		Map<String,Integer> nameMap = this.getNameMap();
+		this.performanceMetricIds = new ArrayList<PerfMetricId>();
+		
+		for (String counterName : metrics.keySet()) {
+			if (nameMap.containsKey(counterName)) {
+				PerfMetricId metricId = new PerfMetricId();
+				// Get the ID for this counter.
+				metricId.setCounterId(nameMap.get(counterName));
+				metricId.setInstance("*");
+				performanceMetricIds.add(metricId);
+			}
+		}
+		return this.performanceMetricIds;
 	}
 	
 	/**

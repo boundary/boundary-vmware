@@ -411,7 +411,7 @@ public class VMwarePerfPoller implements Runnable, MetricSet {
                             }
 
                             // Prefix the VM name with the name from the monitored entity configuration, we can form unique names that way
-                            int obsDomainId = meterManagerClient.createOrGetMeterMetadata(orgId, client.getName() + "-" + entityName).getObservationDomainId();
+                            int obsDomainId = meterManagerClient.createOrGetMeterMetadata(client.getName() + "-" + entityName).getObservationDomainId();
 
                             if (metricInfo.getUnitInfo().getKey().equalsIgnoreCase("kiloBytes")) {
                                 sampleValue = (long)sampleValue * 1024; // Convert KB to Bytes
