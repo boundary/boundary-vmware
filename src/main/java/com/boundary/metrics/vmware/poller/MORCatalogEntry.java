@@ -18,12 +18,12 @@ import java.util.List;
 
 public class MORCatalogEntry {
 
-	private String managedObject;
+	private String objectType;
 	
 	private List<PerformanceCounterEntry> performanceCounters;
 
-	public String getManagedObject() {
-		return managedObject;
+	public String getObjectType() {
+		return objectType;
 	}
 
 	public List<PerformanceCounterEntry> getPerformanceCounters() {
