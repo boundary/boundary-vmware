@@ -46,7 +46,7 @@ public class VMWareMetadataTest {
 
 	@Test
 	public void testSetPerformanceCounterMap() {
-		PerformanceCounterMetadata metadata = new PerformanceCounterMetadata(metrics);
+		PerformanceCounterMetadata metadata = new PerformanceCounterMetadata();
 		PerfCounterInfo one = VMWareTestUtils.buildPerfCounterInfo("cpu",100,new Integer(4),"usage",PerfSummaryType.AVERAGE,PerfStatsType.ABSOLUTE);
 		PerfCounterInfo two = VMWareTestUtils.buildPerfCounterInfo("mem",101,new Integer(4),"swapused",PerfSummaryType.MAXIMUM,PerfStatsType.ABSOLUTE);
 		PerfCounterInfo three = VMWareTestUtils.buildPerfCounterInfo("disk",102,new Integer(1),"write",PerfSummaryType.AVERAGE,PerfStatsType.RATE);
@@ -64,7 +64,7 @@ public class VMWareMetadataTest {
 	
 	@Test
 	public void testSetPerformanceCounterInfoMap() {
-		PerformanceCounterMetadata metadata = new PerformanceCounterMetadata(metrics);
+		PerformanceCounterMetadata metadata = new PerformanceCounterMetadata();
 		
 		PerfCounterInfo one = VMWareTestUtils.buildPerfCounterInfo("cpu",100,new Integer(4),"usage",PerfSummaryType.AVERAGE,PerfStatsType.ABSOLUTE);
 		PerfCounterInfo two = VMWareTestUtils.buildPerfCounterInfo("mem",101,new Integer(4),"swapused",PerfSummaryType.MAXIMUM,PerfStatsType.ABSOLUTE);
@@ -81,29 +81,4 @@ public class VMWareMetadataTest {
 		assertEquals("check two",two,infoMap.get(101));
 		assertEquals("check three",three,infoMap.get(102));
 	}
-
-	@Test
-	public void testSetOrgId() {
-		String myOrgId = "foobar";
-		PerformanceCounterMetadata metadata = new PerformanceCounterMetadata(metrics);
-		VMWareMetadata data = new VMWareMetadata(metadata,myOrgId);
-		assertEquals("check orgId",myOrgId,data.getOrgId());
-	}
-
-	@Test
-	public void testGetMetrics() {
-		Map<String,Metric> m = new HashMap<String,Metric>();
-		Metric one = new Metric("VMWARE_DISK_READ_AVERAGE","Disk Read Average");
-		Metric two = new Metric("VMWARE_DISK_WRITE_AVERAGE","Disk Write Average");
-		Metric three = new Metric("VMWARE_CPU_USAGE_MINIMUM","CPU Usage Minimum");
-		m.put("disk.read.AVERAGE",one);
-		m.put("disk.write.AVERAGE",two);
-		m.put("cpu.usage.MINIMUM",three);
-		PerformanceCounterMetadata metadata = new PerformanceCounterMetadata(m);
-		Map<String,Metric> newMetrics = metadata.getMetrics();
-		assertEquals("check one",one,newMetrics.get("disk.read.AVERAGE"));
-		assertEquals("check two",two,newMetrics.get("disk.write.AVERAGE"));
-		assertEquals("check three",three,newMetrics.get("cpu.usage.MINIMUM"));
-	}
-
 }
