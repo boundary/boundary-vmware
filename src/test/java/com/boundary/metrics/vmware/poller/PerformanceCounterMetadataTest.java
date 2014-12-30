@@ -51,7 +51,7 @@ public class PerformanceCounterMetadataTest {
 
 	@Before
 	public void setUp() throws Exception {
-		metadata = new PerformanceCounterMetadata(new HashMap<String,Metric>());
+		metadata = new PerformanceCounterMetadata();
 		one = VMWareTestUtils.buildPerfCounterInfo("cpu",100,new Integer(4),"usage",PerfSummaryType.AVERAGE,PerfStatsType.ABSOLUTE);
 		two = VMWareTestUtils.buildPerfCounterInfo("mem",101,new Integer(4),"swapused",PerfSummaryType.MAXIMUM,PerfStatsType.ABSOLUTE);
 		three = VMWareTestUtils.buildPerfCounterInfo("disk",102,new Integer(1),"write",PerfSummaryType.AVERAGE,PerfStatsType.RATE);
@@ -98,11 +98,10 @@ public class PerformanceCounterMetadataTest {
 		metrics.put(metric2.getName(),metric2);
 		metrics.put(metric3.getName(),metric3);
 		
-		List<PerfMetricId> performanceMetrics = metadata.getPerformanceMetricIds();
+		List<PerfMetricId> performanceMetrics = metadata.getPerformanceMetricIds(metrics);
 		for (PerfMetricId perfMetric : performanceMetrics) {
 			
 			assertEquals("check instance","*",perfMetric.getInstance());
-			// TODO: Additional test
 			switch (perfMetric.getCounterId()) {
 			case 100:
 				break;
