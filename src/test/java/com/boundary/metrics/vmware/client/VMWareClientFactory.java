@@ -36,11 +36,11 @@ public class VMWareClientFactory {
 	
 	private final static String DEFAULT_PROPERTY_FILE = "vmware-client.properties";
 	
-	public static Connection createClient() throws URISyntaxException, IOException {
+	public static VMwareClient createClient() throws URISyntaxException, IOException {
 		return createClient(DEFAULT_PROPERTY_FILE);
 	}
 	
-	public static Connection createClient(String propertyFile) throws URISyntaxException, IOException {
+	public static VMwareClient createClient(String propertyFile) throws URISyntaxException, IOException {
 		final String URL = "com.boundary.metrics.vmware.client.url";
 		final String USER = "com.boundary.metrics.vmware.client.user";
 		final String PASSWORD = "com.boundary.metrics.vmware.client.password";
