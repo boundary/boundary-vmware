@@ -32,7 +32,7 @@ import com.vmware.vim25.PerfMetricId;
  */
 public class PerformanceCounterMetadata {
 	
-	private Map<String,Metric> metrics;
+
 	
 	private ImmutableMap.Builder<Integer,PerfCounterInfo> infoMap;
 	private ImmutableMap.Builder<String,Integer> nameMap;
@@ -44,8 +44,7 @@ public class PerformanceCounterMetadata {
 	 * @param infoMap Mapping of performance counter id and {@link PerfCounterInfo}
 	 * @param nameMap Mapping
 	 */
-	public PerformanceCounterMetadata(Map<String,Metric> metrics) {
-		this.metrics = metrics;
+	public PerformanceCounterMetadata() {
 		this.infoMap = ImmutableMap.builder();
 		this.nameMap = ImmutableMap.builder();
 	}
@@ -58,10 +57,6 @@ public class PerformanceCounterMetadata {
 	public void put(PerfCounterInfo counterInfo) {
 		infoMap.put(counterInfo.getKey(),counterInfo);
 		nameMap.put(toFullName(counterInfo), counterInfo.getKey());
-	}
-	
-	public Map<String, Metric> getMetrics() {
-		return metrics;
 	}
 
 	public Map<String,Integer> getNameMap() {
@@ -78,7 +73,7 @@ public class PerformanceCounterMetadata {
 		return infoMap.build();
 	}
 	
-	public List<PerfMetricId> getPerformanceMetricIds() {
+	public List<PerfMetricId> getPerformanceMetricIds(Map<String,Metric> metrics) {
 		Map<String,Integer> nameMap = this.getNameMap();
 		this.performanceMetricIds = new ArrayList<PerfMetricId>();
 		

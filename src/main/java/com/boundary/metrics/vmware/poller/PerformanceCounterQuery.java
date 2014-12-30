@@ -46,30 +46,21 @@ public class PerformanceCounterQuery {
 	
 	private VMwareClient vmwareClient;
 	private MeterManagerClient meterClient;
-	private PerformanceCounterMetadata metadata;
+	private VMWareMetadata metadata;
 	
 	private DateTime lastPoll;
 
-
+	private DateTime now;
 
 	PerformanceCounterQuery(VMwareClient vmwareClient,
 			MeterManagerClient meterClient,
-			PerformanceCounterMetadata metadata) {
+			VMWareMetadata metadata) {
         this.vmwareClient = checkNotNull(vmwareClient);
         this.meterClient = checkNotNull(meterClient);
         this.metadata = metadata;
 	}
 	
-	List<Measurement> queryCounters(ManagedObjectReference mor) throws RuntimeFaultFaultMsg {
-		// Holder for all our newly found measurements
-        List<Measurement> measurements = Lists.newArrayList();
-        String entityName = mor.getValue();
-        
-        DateTime now = vmwareClient.getTimeAtEndPoint();
-
-        if (lastPoll == null) {
-            lastPoll = now.minusSeconds(20);
-        }
+	private PerfQuerySpec getPerfQuerySpec(ManagedObjectReference mor) {
 		/*
          * Create the query specification for queryPerf().
          * Specify 5 minute rollup interval and CSV output format.
@@ -78,15 +69,30 @@ public class PerformanceCounterQuery {
          querySpec.setEntity(mor);
          querySpec.setIntervalId(20);
          querySpec.setFormat("normal");
-         querySpec.setStartTime(TimeUtils.toXMLGregorianCalendar(lastPoll));
-         querySpec.setEndTime(TimeUtils.toXMLGregorianCalendar(now));
-         querySpec.getMetricId().addAll(metadata.getPerformanceMetricIds());
+         querySpec.setStartTime(TimeUtils.toXMLGregorianCalendar(this.lastPoll));
+         querySpec.setEndTime(TimeUtils.toXMLGregorianCalendar(this.now));
+         querySpec.getMetricId().addAll(metadata.getPerfMetrics());
+         return querySpec;
+	}
+	
+	List<Measurement> queryCounters(ManagedObjectReference mor) throws RuntimeFaultFaultMsg {
+		// Holder for all our newly found measurements
+        List<Measurement> measurements = Lists.newArrayList();
+        String entityName = mor.getValue();
+        
+        this.now = vmwareClient.getTimeAtEndPoint();
 
-         LOG.info("Entity: {}, MOR: {}-{}, Interval: {}, Format: {}, MetricIds: {}, Start: {}, End: {}", mor,
+        if (this.lastPoll == null) {
+            this.lastPoll = this.now.minusSeconds(20);
+        }
+        
+        PerfQuerySpec querySpec = this.getPerfQuerySpec(mor);
+
+        LOG.info("Entity: {}, MOR: {}-{}, Interval: {}, Format: {}, MetricIds: {}, Start: {}, End: {}", mor,
                  mor.getType(), mor.getValue(), querySpec.getIntervalId(), querySpec.getFormat(),
-                 FluentIterable.from(metadata.getPerformanceMetricIds()).transform(PerformanceCounterMetadata.toStringFunction), lastPoll, now);
+                 FluentIterable.from(metadata.getPerfMetrics()).transform(PerformanceCounterMetadata.toStringFunction), lastPoll, now);
 
-         List<PerfEntityMetricBase> retrievedStats = vmwareClient.getVimPort().queryPerf(vmwareClient.getServiceContent().getPerfManager(), ImmutableList.of(querySpec));
+         List<PerfEntityMetricBase> retrievedStats = vmwareClient.getStats(querySpec);
 	
          Map<Integer, PerfCounterInfo> infoMap = metadata.getInfoMap();
          /*
@@ -125,24 +131,25 @@ public class PerformanceCounterQuery {
                               // Convert hundredth of a percent to a decimal percent
                               sampleValue = new Long((long)sampleValue).doubleValue() / 10000.0;
                           }
-                          String name = metadata.getMetrics().get(metricFullName).getName();
-                          if (name != null) {
-                          Measurement measurement = Measurement.builder()
+                          Metric metric = metadata.getMetrics().get(metricFullName);
+                          if (metric != null) {
+                        	  String name = metric.getName();
+                        	  Measurement measurement = Measurement.builder()
                                   .setMetric(name)
                                   .setSourceId(obsDomainId)
                                   .setTimestamp(sampleTime)
                                   .setMeasurement(sampleValue)
                                   .build();
 
-                          Measurement dummyMeasurement = Measurement.builder()
-                                  .setMetric(name)
-                                  .setSourceId(obsDomainId)
-                                  .setTimestamp(sampleTime.minusSeconds(10))
-                                  .setMeasurement(sampleValue)
-                                  .build();
+//                          Measurement dummyMeasurement = Measurement.builder()
+//                                  .setMetric(name)
+//                                  .setSourceId(obsDomainId)
+//                                  .setTimestamp(sampleTime.minusSeconds(10))
+//                                  .setMeasurement(sampleValue)
+//                                  .build();
 
                           measurements.add(measurement);
-                          measurements.add(dummyMeasurement); // Fill in enough data so HLM graph can stream
+//                          measurements.add(dummyMeasurement); // Fill in enough data so HLM graph can stream
 
                           LOG.info("{} @ {} = {} {}", metricFullName, sampleTime,
                                   sampleValue, metricInfo.getUnitInfo().getKey());

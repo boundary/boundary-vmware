@@ -63,7 +63,7 @@ public class PerformanceCounterCollector {
 	 * @throws RuntimeFaultFaultMsg {@link RuntimeFaultFaultMsg}
 	 */
 	public PerformanceCounterMetadata fetchPerformanceCounters() throws InvalidPropertyFaultMsg, RuntimeFaultFaultMsg {
-		PerformanceCounterMetadata metadata = new PerformanceCounterMetadata(new HashMap<String,Metric>());
+		PerformanceCounterMetadata metadata = new PerformanceCounterMetadata();
 		
 		// Get the PerformanceManager object which is used
 		// to get metrics from counters

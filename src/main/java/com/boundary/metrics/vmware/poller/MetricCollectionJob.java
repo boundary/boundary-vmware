@@ -34,28 +34,26 @@ import com.vmware.vim25.RuntimeFaultFaultMsg;
  */
 public class MetricCollectionJob {
 	
-	private final PerformanceCounterMetadata metadata;
+	private final VMWareMetadata metadata;
 	private final VMwareClient vmwareClient;
 	private final MetricClient metricsClient;
 	private final MeterManagerClient meterClient;
 	private final MORCatalog morCatalog;
-	private final String orgId;
 	
 	/**
-	 * Consteructor
-	 * @param metadata {@link PerformanceCounterMetadata} all data required to collect metrics
+	 * Constructor
+	 * @param metadata {@link VMWareMetadata} all data required to collect metrics
 	 * @param vmwareClient {@link VMwareClient} Handles connection to vSphere end point
 	 * @param metricsClient {@link MetricClient} Handles metrics API connection to Boundary
 	 * @param meterManagerClient {@link MeterManagerClient} Handles meter API connection to Boundary
 	 */
-	public MetricCollectionJob(PerformanceCounterMetadata metadata,VMwareClient vmwareClient,
-			MetricClient metricsClient,MeterManagerClient meterClient,MORCatalog morCatalog,String orgId) {
+	public MetricCollectionJob(VMWareMetadata metadata,VMwareClient vmwareClient,
+			MetricClient metricsClient,MeterManagerClient meterClient,MORCatalog morCatalog) {
 		this.metadata = metadata;
 		this.vmwareClient = vmwareClient;
 		this.metricsClient = metricsClient;
 		this.meterClient = meterClient;
 		this.morCatalog = morCatalog;
-		this.orgId = orgId;
 	}
 
 	public ManagedObjectReference getRootMOR() {
@@ -86,16 +84,12 @@ public class MetricCollectionJob {
 		return this.meterClient;
 	}
 
-	public String getOrgId() {
-		return orgId;
-	}
-
 	public MetricClient getMetricsClient() {
 		return this.metricsClient;
 	}
 
 	public PerformanceCounterMetadata getMetadata() {
-		return metadata;
+		return this.getMetadata();
 	}
 
 	public VMwareClient getVmwareClient() {
