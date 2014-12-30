@@ -14,6 +14,7 @@
 
 package com.boundary.metrics.vmware.client;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assume.assumeTrue;
 
@@ -21,6 +22,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.List;
+import java.util.Map;
 
 import org.junit.After;
 import org.junit.AfterClass;
@@ -28,6 +30,7 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import com.boundary.metrics.vmware.poller.VMwareClient;
 import com.google.common.collect.ImmutableList;
 import com.google.common.io.Resources;
 import com.vmware.connection.Connection;
@@ -49,9 +52,10 @@ import com.vmware.vim25.VimService;
 
 public class VMwareClientTest {
 
-	private Connection vmClient;
+	private VMwareClient vmClient;
 	
 	private final static String CLIENT_PROPERTY_FILE = "vmware-client.properties";
+	private final static String MANAGED_OBJECTS_FILE = "managed-objects.json";
 
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
@@ -61,6 +65,9 @@ public class VMwareClientTest {
 		
 		File propertiesFile = new File(Resources.getResource(CLIENT_PROPERTY_FILE).toURI());
 		assumeTrue(propertiesFile.exists());
+		
+		File managedObjectsFile = new File(Resources.getResource(MANAGED_OBJECTS_FILE).toURI());
+		assumeTrue(managedObjectsFile.exists());
 	}
 
 	@AfterClass
@@ -83,6 +90,22 @@ public class VMwareClientTest {
 		Connection client =  VMWareClientFactory.createClient(CLIENT_PROPERTY_FILE);
 
 		client.connect();
+		client.disconnect();
+	}
+	
+	@Test
+	public void testMultipleConnection() throws URISyntaxException, IOException {
+		Connection client =  VMWareClientFactory.createClient(CLIENT_PROPERTY_FILE);
+		client.connect();
+		client.connect();
+		client.disconnect();
+	}
+	
+	@Test
+	public void testMultipleDisconnect() throws URISyntaxException, IOException {
+		Connection client =  VMWareClientFactory.createClient(CLIENT_PROPERTY_FILE);
+		client.connect();
+		client.disconnect();
 		client.disconnect();
 	}
 
@@ -111,6 +134,17 @@ public class VMwareClientTest {
 	public void testGetVimService() {
 		VimService vimService = vmClient.getVimService();
 		assertNotNull(vimService);
+	}
+	
+	@Test
+	public void testGetManagedObjects() throws RuntimeFaultFaultMsg, InvalidPropertyFaultMsg {
+		
+		Map<String, ManagedObjectReference> managedObjects = vmClient.getManagedObjects("VirtualMachine");
+		
+		for (Map.Entry<String,ManagedObjectReference> mor : managedObjects.entrySet()) {
+			ManagedObjectReference ref = mor.getValue();
+			assertEquals("Check mor type","VirtualMachine",ref.getType());
+		}
 	}
 
 	@Test

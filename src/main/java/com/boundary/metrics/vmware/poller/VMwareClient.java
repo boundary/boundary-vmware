@@ -18,6 +18,7 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
 import java.security.cert.CertificateException;
+import java.util.List;
 import java.util.Map;
 
 import javax.net.ssl.HostnameVerifier;
@@ -36,9 +37,14 @@ import org.slf4j.LoggerFactory;
 
 import com.boundary.metrics.vmware.util.TimeUtils;
 import com.google.common.base.Throwables;
+import com.google.common.collect.ImmutableList;
 import com.vmware.connection.Connection;
+import com.vmware.connection.helpers.GetMOREF;
 import com.vmware.vim25.AboutInfo;
+import com.vmware.vim25.InvalidPropertyFaultMsg;
 import com.vmware.vim25.ManagedObjectReference;
+import com.vmware.vim25.PerfEntityMetricBase;
+import com.vmware.vim25.PerfQuerySpec;
 import com.vmware.vim25.RuntimeFaultFaultMsg;
 import com.vmware.vim25.ServiceContent;
 import com.vmware.vim25.UserSession;
@@ -171,7 +177,6 @@ public class VMwareClient implements Connection {
      * Invokes a connection to the Web Service end point using the provide
      * credentials.
      * 
-     * @return {@link Connection}
      */
     @Override
     public Connection connect() {
@@ -250,6 +255,7 @@ public class VMwareClient implements Connection {
                 LOG.error("Unable to connect to " + getHost(), e);
             }
         }
+        
         return this;
     }
 
@@ -283,13 +289,14 @@ public class VMwareClient implements Connection {
     /**
      * Disconnect from the end point.
      * 
-     * @return {@link Connection}
      */
     @Override
     public Connection disconnect() {
     	LOG.debug("Monitored entity {} is disconnectiong",getName());
         try {
-            vimPort.logout(serviceContent.getSessionManager());
+        	if (vimPort != null) {
+        		vimPort.logout(serviceContent.getSessionManager());
+        	}
         } catch (RuntimeFaultFaultMsg e) {
             throw Throwables.propagate(e);
         } finally {
@@ -326,8 +333,34 @@ public class VMwareClient implements Connection {
     public DateTime getTimeAtEndPoint() throws RuntimeFaultFaultMsg {
 		return TimeUtils.toDateTime(getVimPort().currentTime(getServiceInstanceReference()));
 	}
-
     
+    
+    /**
+     * Query vSphere for values of performance metrics
+     * 
+     * @param querySpec
+     * @return {@link List} List of {@link PerfEntityMetricBase}
+     * @throws RuntimeFaultFaultMsg Any runtime issue
+     */
+    public List<PerfEntityMetricBase> getStats(PerfQuerySpec querySpec) throws RuntimeFaultFaultMsg {
+    	return this.getVimPort().queryPerf(this.getServiceContent().getPerfManager(), ImmutableList.of(querySpec));
+    }
+    
+    /**
+     * Query vSphere to get list of managed objects by their type
+     *  
+     * @param managedObjectType type of the managed object to look up
+     * @return {@link Map}
+     * @throws RuntimeFaultFaultMsg Runtime error occurred
+     * @throws InvalidPropertyFaultMsg Invalid property
+     */
+    public Map<String,ManagedObjectReference> getManagedObjects(String managedObjectType) throws RuntimeFaultFaultMsg, InvalidPropertyFaultMsg {
+        GetMOREF getMOREFs = new GetMOREF(this);
+        ManagedObjectReference root = this.getServiceContent().getRootFolder();
+        Map<String,ManagedObjectReference> entities = getMOREFs.inFolderByType(root,managedObjectType);
+        return entities;
+	}
+
     /**
 	 * Authentication is handled by using a TrustManager and supplying
      * a host name verifier method. (The host name verifier is declared
