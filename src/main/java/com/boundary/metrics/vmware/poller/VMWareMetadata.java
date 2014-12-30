@@ -14,6 +14,7 @@
 
 package com.boundary.metrics.vmware.poller;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -27,11 +28,11 @@ import com.vmware.vim25.PerfMetricId;
 public class VMWareMetadata {
 	
     private final PerformanceCounterMetadata metadata;
-    private String orgId;
+	private final Map<String, Metric> metrics;
     
-    public VMWareMetadata(PerformanceCounterMetadata metadata,String orgId) {
+    public VMWareMetadata(PerformanceCounterMetadata metadata,Map<String,Metric> metrics) {
     	this.metadata = metadata;
-    	this.orgId = orgId;
+    	this.metrics = metrics;
     }
     
 	public Map<String,Integer> getNameMap() {
@@ -41,16 +42,12 @@ public class VMWareMetadata {
 	public Map<Integer,PerfCounterInfo> getInfoMap() {
 		return metadata.getInfoMap();
 	}
-
-	public String getOrgId() {
-		return this.orgId;
-	}
 	
 	public Map<String,Metric> getMetrics() {
-		return metadata.getMetrics();
+		return metrics;
 	}
 
 	public List<PerfMetricId> getPerfMetrics() {
-		return metadata.getPerformanceMetricIds();
+		return metadata.getPerformanceMetricIds(metrics);
 	}
 }
