@@ -1,0 +1,7 @@
+{
+	"managedObjects": [
+						{ "key": "Ubuntu-TestVM03", "type": "VirtualMachine", "value": "vm-731"  },
+						{ "key": "Ubuntu-TestVM04", "type": "VirtualMachine", "value": "vm-732"  },
+						{ "key": "Windows_TestVM02", "type": "VirtualMachine", "value": "vm-155" }
+	                 ]
+}
