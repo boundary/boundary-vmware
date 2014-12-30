@@ -1,7 +1,7 @@
 {
    "catalog": [
                 {
-                  "managedObject": "VirtualMachines",
+                  "objectType": "VirtualMachines",
                   "performanceCounters": [  {
                   							   "counterName": "cpu.usage.average",
                   							   "metricIdentifier": "SYSTEM_CPU_USAGE_AVERAGE"
@@ -37,7 +37,7 @@
                                           ]
                 },
                 {
-                   "managedObject": "HostSystem",
+                   "objectType": "HostSystem",
                    "performanceCounters": [  {
                   							    "counterName": "cpu.usage.AVERAGE",
                   							    "metricIdentifier": "SYSTEM_CPU_USAGE_AVERAGE"
@@ -69,7 +69,7 @@
                                            ]
                 },
                 {
-                   "managedObject": "Datastore",
+                   "objectType": "Datastore",
                    "performanceCounters": [  {
                   							    "counterName": "cpu.usage.AVERAGE",
                   							    "metricIdentifier": "SYSTEM_CPU_USAGE_AVERAGE"

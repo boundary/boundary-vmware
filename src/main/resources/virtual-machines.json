@@ -1,0 +1,40 @@
+{
+   "catalog": [
+                {
+                  "objectType": "VirtualMachines",
+                  "performanceCounters": [  {
+                  							   "counterName": "cpu.usage.average",
+                  							   "metricIdentifier": "SYSTEM_CPU_USAGE_AVERAGE"
+                  							 },
+                  							 {
+                  							   "counterName": "cpu.usage.MINIMUM",
+                  							   "metricIdentifier": "SYSTEM_CPU_USAGE_MINIMUM"
+                  							 },
+                  							 {
+                  							   "counterName": "cpu.idle.SUMMATION",
+                  							   "metricIdentifier": "SYSTEM_CPU_IDLE_TOTAL"
+                  							 },
+                  							 {
+                  							   "counterName": "mem.active.MAXIMUM",
+                  							   "metricIdentifier": "SYSTEM_MEMORY_ACTIVE_MAXIMUM"
+                  							 },
+                  						     {
+                  						       "counterName": "mem.consumed.AVERAGE",
+                                               "metricIdentifier": "SYSTEM_MEMORY_CONSUMED_AVERAGE"
+                  						     },
+                  						     {
+                  						       "counterName": "mem.consumed.AVERAGE",
+                  						       "metricIdentifier": "SYSTEM_MEMORY_CONSUMED_AVERAGE"
+                  						     },
+                  						     {
+                  						       "counterName": "disk.read.AVERAGE",
+                  						       "metricIdentifier": "SYSTEM_DISK_READ_AVERAGE"
+                  						     },
+                  						     {
+                  						       "counterName": "disk.write.AVERAGE",
+                  						       "metricIdentifier": "SYSTEM_DISK_WRITE_AVERAGE"
+                  						     }
+                                          ]
+                }
+              ]
+}
