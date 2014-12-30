@@ -21,6 +21,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.Reader;
 import java.net.URISyntaxException;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
@@ -31,6 +32,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.boundary.metrics.vmware.client.VMWareClientFactory;
+import com.boundary.metrics.vmware.client.metrics.Metric;
 import com.google.common.io.Resources;
 import com.vmware.connection.Connection;
 import com.vmware.vim25.InvalidPropertyFaultMsg;
@@ -80,8 +82,16 @@ public class PerformanceCounterCollectorTest {
 	public void testPerformanceCounterCollector() throws URISyntaxException, IOException, InvalidPropertyFaultMsg, RuntimeFaultFaultMsg {
 		Connection client = VMWareClientFactory.createClient();
 		client.connect();
-		PerformanceCounterCollector collector = new PerformanceCounterCollector(client);
+
 		
+		Map<String,Metric> metrics = new HashMap<String,Metric>();
+		Metric one = new Metric("VMWARE_DISK_READ_AVERAGE","Disk Read Average");
+		Metric two = new Metric("VMWARE_DISK_WRITE_AVERAGE","Disk Write Average");
+		Metric three = new Metric("VMWARE_CPU_USAGE_MINIMUM","CPU Usage Minimum");
+		metrics.put("disk.read.AVERAGE",one);
+		metrics.put("disk.write.AVERAGE",two);
+		metrics.put("cpu.usage.MINIMUM",three);
+		PerformanceCounterCollector collector = new PerformanceCounterCollector(client);
 		PerformanceCounterMetadata metadata = collector.fetchPerformanceCounters();
 		
 		Map<String,Integer> nameMap = metadata.getNameMap();
