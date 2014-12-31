@@ -1,17 +1,16 @@
 package com.boundary.metrics.vmware.poller;
 
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.joda.time.DateTime;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import com.boundary.metrics.vmware.VMWareTestUtils;
@@ -37,58 +36,72 @@ public class PerformanceCounterQueryTest {
 	}
 
 	private MeterManagerClient meterClient;
-	private VMwareClient vmwareClient;
+	private VMwareClient vmClient;
 
 	@Before
 	public void setUp() throws Exception {
-		vmwareClient = VMWareTestUtils.getVMWareConnection(VMWARE_CLIENT_CONFIG_FILE);
-		vmwareClient.connect();
+		vmClient = VMWareTestUtils.getVMWareConnection(VMWARE_CLIENT_CONFIG_FILE);
+		vmClient.connect();
 		meterClient = VMWareTestUtils.getMeterClient();
 		
 	}
 
 	@After
 	public void tearDown() throws Exception {
-		vmwareClient.disconnect();
-		vmwareClient = null;
+		vmClient.disconnect();
+		vmClient = null;
 		meterClient = null;
 	}
 	
 	@Test
 	public void testGetVMByVMName() throws InvalidPropertyFaultMsg, RuntimeFaultFaultMsg {
-		GetMOREF search = new GetMOREF(vmwareClient);
+		GetMOREF search = new GetMOREF(vmClient);
 		ManagedObjectReference mor = search.vmByVMname("RHEL-TestVM01",
-				vmwareClient.getServiceContent().getPropertyCollector());
+				vmClient.getServiceContent().getPropertyCollector());
 		
 		assertNotNull("check ManagedObjectReference",mor);
 		System.out.println(mor.getValue());
-		System.out.println(mor.getType());
+		assertEquals("check type","VirtualMachine",mor.getType());
 	}
+	
+	
 
 	@Test
 	public void testQuery() throws InvalidPropertyFaultMsg, RuntimeFaultFaultMsg {
+		// Lookup a virtual machine that we want to collect measurements from
+		Map<String, ManagedObjectReference> vms = vmClient.getManagedObjects("VirtualMachine");
+		ManagedObjectReference mor = null;
+		
+		for (String key : vms.keySet()) {
+			mor = vms.get(key);
+			break;
+		}
+		
+		assertNotNull("check MOR",mor);
+		
+		// Define performance counters we want to retrieve
 		Map<String,Metric> metrics = new HashMap<String,Metric>();
-		String vmName = "RHEL-TestVM01";
+		metrics.put("cpu.usage.AVERAGE",new Metric("SYSTEM_CPU_USAGE_AVERAGE","CPU Average Utilization"));
 		
-		metrics.put("cpu.usage.AVERAGE",
-        		new Metric("SYSTEM_CPU_USAGE_AVERAGE","CPU Average Utilization"));
-		
-		GetMOREF search = new GetMOREF(vmwareClient);
-		
-		ManagedObjectReference mor = search.vmByVMname(vmName,vmwareClient.getServiceContent().getPropertyCollector());
-		System.out.println(mor.getValue());
-
-		PerformanceCounterCollector counterCollector = new PerformanceCounterCollector(vmwareClient);
+		PerformanceCounterCollector counterCollector = new PerformanceCounterCollector(vmClient);
 		PerformanceCounterMetadata perfCounterMetadata = counterCollector.fetchPerformanceCounters();
 		VMWareMetadata metadata = new VMWareMetadata(perfCounterMetadata,metrics);
-		PerformanceCounterQuery query = new PerformanceCounterQuery(vmwareClient,meterClient,metadata);
+		PerformanceCounterQuery query = new PerformanceCounterQuery(vmClient,meterClient,metadata);
 		
-		List<Measurement> measurements = query.queryCounters(mor);
+        DateTime end = vmClient.getTimeAtEndPoint();
+        DateTime start = end.minusSeconds(20);
+        
+		String vmName = "RHEL-TestVM01";
+		GetMOREF search = new GetMOREF(vmClient);
+		mor = search.vmByVMname(vmName,vmClient.getPropertyCollector());
+        
+		List<Measurement> measurements = query.queryCounters(mor,start,end);
+		assertNotNull("Check measurements",measurements);
 		System.out.println("measurements: " + measurements.size());
+		assertTrue("Check size of measurements",measurements.size() > 0);
 		
 		for (Measurement m : measurements) {
 			System.out.println(m);
 		}
 	}
-
 }
