@@ -83,11 +83,11 @@ public class MeterManagerClientTest {
 	}
 	
 	
-	public static boolean isNumeric(String str)  
+	public static boolean isInteger(String str)  
 	{  
 	  try  
 	  {  
-	    double d = Double.parseDouble(str);  
+	    int i = Integer.parseInt(str);  
 	  }  
 	  catch(NumberFormatException nfe)  
 	  {  
@@ -96,9 +96,9 @@ public class MeterManagerClientTest {
 	  return true;  
 	}
 	
-	public static boolean isRegExNumeric(String str)
+	public static boolean isRegExInteger(String str)
 	{
-	  return str.matches("-?\\d+(\\.\\d+)?");  //match a number with optional '-' and decimal.
+	  return str.matches("\\d+");  //match a number with optional '-' and decimal.
 	}
 	
 	@Test
@@ -106,7 +106,7 @@ public class MeterManagerClientTest {
 		String meterName = String.format("%s-%s","JDG","my-meter");
 		int obsDomainId = client.createOrGetMeterMetadata(meterName).getObservationDomainId();
 		System.out.printf("obsDomainId: %X",obsDomainId);
-		assertTrue("Check if number via RegEx",isRegExNumeric(Integer.toString(obsDomainId)));
-		assertTrue("Check if number via NumberFormatException",isNumeric(Integer.toString(obsDomainId)));
+		assertTrue("Check if number via RegEx",isRegExInteger(Integer.toString(obsDomainId)));
+		assertTrue("Check if number via NumberFormatException",isInteger(Integer.toString(obsDomainId)));
 	}
 }
