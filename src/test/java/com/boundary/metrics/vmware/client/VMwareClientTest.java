@@ -246,4 +246,42 @@ public class VMwareClientTest {
 			}
 		}
 	}
+	
+	@Test
+	public void testGetMeasurements() throws InvalidPropertyFaultMsg, RuntimeFaultFaultMsg {
+		Map<String,Metric> metrics = new HashMap<String,Metric>();
+		metrics.put("cpu.usage.AVERAGE",new Metric("SYSTEM_CPU_USAGE_AVERAGE","CPU Average Utilization"));
+		String vmName = "RHEL-TestVM01";
+		GetMOREF search = new GetMOREF(vmClient);
+		ManagedObjectReference mor = search.vmByVMname(vmName,vmClient.getPropertyCollector());
+		DateTime end = vmClient.getTimeAtEndPoint();
+		DateTime start = end.minusSeconds(20);
+		
+		PerformanceCounterCollector counterCollector = new PerformanceCounterCollector(vmClient);
+		PerformanceCounterMetadata perfCounterMetadata = counterCollector.fetchPerformanceCounters();
+		List<PerfMetricId> perfMetricIds = perfCounterMetadata.getPerformanceMetricIds(metrics);
+		List<PerfEntityMetricBase> entities = vmClient.getStats(mor,new Integer(20),start,end,perfMetricIds);
+		assertNotNull("Check entities",entities);
+		assertTrue("Check entities size", entities.size() > 0);
+		
+		for (PerfEntityMetricBase p :entities) {
+			if (p instanceof PerfEntityMetric) {
+				PerfEntityMetric entity = (PerfEntityMetric)p;
+				List<PerfSampleInfo> info = entity.getSampleInfo();
+				List<PerfMetricSeries> metricValues = entity.getValue();
+				
+				for (PerfSampleInfo i : info) {
+					System.out.println(TimeUtils.toDateTime(i.getTimestamp()));
+				}
+
+				for (int x = 0; x < metricValues.size(); x++) {
+					PerfMetricIntSeries metricReading = (PerfMetricIntSeries) metricValues.get(x);
+					System.out.println(metricReading.getValue().size());
+				}
+			}
+			else {
+				fail("Not instance of PerfEntityMetric");
+			}
+		}
+	}
 }
