@@ -164,6 +164,12 @@ public class VMwareClientTest {
 			assertEquals("Check mor type","VirtualMachine",ref.getType());
 		}
 	}
+	
+	@Test
+	public void testGetVMByName() throws InvalidPropertyFaultMsg, RuntimeFaultFaultMsg {
+		ManagedObjectReference mor = vmClient.getVMByName("RHEL-TestVM01");
+		assertNotNull("Check for null MOR",mor);
+	}
 
 	@Test
 	public void testGetPerformanceManagerDescription() throws InvalidPropertyFaultMsg, RuntimeFaultFaultMsg {

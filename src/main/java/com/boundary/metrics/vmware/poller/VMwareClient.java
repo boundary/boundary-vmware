@@ -477,7 +477,14 @@ public class VMwareClient implements Connection {
         Map<String,ManagedObjectReference> entities = getMOREFs.inFolderByType(root,managedObjectType);
         return entities;
 	}
-
+    
+    public ManagedObjectReference getVMByName(String vmName) throws InvalidPropertyFaultMsg, RuntimeFaultFaultMsg {
+    	ManagedObjectReference mor = null;
+		GetMOREF search = new GetMOREF(this);
+		
+		mor = search.vmByVMname(vmName,this.getPropertyCollector());
+		return mor;
+    }
     /**
 	 * Authentication is handled by using a TrustManager and supplying
      * a host name verifier method. (The host name verifier is declared
