@@ -89,6 +89,26 @@ public class PerformanceCounterMetadata {
 		return this.performanceMetricIds;
 	}
 	
+	 /**
+     * Method to ratio the sampled value based on units
+     * 
+     * @param metricInfo {@link PerfCounterInfo} Contains information about
+     * @param value Sampled Value
+     * @return {@link Number} New value
+     */
+    public static Number computeValue(PerfCounterInfo metricInfo,Number value) {
+    	String key = metricInfo.getUnitInfo().getKey();
+    	if (key.equalsIgnoreCase("kiloBytes")) {
+    		// Convert kilobytes to bytes
+			value = (long) value * 1024; 
+														
+		} else if (key.equalsIgnoreCase("percent")) {
+			// Convert hundredth of a percent to a decimal percent
+			value = new Long((long) value).doubleValue() / 10000.0;
+		}
+    	return value;
+    }
+	
 	/**
 	 * Helper method to generate a string use for the key for the {@link Map}
 	 * @param perfCounterInfo {@link PerfCounterInfo}
