@@ -56,10 +56,6 @@ public class MetricCollectionJob {
 		this.morCatalog = morCatalog;
 	}
 
-	public ManagedObjectReference getRootMOR() {
-		return vmwareClient.getServiceContent().getRootFolder();
-	}
-
 	public String getHost() {
 		return vmwareClient.getHost();
 	}
@@ -90,10 +86,6 @@ public class MetricCollectionJob {
 
 	public PerformanceCounterMetadata getMetadata() {
 		return this.getMetadata();
-	}
-
-	public VMwareClient getVmwareClient() {
-		return vmwareClient;
 	}
 
 	public MORCatalog getManagedObjectCatalog() {
