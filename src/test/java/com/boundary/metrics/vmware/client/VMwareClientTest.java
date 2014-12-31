@@ -16,24 +16,36 @@ package com.boundary.metrics.vmware.client;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 import static org.junit.Assume.assumeTrue;
 
 import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.joda.time.DateTime;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import com.boundary.metrics.vmware.client.metrics.Measurement;
+import com.boundary.metrics.vmware.client.metrics.Metric;
+import com.boundary.metrics.vmware.poller.PerformanceCounterCollector;
+import com.boundary.metrics.vmware.poller.PerformanceCounterMetadata;
+import com.boundary.metrics.vmware.poller.PerformanceCounterQuery;
+import com.boundary.metrics.vmware.poller.VMWareMetadata;
 import com.boundary.metrics.vmware.poller.VMwareClient;
+import com.boundary.metrics.vmware.util.TimeUtils;
 import com.google.common.collect.ImmutableList;
 import com.google.common.io.Resources;
 import com.vmware.connection.Connection;
+import com.vmware.connection.helpers.GetMOREF;
 import com.vmware.vim25.ArrayOfPerfCounterInfo;
 import com.vmware.vim25.DynamicProperty;
 import com.vmware.vim25.InvalidPropertyFaultMsg;
@@ -41,6 +53,12 @@ import com.vmware.vim25.ManagedObjectReference;
 import com.vmware.vim25.ObjectContent;
 import com.vmware.vim25.ObjectSpec;
 import com.vmware.vim25.PerfCounterInfo;
+import com.vmware.vim25.PerfEntityMetric;
+import com.vmware.vim25.PerfEntityMetricBase;
+import com.vmware.vim25.PerfMetricId;
+import com.vmware.vim25.PerfMetricIntSeries;
+import com.vmware.vim25.PerfMetricSeries;
+import com.vmware.vim25.PerfSampleInfo;
 import com.vmware.vim25.PropertyFilterSpec;
 import com.vmware.vim25.PropertySpec;
 import com.vmware.vim25.RetrieveOptions;
@@ -183,5 +201,43 @@ public class VMwareClientTest {
             }
         }        
 
+	}
+	
+	@Test
+	public void testGetStats() throws InvalidPropertyFaultMsg, RuntimeFaultFaultMsg {
+		Map<String,Metric> metrics = new HashMap<String,Metric>();
+		metrics.put("cpu.usage.AVERAGE",new Metric("SYSTEM_CPU_USAGE_AVERAGE","CPU Average Utilization"));
+		String vmName = "RHEL-TestVM01";
+		GetMOREF search = new GetMOREF(vmClient);
+		ManagedObjectReference mor = search.vmByVMname(vmName,vmClient.getPropertyCollector());
+		DateTime end = vmClient.getTimeAtEndPoint();
+		DateTime start = end.minusSeconds(20);
+		
+		PerformanceCounterCollector counterCollector = new PerformanceCounterCollector(vmClient);
+		PerformanceCounterMetadata perfCounterMetadata = counterCollector.fetchPerformanceCounters();
+		List<PerfMetricId> perfMetricIds = perfCounterMetadata.getPerformanceMetricIds(metrics);
+		List<PerfEntityMetricBase> entities = vmClient.getStats(mor,new Integer(20),start,end,perfMetricIds);
+		assertNotNull("Check entities",entities);
+		assertTrue("Check entities size", entities.size() > 0);
+		
+		for (PerfEntityMetricBase p :entities) {
+			if (p instanceof PerfEntityMetric) {
+				PerfEntityMetric entity = (PerfEntityMetric)p;
+				List<PerfSampleInfo> info = entity.getSampleInfo();
+				List<PerfMetricSeries> metricValues = entity.getValue();
+				
+				for (PerfSampleInfo i : info) {
+					System.out.println(TimeUtils.toDateTime(i.getTimestamp()));
+				}
+
+				for (int x = 0; x < metricValues.size(); x++) {
+					PerfMetricIntSeries metricReading = (PerfMetricIntSeries) metricValues.get(x);
+					System.out.println(metricReading.getValue().size());
+				}
+			}
+			else {
+				fail("Not instance of PerfEntityMetric");
+			}
+		}
 	}
 }

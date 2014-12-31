@@ -18,6 +18,7 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
 import java.security.cert.CertificateException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -35,16 +36,24 @@ import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.boundary.metrics.vmware.client.metrics.Measurement;
 import com.boundary.metrics.vmware.util.TimeUtils;
 import com.google.common.base.Throwables;
+import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
 import com.vmware.connection.Connection;
 import com.vmware.connection.helpers.GetMOREF;
 import com.vmware.vim25.AboutInfo;
 import com.vmware.vim25.InvalidPropertyFaultMsg;
 import com.vmware.vim25.ManagedObjectReference;
+import com.vmware.vim25.PerfCounterInfo;
+import com.vmware.vim25.PerfEntityMetric;
 import com.vmware.vim25.PerfEntityMetricBase;
+import com.vmware.vim25.PerfMetricId;
+import com.vmware.vim25.PerfMetricIntSeries;
+import com.vmware.vim25.PerfMetricSeries;
 import com.vmware.vim25.PerfQuerySpec;
+import com.vmware.vim25.PerfSampleInfo;
 import com.vmware.vim25.RuntimeFaultFaultMsg;
 import com.vmware.vim25.ServiceContent;
 import com.vmware.vim25.UserSession;
@@ -334,6 +343,14 @@ public class VMwareClient implements Connection {
 		return TimeUtils.toDateTime(getVimPort().currentTime(getServiceInstanceReference()));
 	}
     
+    /**
+     * Convenience function to get a reference to the property collector.
+     * 
+     * @return {@link ManagedObjectReference}
+     */
+    public ManagedObjectReference getPropertyCollector() {
+    	return this.getServiceContent().getPropertyCollector();
+    }
     
     /**
      * Query vSphere for values of performance metrics
@@ -342,9 +359,109 @@ public class VMwareClient implements Connection {
      * @return {@link List} List of {@link PerfEntityMetricBase}
      * @throws RuntimeFaultFaultMsg Any runtime issue
      */
-    public List<PerfEntityMetricBase> getStats(PerfQuerySpec querySpec) throws RuntimeFaultFaultMsg {
-    	return this.getVimPort().queryPerf(this.getServiceContent().getPerfManager(), ImmutableList.of(querySpec));
+    public List<PerfEntityMetricBase> getStats(ManagedObjectReference mor,
+    		Integer intervalId,DateTime start,DateTime end,List<PerfMetricId> perfMetricIds) throws RuntimeFaultFaultMsg {
+    	
+		/*
+		 * Create the query specification for queryPerf().
+		 */
+		PerfQuerySpec querySpec = new PerfQuerySpec();
+		querySpec.setEntity(mor);
+		querySpec.setIntervalId(intervalId);
+		querySpec.setFormat("normal");
+		querySpec.setStartTime(TimeUtils.toXMLGregorianCalendar(start));
+		querySpec.setEndTime(TimeUtils.toXMLGregorianCalendar(end));
+		querySpec.getMetricId().addAll(perfMetricIds);
+
+		LOG.info("MOR: {}-{}, Interval: {}, Format: {}, MetricIds: {}, Start: {}, End: {}",
+				mor.getType(),
+				mor.getValue(),
+				querySpec.getIntervalId(),
+				querySpec.getFormat(),
+				FluentIterable.from(perfMetricIds).transform(PerformanceCounterMetadata.toStringFunction),
+				start, end);
+    	return this.getVimPort().queryPerf(this.getServiceContent().getPerfManager(),ImmutableList.of(querySpec));
     }
+    
+    private List<Measurement> extractMeasurements(String entityName,int obsDomainId,PerfEntityMetricBase perfStats,VMWareMetadata metadata) {
+    	List<Measurement> measurements = new ArrayList<Measurement>();
+    	PerfEntityMetric entityStats = (PerfEntityMetric) perfStats;
+        List<PerfMetricSeries> metricValues = entityStats.getValue();
+        List<PerfSampleInfo> sampleInfos = entityStats.getSampleInfo();
+
+        for (int x = 0; x < metricValues.size(); x++) {
+            PerfMetricIntSeries metricReading = (PerfMetricIntSeries) metricValues.get(x);
+            PerfCounterInfo metricInfo = metadata.getInfoMap().get(metricReading.getId().getCounterId());
+            String metricFullName = PerformanceCounterMetadata.toFullName(metricInfo);
+            if (!sampleInfos.isEmpty()) {
+                PerfSampleInfo sampleInfo = sampleInfos.get(0);
+                DateTime sampleTime = TimeUtils.toDateTime(sampleInfo.getTimestamp());
+                Number sampleValue = metricReading.getValue().iterator().next();
+
+//                if (skew != null) {
+//                    sampleTime = sampleTime.plusSeconds((int)skew.getStandardSeconds());
+//                }
+
+                if (metricReading.getValue().size() > 1) {
+                    LOG.warn("Metric {} has more than one value, only using the first", metricFullName);
+                }
+
+
+                if (metricInfo.getUnitInfo().getKey().equalsIgnoreCase("kiloBytes")) {
+                    sampleValue = (long)sampleValue * 1024; // Convert KB to Bytes
+                } else if (metricInfo.getUnitInfo().getKey().equalsIgnoreCase("percent")) {
+                    // Convert hundredth of a percent to a decimal percent
+                    sampleValue = new Long((long)sampleValue).doubleValue() / 10000.0;
+                }
+                String name = metadata.getMetrics().get(metricFullName).getName();
+                if (name != null) {
+                Measurement measurement = Measurement.builder()
+                        .setMetric(name)
+                        .setSourceId(obsDomainId)
+                        .setTimestamp(sampleTime)
+                        .setMeasurement(sampleValue)
+                        .build();
+
+                measurements.add(measurement);
+
+                LOG.info("{} @ {} = {} {}", metricFullName, sampleTime,
+                        sampleValue, metricInfo.getUnitInfo().getKey());
+                }
+                else {
+                	LOG.warn("Skipping collection of metric: {}",metricFullName);
+                }
+            } else {
+				LOG.warn("Didn't receive any samples when polling for {} on {}",
+						metricFullName, this.getHost());
+			}
+        }
+        
+        return measurements;
+    }
+    
+	public List<Measurement> getMeasurements(ManagedObjectReference mor,
+			String entityName, int obsDomainId, Integer intervalId, DateTime start,
+			DateTime end, VMWareMetadata metadata) throws RuntimeFaultFaultMsg {
+
+		List<Measurement> measurements = null;
+
+		List<PerfEntityMetricBase> retrievedStats = getStats(mor,intervalId,
+				start, end, metadata.getPerfMetrics());
+
+		/*
+		 * Cycle through the PerfEntityMetricBase objects. Each object contains
+		 * a set of statistics for a single ManagedEntity.
+		 */
+		for (PerfEntityMetricBase singleEntityPerfStats : retrievedStats) {
+			if (singleEntityPerfStats instanceof PerfEntityMetric) {
+				measurements = extractMeasurements(entityName,obsDomainId,singleEntityPerfStats, metadata);
+			} else {
+				LOG.error("Unrecognized performance entry type received: {}, ignoring",
+						singleEntityPerfStats.getClass().getName());
+			}
+		}
+		return measurements;
+	}
     
     /**
      * Query vSphere to get list of managed objects by their type
