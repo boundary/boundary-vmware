@@ -50,4 +50,8 @@ public class VMWareMetadata {
 	public List<PerfMetricId> getPerfMetrics() {
 		return metadata.getPerformanceMetricIds(metrics);
 	}
+	
+	public String getMetricName(String metricFullName) {
+		return this.getMetrics().get(metricFullName).getName();
+	}
 }
