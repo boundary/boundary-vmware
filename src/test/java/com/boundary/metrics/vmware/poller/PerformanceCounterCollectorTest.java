@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.io.Reader;
 import java.net.URISyntaxException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
@@ -37,6 +38,7 @@ import com.google.common.io.Resources;
 import com.vmware.connection.Connection;
 import com.vmware.vim25.InvalidPropertyFaultMsg;
 import com.vmware.vim25.PerfCounterInfo;
+import com.vmware.vim25.PerfMetricId;
 import com.vmware.vim25.RuntimeFaultFaultMsg;
 
 public class PerformanceCounterCollectorTest {
@@ -106,6 +108,14 @@ public class PerformanceCounterCollectorTest {
 		for (String name : nameMap.keySet()) {
 			boolean counter = Boolean.valueOf(performanceCounters.getProperty(name)).booleanValue();
 			assertEquals("check for performance counter name: " + name,true,counter);
+		}
+		
+		List<PerfMetricId> perfMetricIds = metadata.getPerformanceMetricIds(metrics);
+		System.out.printf("%s: %d\n","perfMetricIds size: ",perfMetricIds.size());
+		for(PerfMetricId id: perfMetricIds) {
+			assertEquals("Check class",com.vmware.vim25.PerfMetricId.class,id.getClass());
+			assertNull("Check dynamic type",id.getDynamicType());
+			assertEquals("Check instance","*",id.getInstance());
 		}
 	}
 }
