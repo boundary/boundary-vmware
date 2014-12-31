@@ -81,4 +81,32 @@ public class MeterManagerClientTest {
 		assertEquals("Check getName()",meterName,meter.getName());
 		//assertEquals("Check getOrgId()",configuration.getOrgId(),meter.getOrgId());
 	}
+	
+	
+	public static boolean isNumeric(String str)  
+	{  
+	  try  
+	  {  
+	    double d = Double.parseDouble(str);  
+	  }  
+	  catch(NumberFormatException nfe)  
+	  {  
+	    return false;  
+	  }  
+	  return true;  
+	}
+	
+	public static boolean isRegExNumeric(String str)
+	{
+	  return str.matches("-?\\d+(\\.\\d+)?");  //match a number with optional '-' and decimal.
+	}
+	
+	@Test
+	public void testGetObsId() {
+		String meterName = String.format("%s-%s","JDG","my-meter");
+		int obsDomainId = client.createOrGetMeterMetadata(meterName).getObservationDomainId();
+		System.out.printf("obsDomainId: %X",obsDomainId);
+		assertTrue("Check if number via RegEx",isRegExNumeric(Integer.toString(obsDomainId)));
+		assertTrue("Check if number via NumberFormatException",isNumeric(Integer.toString(obsDomainId)));
+	}
 }
