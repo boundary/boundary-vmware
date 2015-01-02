@@ -14,12 +14,19 @@
 
 package com.boundary.metrics.vmware.poller;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.boundary.metrics.vmware.client.metrics.Metric;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableMap.Builder;
+import com.vmware.vim25.ManagedObjectReference;
 
 /**
  * Represents the catalog of items to collect metrics from
@@ -27,6 +34,8 @@ import com.google.common.collect.ImmutableMap;
  *
  */
 public class MORCatalog {
+	
+	private static final Logger LOG = LoggerFactory.getLogger(MORCatalog.class);
 
 	private List<MetricDefinition> definitions;
 	private List<MORCatalogEntry> catalog;
@@ -55,22 +64,56 @@ public class MORCatalog {
 	}
 	
 	/**
-	 * Helper function that returns a {@link Map} of the performance
+	 * Performs check to ensure that metrics reference in the catalog are defined
+	 * 
+	 * @return {@link boolean}
+	 */
+	public boolean isValid() {
+		boolean valid = true;
+		
+		Map<String,MetricDefinition> definitionMap = new HashMap<String,MetricDefinition>();
+		
+		for (MetricDefinition def : definitions) {
+			definitionMap.put(def.getMetric(),def);
+		}
+		
+		for (MORCatalogEntry entry : catalog) {
+			for (PerformanceCounterEntry counter : entry.getCounters()) {
+				MetricDefinition definition = definitionMap.get(counter.getMetric());
+				if (definition == null) {
+					LOG.debug("No metric definition for {}",counter.getMetric());
+					valid = false;
+					break;
+				}
+			}
+		}
+
+		return valid;
+	}
+	
+	/**
+	 * Helper function that returns a MOR type {@link Map} of a {@link Map} of performance
 	 * counter names (e.g. <em>cpu.usage.average</em> to {@link Metric}
 	 * 
 	 * @return {@link Map}
 	 */
-	public Map<String, Metric> getMetrics() {
-		ImmutableMap.Builder<String,Metric> metrics = ImmutableMap.builder();
-       
+	public Map<String,Map<String, MetricDefinition>> getMetrics() {
+		Builder<String,Map<String,MetricDefinition>> metrics = ImmutableMap.builder();
+		Map<String,MetricDefinition> definitionMap = new HashMap<String,MetricDefinition>();
 		
+		for (MetricDefinition def : definitions) {
+			definitionMap.put(def.getMetric(), def);
+		}
+	
 		for (MORCatalogEntry entry : catalog) {
+			String type = entry.getType();
+			HashMap<String,MetricDefinition> counterMap = new HashMap<String,MetricDefinition>();
 			for (PerformanceCounterEntry counter : entry.getCounters()) {
-			metrics.put(counter.getName(),
-	        		new Metric(counter.getMetric(),"CPU Average Utilization"));
-			 metrics.put("cpu.usage.AVERAGE",
-		        		new Metric("SYSTEM_CPU_USAGE_AVERAGE","CPU Average Utilization"));
+				MetricDefinition def = definitionMap.get(counter.getMetric());
+				checkNotNull(def);
+				counterMap.put(counter.getName(),def);
 			}
+			metrics.put(type,counterMap);
 		}
 		
 		return metrics.build();
