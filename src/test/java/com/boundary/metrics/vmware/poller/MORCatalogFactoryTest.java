@@ -33,10 +33,10 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.io.Resources;
 
-public class InventoryCatalogTest {
+public class MORCatalogFactoryTest {
 	
 	
-	private final String TEST_CATALOG_FILE="test-catalog.json";
+	private final String TEST_CATALOG_FILE = "test-catalog.json";
 
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
@@ -56,26 +56,7 @@ public class InventoryCatalogTest {
 
 	@Test
 	public void test() {
-		ObjectMapper mapper = new ObjectMapper();
-		MORCatalog inventory = null;
-
-		try {
-			File catalogFile = new File(Resources.getResource(TEST_CATALOG_FILE)
-					.toURI());
-			inventory = mapper.readValue(catalogFile, MORCatalog.class);
-		} catch (URISyntaxException e) {
-
-			e.printStackTrace();
-		} catch (JsonParseException e) {
-
-			e.printStackTrace();
-		} catch (JsonMappingException e) {
-
-			e.printStackTrace();
-		} catch (IOException e) {
-
-			e.printStackTrace();
-		}
+		MORCatalog inventory = MORCatalogFactory.create(TEST_CATALOG_FILE);
 		
 		assertNotNull("check InventoryCatalog",inventory);
 		List<MORCatalogEntry> catalog = inventory.getCatalog();
@@ -83,10 +64,10 @@ public class InventoryCatalogTest {
 		assertEquals("check Catalog Size",3,catalog.size());
 		MORCatalogEntry catalogEntry1 = catalog.get(0);
 		assertNotNull("check CatalogEntry",catalogEntry1);
-		List<PerformanceCounterEntry> performanceCounters1 = catalogEntry1.getPerformanceCounters();
+		List<PerformanceCounterEntry> performanceCounters1 = catalogEntry1.getCounters();
 		assertNotNull("check CatalogEntry.getPerformanceCounters",performanceCounters1);
 		assertEquals("check PerformanceCounters size()",8,performanceCounters1.size());
 		PerformanceCounterEntry performanceCounterEntry = performanceCounters1.get(0);
-		assertEquals("check PerformanceCounterEntry.get","cpu.usage.average",performanceCounterEntry.getCounterName());
+		assertEquals("check PerformanceCounterEntry.get","cpu.usage.average",performanceCounterEntry.getName());
 	}
 }
