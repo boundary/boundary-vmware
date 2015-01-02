@@ -68,6 +68,6 @@ public class MORCatalogFactoryTest {
 		assertNotNull("check CatalogEntry.getPerformanceCounters",performanceCounters1);
 		assertEquals("check PerformanceCounters size()",8,performanceCounters1.size());
 		PerformanceCounterEntry performanceCounterEntry = performanceCounters1.get(0);
-		assertEquals("check PerformanceCounterEntry.get","cpu.usage.average",performanceCounterEntry.getName());
+		assertEquals("check PerformanceCounterEntry.get","cpu.usage.AVERAGE",performanceCounterEntry.getName());
 	}
 }
