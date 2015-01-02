@@ -16,22 +16,16 @@ package com.boundary.metrics.vmware.poller;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
-import java.io.File;
-import java.io.IOException;
-import java.net.URISyntaxException;
 import java.util.List;
+import java.util.Map;
 
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-
-import com.fasterxml.jackson.core.JsonParseException;
-import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.io.Resources;
 
 public class MORCatalogFactoryTest {
 	
@@ -55,7 +49,7 @@ public class MORCatalogFactoryTest {
 	}
 
 	@Test
-	public void test() {
+	public void testCounters() {
 		MORCatalog inventory = MORCatalogFactory.create(TEST_CATALOG_FILE);
 		
 		assertNotNull("check InventoryCatalog",inventory);
@@ -66,8 +60,49 @@ public class MORCatalogFactoryTest {
 		assertNotNull("check CatalogEntry",catalogEntry1);
 		List<PerformanceCounterEntry> performanceCounters1 = catalogEntry1.getCounters();
 		assertNotNull("check CatalogEntry.getPerformanceCounters",performanceCounters1);
-		assertEquals("check PerformanceCounters size()",8,performanceCounters1.size());
+		assertEquals("check PerformanceCounters size()",3,performanceCounters1.size());
 		PerformanceCounterEntry performanceCounterEntry = performanceCounters1.get(0);
 		assertEquals("check PerformanceCounterEntry.get","cpu.usage.AVERAGE",performanceCounterEntry.getName());
+	}
+	
+	@Test
+	public void testDefinitions() {
+		MORCatalog inventory = MORCatalogFactory.create(TEST_CATALOG_FILE);
+		
+		assertEquals("check definitions",7,inventory.getDefinitions().size());
+	}
+	
+	@Test
+	public void testObjectTypeToMetricMap() {
+		MORCatalog inventory = MORCatalogFactory.create(TEST_CATALOG_FILE);
+
+		Map<String, Map<String, MetricDefinition>> metrics = inventory.getMetrics();
+		System.out.println(metrics);
+
+		Map<String, MetricDefinition> virtualMachine = metrics.get("VirtualMachine");
+		assertNotNull("check VirtualMachine for cpu.usage.AVERAGE",virtualMachine.get("cpu.usage.AVERAGE"));
+		assertEquals("check VirtualMachine definition for cpu.usage.AVERAGE","SYSTEM_CPU_USAGE_AVERAGE",virtualMachine.get("cpu.usage.AVERAGE").getMetric());
+		assertNotNull("check VirtualMachine for cpu.usage.MINIMUM",virtualMachine.get("cpu.usage.MINIMUM"));
+		assertEquals("check VirtualMachine definition for cpu.usage.MINIMUM","SYSTEM_CPU_USAGE_MINIMUM",virtualMachine.get("cpu.usage.MINIMUM").getMetric());
+		assertNotNull("check VirtualMachine for cpu.idle.SUMMATION",virtualMachine.get("cpu.idle.SUMMATION"));
+		assertEquals("check VirtualMachine definition for cpu.idle.SUMMATION","SYSTEM_CPU_IDLE_TOTAL",virtualMachine.get("cpu.idle.SUMMATION").getMetric());
+
+		Map<String, MetricDefinition> hostSystem = metrics.get("HostSystem");
+		assertNotNull("check HostSystem for cpu.usage.AVERAGE",hostSystem.get("cpu.usage.AVERAGE"));
+		assertNotNull("check HostSystem for cpu.usage.MINIMUM",hostSystem.get("cpu.usage.MINIMUM"));
+		assertNotNull("check HostSystem for cpu.usage.IDLE",hostSystem.get("cpu.usage.IDLE"));
+
+		Map<String, MetricDefinition> datastore = metrics.get("Datastore");
+		assertNotNull("check Datastore for disk.capacity.SUM",datastore.get("disk.capacity.SUM"));
+		assertNotNull("check Datastore for disk.provisioned.SUM",datastore.get("disk.provisioned.SUM"));
+		assertNotNull("check Datastore for disk.used.SUM",datastore.get("disk.used.SUM"));
+
+	}
+	
+	@Test
+	public void testValidate() {
+		MORCatalog inventory = MORCatalogFactory.create(TEST_CATALOG_FILE);
+		
+		assertTrue("Check validate",inventory.isValid());
 	}
 }
