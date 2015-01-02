@@ -14,18 +14,31 @@
 
 package com.boundary.metrics.vmware.poller;
 
+/**
+ * Contains a performance counter(<em>name</em>) and
+ * metric identifier (<em>metric</em>). Used to map vSphere's
+ * performance counter to a Boundary metric.
+ *
+ */
 public class PerformanceCounterEntry {
 	
-	private String counterName;
-	
-	private String metricIdentifier;
+	private String name;
+	private String metric;
 
-	public String getCounterName() {
-		return counterName;
+	/**
+	 * Return the performance counter name.
+	 * 
+	 * @return {@link String}
+	 */
+	public String getName() {
+		return name;
 	}
 
-	public String getMetricIdentifier() {
-		return metricIdentifier;
+	/**
+	 * Return the metric identifier
+	 * @return {@link String}
+	 */
+	public String getMetric() {
+		return metric;
 	}
-
 }

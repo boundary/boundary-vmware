@@ -16,18 +16,37 @@ package com.boundary.metrics.vmware.poller;
 
 import java.util.List;
 
+/**
+ * Entry that contains the type of a {@link ManagedObjectReference} and the
+ * list of associated performance counters that are to be collected.
+ *
+ */
 public class MORCatalogEntry {
 
-	private String objectType;
+	private String type;
+	private List<PerformanceCounterEntry> counters;
 	
-	private List<PerformanceCounterEntry> performanceCounters;
-
-	public String getObjectType() {
-		return objectType;
+	public MORCatalogEntry() {
+		
 	}
 
-	public List<PerformanceCounterEntry> getPerformanceCounters() {
-		return performanceCounters;
+	/**
+	 * Returns the type of {@link ManagedObjectReference}
+	 * 
+	 * @return {@link String}
+	 */
+	public String getType() {
+		return type;
+	}
+
+	/**
+	 * Returns the performance counter names for the type of
+	 * {@link ManagedObjectReference}
+	 * 
+	 * @return
+	 */
+	public List<PerformanceCounterEntry> getCounters() {
+		return counters;
 	}
 
 }
