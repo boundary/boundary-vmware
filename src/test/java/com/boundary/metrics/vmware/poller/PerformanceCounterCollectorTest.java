@@ -72,7 +72,7 @@ public class PerformanceCounterCollectorTest {
 	}
 
 	/**
-	 * Tests collecting of Performance Counters against the vSphere end point. Compare the returned values against our
+	 * Tests collecting of Performance Counters against the vSphere endpoint. Compare the returned values against our
 	 * known list. Test will fail if we can not find the performance counter in our property list.
 	 * 
 	 * @throws URISyntaxException {@link URISyntaxException}
@@ -118,4 +118,6 @@ public class PerformanceCounterCollectorTest {
 			assertEquals("Check instance","*",id.getInstance());
 		}
 	}
+	
+
 }
