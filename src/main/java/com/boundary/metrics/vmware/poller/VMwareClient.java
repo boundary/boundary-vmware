@@ -351,6 +351,7 @@ public class VMwareClient implements Connection {
     public ManagedObjectReference getPropertyCollector() {
     	return this.getServiceContent().getPropertyCollector();
     }
+    
 	private List<Measurement> extractMeasurements(String entityName,
 			int obsDomainId, PerfEntityMetricBase perfStats,
 			VMWareMetadata metadata) {
@@ -376,21 +377,22 @@ public class VMwareClient implements Connection {
 				if (metricReading.getValue().size() > 1) {
 					LOG.warn("Metric {} has more than one value, only using the first",metricFullName);
 				}
+				// Scale data based on the metric
 				sampleValue = PerformanceCounterMetadata.computeValue(metricInfo,sampleValue);
 				String name = metadata.getMetricName(metricFullName);
 				if (name != null) {
 					Measurement measurement = Measurement.builder()
-							.setMetric(name).setSourceId(obsDomainId)
+							.setMetric(name)
+							.setSourceId(obsDomainId)
 							.setTimestamp(sampleTime)
 							.setMeasurement(sampleValue).build();
-
 					measurements.add(measurement);
 
 					LOG.info("{} @ {} = {} {}", metricFullName, sampleTime,
 							sampleValue,metricInfo.getUnitInfo().getKey());
 				} else {
 					LOG.warn("Skipping collection of metric: {}",metricFullName);
-			}
+			    }
 			} else {
 				LOG.warn("Didn't receive any samples when polling for {} on {}",metricFullName,this.getName());
 			}
