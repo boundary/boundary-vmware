@@ -28,7 +28,6 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.boundary.metrics.vmware.VMWareTestUtils;
-import com.boundary.metrics.vmware.client.metrics.Metric;
 import com.vmware.vim25.PerfCounterInfo;
 import com.vmware.vim25.PerfMetricId;
 import com.vmware.vim25.PerfStatsType;
@@ -90,13 +89,18 @@ public class PerformanceCounterMetadataTest {
 	
 	@Test
 	public void testGetPerformanceMetrics() {
-		Map<String,Metric> metrics = new HashMap<String,Metric>();
-		Metric metric1 = new Metric(one.getNameInfo().getKey(),"ONE");
-		Metric metric2 = new Metric(two.getNameInfo().getKey(),"TWO");
-		Metric metric3 = new Metric(three.getNameInfo().getKey(),"THREE");
-		metrics.put(metric1.getName(),metric1);
-		metrics.put(metric2.getName(),metric2);
-		metrics.put(metric3.getName(),metric3);
+		Map<String,MetricDefinition> metrics = new HashMap<String,MetricDefinition>();
+		MetricDefinitionBuilder builder = new MetricDefinitionBuilder();
+		
+		builder.setMetric(one.getNameInfo().getKey()).setDisplayName("ONE");
+		MetricDefinition d = builder.build();
+		metrics.put(d.getMetric(),d);
+//		Metric metric1 = new Metric(one.getNameInfo().getKey(),"ONE");
+//		Metric metric2 = new Metric(two.getNameInfo().getKey(),"TWO");
+//		Metric metric3 = new Metric(three.getNameInfo().getKey(),"THREE");
+//
+//		metrics.put(metric2.getName(),metric2);
+//		metrics.put(metric3.getName(),metric3);
 		
 		List<PerfMetricId> performanceMetrics = metadata.getPerformanceMetricIds(metrics);
 		for (PerfMetricId perfMetric : performanceMetrics) {

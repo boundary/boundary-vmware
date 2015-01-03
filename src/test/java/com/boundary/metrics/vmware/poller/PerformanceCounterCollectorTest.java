@@ -86,13 +86,16 @@ public class PerformanceCounterCollectorTest {
 		client.connect();
 
 		
-		Map<String,Metric> metrics = new HashMap<String,Metric>();
-		Metric one = new Metric("VMWARE_DISK_READ_AVERAGE","Disk Read Average");
-		Metric two = new Metric("VMWARE_DISK_WRITE_AVERAGE","Disk Write Average");
-		Metric three = new Metric("VMWARE_CPU_USAGE_MINIMUM","CPU Usage Minimum");
-		metrics.put("disk.read.AVERAGE",one);
-		metrics.put("disk.write.AVERAGE",two);
-		metrics.put("cpu.usage.MINIMUM",three);
+		Map<String,MetricDefinition> metrics = new HashMap<String,MetricDefinition>();
+		MetricDefinitionBuilder builder = new MetricDefinitionBuilder();
+		
+		builder.setMetric("VMWARE_DISK_READ_AVERAGE").setDisplayName("Disk Read Average");
+		metrics.put("disk.read.AVERAGE",builder.build());
+		builder.setMetric("VMWARE_DISK_WRITE_AVERAGE").setDisplayName("Disk Write Average");
+		metrics.put("disk.write.AVERAGE",builder.build());
+		builder.setMetric("VMWARE_CPU_USAGE_MINIMUM").setDisplayName("CPU Usage Minimum");
+		metrics.put("cpu.usage.MINIMUM",builder.build());
+
 		PerformanceCounterCollector collector = new PerformanceCounterCollector(client);
 		PerformanceCounterMetadata metadata = collector.fetchPerformanceCounters();
 		

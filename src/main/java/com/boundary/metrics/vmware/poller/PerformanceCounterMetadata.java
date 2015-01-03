@@ -73,7 +73,13 @@ public class PerformanceCounterMetadata {
 		return infoMap.build();
 	}
 	
-	public List<PerfMetricId> getPerformanceMetricIds(Map<String,Metric> metrics) {
+	/**
+	 * Returns a list of {@link PerfMetricId}s which are used to identify metrics to collect.
+	 * 
+	 * @param metrics {@link Map} Mapping of performance counter name to {@link MetricDefinition}
+	 * @return {@link List} of {@link PerfMetricId} instances
+	 */
+	public List<PerfMetricId> getPerformanceMetricIds(Map<String, MetricDefinition> metrics) {
 		Map<String,Integer> nameMap = this.getNameMap();
 		this.performanceMetricIds = new ArrayList<PerfMetricId>();
 		

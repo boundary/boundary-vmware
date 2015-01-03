@@ -36,6 +36,8 @@ import org.junit.Test;
 
 import com.boundary.metrics.vmware.client.metrics.Measurement;
 import com.boundary.metrics.vmware.client.metrics.Metric;
+import com.boundary.metrics.vmware.poller.MetricDefinition;
+import com.boundary.metrics.vmware.poller.MetricDefinitionBuilder;
 import com.boundary.metrics.vmware.poller.PerformanceCounterCollector;
 import com.boundary.metrics.vmware.poller.PerformanceCounterMetadata;
 import com.boundary.metrics.vmware.poller.PerformanceCounterQuery;
@@ -138,8 +140,6 @@ public class VMwareClientTest {
 		ServiceContent content = vmClient.getServiceContent();
 		ManagedObjectReference performanceManager = content.getPerfManager();
 		assertNotNull(performanceManager);
-
-		System.out.println(performanceManager.getClass().toString());
 	}
 
 	@Test
@@ -211,8 +211,11 @@ public class VMwareClientTest {
 	
 	@Test
 	public void testGetStats() throws InvalidPropertyFaultMsg, RuntimeFaultFaultMsg {
-		Map<String,Metric> metrics = new HashMap<String,Metric>();
-		metrics.put("cpu.usage.AVERAGE",new Metric("SYSTEM_CPU_USAGE_AVERAGE","CPU Average Utilization"));
+		Map<String,MetricDefinition> metrics = new HashMap<String,MetricDefinition>();
+		MetricDefinitionBuilder m = new MetricDefinitionBuilder();
+		m.setMetric("SYSTEM_CPU_USAGE_AVERAGE")
+		 .setDisplayName("CPU Average Utilization");
+		metrics.put("cpu.usage.AVERAGE",m.build());
 		String vmName = "RHEL-TestVM01";
 		GetMOREF search = new GetMOREF(vmClient);
 		ManagedObjectReference mor = search.vmByVMname(vmName,vmClient.getPropertyCollector());
@@ -249,8 +252,11 @@ public class VMwareClientTest {
 	
 	@Test
 	public void testGetMeasurements() throws InvalidPropertyFaultMsg, RuntimeFaultFaultMsg {
-		Map<String,Metric> metrics = new HashMap<String,Metric>();
-		metrics.put("cpu.usage.AVERAGE",new Metric("SYSTEM_CPU_USAGE_AVERAGE","CPU Average Utilization"));
+		Map<String,MetricDefinition> metrics = new HashMap<String,MetricDefinition>();
+		MetricDefinitionBuilder m = new MetricDefinitionBuilder();
+		m.setMetric("SYSTEM_CPU_USAGE_AVERAGE")
+		 .setDisplayName("CPU Average Utilization");
+		metrics.put("cpu.usage.AVERAGE",m.build());
 		String vmName = "RHEL-TestVM01";
 		GetMOREF search = new GetMOREF(vmClient);
 		ManagedObjectReference mor = search.vmByVMname(vmName,vmClient.getPropertyCollector());

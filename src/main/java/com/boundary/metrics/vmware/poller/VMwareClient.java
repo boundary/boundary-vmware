@@ -437,10 +437,10 @@ public class VMwareClient implements Connection {
 	public List<Measurement> getMeasurements(ManagedObjectReference mor,
 			String entityName, int obsDomainId, Integer intervalId, DateTime start,
 			DateTime end, VMWareMetadata metadata) throws RuntimeFaultFaultMsg {
-
+		
 		List<Measurement> measurements = null;
 
-		List<PerfEntityMetricBase> retrievedStats = getStats(mor,intervalId,start,end,metadata.getPerfMetrics());
+		List<PerfEntityMetricBase> retrievedStats = getStats(mor,intervalId,start,end,metadata.getPerfMetrics(mor.getType()));
 		LOG.debug("stats count: {}",retrievedStats.size());
 
 		/*
