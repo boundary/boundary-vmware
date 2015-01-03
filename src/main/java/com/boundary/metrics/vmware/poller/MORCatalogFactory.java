@@ -16,25 +16,29 @@ public class MORCatalogFactory {
 	public static MORCatalog create() {
 		return create(DEFAULT_CATALOG_FILE);
 	}
+	
 	public static MORCatalog create(String resource) {
+		File file = null;
+		try {
+			file = new File(Resources.getResource(resource).toURI());
+		} catch (URISyntaxException e) {
+			e.printStackTrace();
+		}
+		return create(file);
+	}
+	
+	public static MORCatalog create(File file) {
 		ObjectMapper mapper = new ObjectMapper();
 		MORCatalog catalog = null;
 
 		try {
-			File catalogFile = new File(Resources.getResource(resource)
-					.toURI());
-			catalog = mapper.readValue(catalogFile, MORCatalog.class);
-		} catch (URISyntaxException e) {
+			catalog = mapper.readValue(file, MORCatalog.class);
 
-			e.printStackTrace();
 		} catch (JsonParseException e) {
-
 			e.printStackTrace();
 		} catch (JsonMappingException e) {
-
 			e.printStackTrace();
 		} catch (IOException e) {
-
 			e.printStackTrace();
 		}
 	
