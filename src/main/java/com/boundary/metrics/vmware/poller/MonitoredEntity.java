@@ -38,11 +38,13 @@ public class MonitoredEntity {
     private final String username;
     private final String password;
     private final String name;
+	private final String catalog;
     
     /**
      * Map of VMware performance counter full names to Boundary metric descriptions
      */
     private final Map<String, Metric> vmMetrics;
+
 
     /**
      * Constructor
@@ -55,7 +57,8 @@ public class MonitoredEntity {
     public MonitoredEntity(@JsonProperty("uri") URI uri,
                            @JsonProperty("username") String username,
                            @JsonProperty("password") String password,
-                           @JsonProperty("name") String name) {
+                           @JsonProperty("name") String name,
+                           @JsonProperty("catalog") String catalog) {
     	
     	// Ensure that the user/password/uri are not null since they
     	// are required to connect to the monitored entity
@@ -63,6 +66,7 @@ public class MonitoredEntity {
         this.password = checkNotNull(password);
         this.uri = checkNotNull(uri);
         this.name = checkNotNull(name);
+        this.catalog = checkNotNull(catalog);
 
         // Created a map of the permformance counters we require to collect from
         // the monitored entity
@@ -113,6 +117,10 @@ public class MonitoredEntity {
      */
     public String getPassword() {
         return password;
+    }
+    
+    public String getCatalog() {
+		return catalog;
     }
 
     /**
