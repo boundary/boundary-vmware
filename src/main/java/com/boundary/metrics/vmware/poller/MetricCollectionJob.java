@@ -64,9 +64,9 @@ public class MetricCollectionJob {
 		return metadata.getNameMap();
 	}
 
-	public Map<String,Metric> getMetrics() {
-		return metadata.getMetrics();
-	}
+//	public Map<String,Metric> getMetrics() {
+//		return metadata.getMetrics();
+//	}
 
 	public VMwareClient getVMWareClient() {
 		return this.vmwareClient;
@@ -84,8 +84,8 @@ public class MetricCollectionJob {
 		return this.metricsClient;
 	}
 
-	public PerformanceCounterMetadata getMetadata() {
-		return this.getMetadata();
+	public VMWareMetadata getMetadata() {
+		return this.metadata;
 	}
 
 	public MORCatalog getManagedObjectCatalog() {
