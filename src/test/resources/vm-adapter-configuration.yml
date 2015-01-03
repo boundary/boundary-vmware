@@ -50,3 +50,4 @@ monitoredEntities:
       username:  someco.net\lab-monkey
       password: Lerma123$27
       name: foobar
+      catalog: catalog.json
