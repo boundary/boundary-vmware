@@ -20,14 +20,14 @@ package com.boundary.metrics.vmware.poller;
  */
 public class MetricDefinition {
 	
-	String metric;
-	String displayName;
-	String displayNameShort;
-	String description;
-	long defaultResolutionMS;
-	MetricAggregates defaultAggregate;
-	MetricUnit unit;
-	boolean isDisabled;
+	protected String metric;
+	protected String displayName;
+	protected String displayNameShort;
+	protected String description;
+	protected long defaultResolutionMS;
+	protected MetricAggregates defaultAggregate;
+	protected MetricUnit unit;
+	protected boolean isDisabled;
 	
 	/**
 	 * Name of the metric, must be globally unique if creating
