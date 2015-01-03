@@ -9,16 +9,6 @@
 			"displayNameShort": "CPU Avg Util",
 			"metric": "SYSTEM_CPU_USAGE_AVERAGE",
 			"unit": "NUMBER"
-		},
-
-		{
-			"defaultAggregate": "SUM",
-			"defaultResolutionMS": 0,
-			"description": "RabbitMQ - Disk Free",
-			"displayName": "RabbitMQ - Disk Free",
-			"displayNameShort": "RMQ - Disk Free",
-			"metric": "RABBITMQ_DISK_FREE",
-			"unit": "NUMBER"
 		}
 	],
 
@@ -29,43 +19,8 @@
 			"counters": 
 			[
 				{
-					"name": "cpu.usage.average",
+					"name": "cpu.usage.AVERAGE",
 					"metric": "SYSTEM_CPU_USAGE_AVERAGE"
-				},
-
-				{
-					"name": "cpu.usage.MINIMUM",
-					"metric": "SYSTEM_CPU_USAGE_MINIMUM"
-				},
-
-				{
-					"name": "cpu.idle.SUMMATION",
-					"metric": "SYSTEM_CPU_IDLE_TOTAL"
-				},
-
-				{
-					"name": "mem.active.MAXIMUM",
-					"metric": "SYSTEM_MEMORY_ACTIVE_MAXIMUM"
-				},
-
-				{
-					"name": "mem.consumed.AVERAGE",
-					"metric": "SYSTEM_MEMORY_CONSUMED_AVERAGE"
-				},
-
-				{
-					"name": "mem.consumed.AVERAGE",
-					"metric": "SYSTEM_MEMORY_CONSUMED_AVERAGE"
-				},
-
-				{
-					"name": "disk.read.AVERAGE",
-					"metric": "SYSTEM_DISK_READ_AVERAGE"
-				},
-
-				{
-					"name": "disk.write.AVERAGE",
-					"metric": "SYSTEM_DISK_WRITE_AVERAGE"
 				}
 			]
 		}
