@@ -80,8 +80,12 @@ public class PerformanceCounterQueryTest {
 		assertNotNull("check MOR",mor);
 		
 		// Define performance counters we want to retrieve
-		Map<String,Metric> metrics = new HashMap<String,Metric>();
-		metrics.put("cpu.usage.AVERAGE",new Metric("SYSTEM_CPU_USAGE_AVERAGE","CPU Average Utilization"));
+		Map<String,MetricDefinition> defs = new HashMap<String,MetricDefinition>();
+		MetricDefinitionBuilder builder = new MetricDefinitionBuilder();
+		builder.setMetric("SYSTEM_CPU_USAGE_AVERAGE").setDisplayName("CPU Average Utilization");
+		defs.put("cpu.usage.AVERAGE",builder.build());
+		Map<String, Map<String, MetricDefinition>> metrics = new HashMap<String,Map<String,MetricDefinition>>();
+		metrics.put("VirtualMachine",defs);
 		
 		PerformanceCounterCollector counterCollector = new PerformanceCounterCollector(vmClient);
 		PerformanceCounterMetadata perfCounterMetadata = counterCollector.fetchPerformanceCounters();
