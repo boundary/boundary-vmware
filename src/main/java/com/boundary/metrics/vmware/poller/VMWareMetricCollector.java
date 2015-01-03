@@ -14,6 +14,7 @@
 
 package com.boundary.metrics.vmware.poller;
 
+import java.io.File;
 import java.net.MalformedURLException;
 import java.rmi.RemoteException;
 import java.util.List;
@@ -64,16 +65,18 @@ public class VMWareMetricCollector implements Runnable, MetricSet {
 	private VMwareClient vmwClient;
 	private MetricClient metricClient;
 	private MeterManagerClient meterClient;
+	private MonitoredEntity configuration;
     
     public VMWareMetricCollector(VMwareClient vmwClient,
-    		String orgId,
     		MetricClient metricClient,
-    		MeterManagerClient meterClient) {
+    		MeterManagerClient meterClient,
+    		MonitoredEntity configuration) {
     	
     	this.job = null;
     	this.vmwClient = vmwClient;
     	this.metricClient = metricClient;
     	this.meterClient = meterClient;
+    	this.configuration = configuration;
     }
 	
     /**
@@ -222,9 +225,7 @@ public class VMWareMetricCollector implements Runnable, MetricSet {
 	 * @throws InvalidPropertyFaultMsg Incorrect property error {@link InvalidPropertyFaultMsg}
 	 */
 	private void updateMetadata() throws InvalidPropertyFaultMsg, RuntimeFaultFaultMsg {
-		// Read catalog file
-		// TODO provide construction from {@link File}
-		MORCatalog catalog = MORCatalogFactory.create("virtual-machines.json");
+		MORCatalog catalog = MORCatalogFactory.create(new File(configuration.getCatalog()));
 		
 		PerformanceCounterCollector collector = new PerformanceCounterCollector(vmwClient);
 		PerformanceCounterMetadata perfCounterMetadata = collector.fetchPerformanceCounters();
