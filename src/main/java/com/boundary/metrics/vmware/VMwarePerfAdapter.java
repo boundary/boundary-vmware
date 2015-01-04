@@ -28,6 +28,7 @@ import org.slf4j.LoggerFactory;
 import com.boundary.metrics.vmware.client.client.meter.manager.MeterManagerClient;
 import com.boundary.metrics.vmware.client.metrics.MetricClient;
 import com.boundary.metrics.vmware.poller.MonitoredEntity;
+import com.boundary.metrics.vmware.poller.VMWareMetricCollector;
 import com.boundary.metrics.vmware.poller.VMwareClient;
 import com.boundary.metrics.vmware.poller.VMwarePerfPoller;
 import com.boundary.metrics.vmware.resource.VMWarePerfPollerMonitor;
@@ -94,10 +95,11 @@ public class VMwarePerfAdapter extends Application<VMwarePerfAdapterConfiguratio
         	// For each monitored entity we create a client and poller, and then pass to our scheduler
         	// to be processed by individual threads at the polling interval
         	LOG.info("Configure client and poller for: {}",entity.getName());
-            Connection connection = new VMwareClient(entity.getUri(),entity.getUsername(),entity.getPassword(),entity.getName());
-            VMwarePerfPoller poller = new VMwarePerfPoller(connection, entity.getMetrics(), configuration.getOrgId(), metricsClient, meterManagerClient);
-            scheduler.scheduleAtFixedRate(poller, 0, 20, TimeUnit.SECONDS);
-            environment.metrics().registerAll(poller);
+        	VMwareClient connection = new VMwareClient(entity.getUri(),entity.getUsername(),entity.getPassword(),entity.getName());
+            //VMwarePerfPoller poller = new VMwarePerfPoller(connection, entity.getMetrics(), configuration.getOrgId(), metricsClient, meterManagerClient);
+            VMWareMetricCollector collector = new VMWareMetricCollector(connection, metricsClient, meterManagerClient,entity);
+            scheduler.scheduleAtFixedRate(collector, 0, 20, TimeUnit.SECONDS);
+            environment.metrics().registerAll(collector);
         }
     }
 }
