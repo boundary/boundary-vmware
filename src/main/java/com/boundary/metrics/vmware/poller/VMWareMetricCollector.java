@@ -113,9 +113,6 @@ public class VMWareMetricCollector implements Runnable, MetricSet {
 		MORCatalog catalog = job.getManagedObjectCatalog();
 
 		for (MORCatalogEntry entry : catalog.getCatalog()) {
-			
-			// Need a list of the metrics to collect
-			List<PerformanceCounterEntry> counters = entry.getCounters();
 
 			Map<String, ManagedObjectReference> entities = vmwClient.getManagedObjects(entry.getType());
 
@@ -225,13 +222,14 @@ public class VMWareMetricCollector implements Runnable, MetricSet {
 	 * @throws InvalidPropertyFaultMsg Incorrect property error {@link InvalidPropertyFaultMsg}
 	 */
 	private void updateMetadata() throws InvalidPropertyFaultMsg, RuntimeFaultFaultMsg {
+		
+		LOG.debug("Update metadata from {}",configuration.getCatalog());
 		MORCatalog catalog = MORCatalogFactory.create(new File(configuration.getCatalog()));
 		
 		PerformanceCounterCollector collector = new PerformanceCounterCollector(vmwClient);
 		PerformanceCounterMetadata perfCounterMetadata = collector.fetchPerformanceCounters();
 		Map<String, Map<String, MetricDefinition>> metrics = catalog.getMetrics();
     	VMWareMetadata metadata = new VMWareMetadata(perfCounterMetadata,metrics);
-		
 		this.job = new MetricCollectionJob(metadata,vmwClient,metricClient,meterClient,catalog);
 	}
 }

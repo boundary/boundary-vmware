@@ -352,10 +352,10 @@ public class VMwareClient implements Connection {
     	return this.getServiceContent().getPropertyCollector();
     }
     
-	private List<Measurement> extractMeasurements(String entityName,
+	private Measurement extractMeasurements(String entityName,
 			int obsDomainId, PerfEntityMetricBase perfStats,
 			VMWareMetadata metadata) {
-		List<Measurement> measurements = new ArrayList<Measurement>();
+		Measurement measurement = null;
 		PerfEntityMetric entityStats = (PerfEntityMetric) perfStats;
 		List<PerfMetricSeries> metricValues = entityStats.getValue();
 		List<PerfSampleInfo> sampleInfos = entityStats.getSampleInfo();
@@ -381,12 +381,11 @@ public class VMwareClient implements Connection {
 				sampleValue = PerformanceCounterMetadata.computeValue(metricInfo,sampleValue);
 				String name = metadata.getMetricName(metricFullName);
 				if (name != null) {
-					Measurement measurement = Measurement.builder()
+					measurement = Measurement.builder()
 							.setMetric(name)
 							.setSourceId(obsDomainId)
 							.setTimestamp(sampleTime)
 							.setMeasurement(sampleValue).build();
-					measurements.add(measurement);
 
 					LOG.info("{} @ {} = {} {}", metricFullName, sampleTime,
 							sampleValue,metricInfo.getUnitInfo().getKey());
@@ -398,7 +397,7 @@ public class VMwareClient implements Connection {
 			}
 		}
 
-		return measurements;
+		return measurement;
 	}
     /**
      * Query vSphere for values of performance metrics
@@ -438,18 +437,28 @@ public class VMwareClient implements Connection {
 			String entityName, int obsDomainId, Integer intervalId, DateTime start,
 			DateTime end, VMWareMetadata metadata) throws RuntimeFaultFaultMsg {
 		
-		List<Measurement> measurements = null;
+		List<Measurement> measurements = new ArrayList<Measurement>();
 
-		List<PerfEntityMetricBase> retrievedStats = getStats(mor,intervalId,start,end,metadata.getPerfMetrics(mor.getType()));
-		LOG.debug("stats count: {}",retrievedStats.size());
+		List<PerfMetricId> perfMetricIds = metadata.getPerfMetrics(mor.getType());
+		LOG.debug("Getting stats for {} performance metric(s)",perfMetricIds.size());
+		if (LOG.isDebugEnabled()) {
+			for (PerfMetricId id : perfMetricIds) {
+				LOG.debug("{}",PerformanceCounterMetadata.toString(id));
+			}
+		}
+		List<PerfEntityMetricBase> retrievedStats = getStats(mor,intervalId,start,end,perfMetricIds);
+		LOG.debug("Retrieved {} stats",retrievedStats.size());
 
 		/*
 		 * Cycle through the PerfEntityMetricBase objects. Each object contains
 		 * a set of statistics for a single ManagedEntity.
 		 */
 		for (PerfEntityMetricBase perfStat : retrievedStats) {
+			
 			if (perfStat instanceof PerfEntityMetric) {
-				measurements = extractMeasurements(entityName,obsDomainId,perfStat, metadata);
+				LOG.debug("perfStat: {}",perfStat.getEntity().getValue());
+				Measurement measurement = extractMeasurements(entityName,obsDomainId,perfStat, metadata);
+				measurements.add(measurement);
 			} else {
 				LOG.error("Unrecognized performance entry type received: {}, ignoring",
 						perfStat.getClass().getName());

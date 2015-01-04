@@ -32,7 +32,7 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import com.boundary.metrics.vmware.client.VMWareClientFactory;
+import com.boundary.metrics.vmware.VMWareClientFactory;
 import com.boundary.metrics.vmware.client.metrics.Metric;
 import com.google.common.io.Resources;
 import com.vmware.connection.Connection;
@@ -82,7 +82,7 @@ public class PerformanceCounterCollectorTest {
 	 */
 	@Test
 	public void testPerformanceCounterCollector() throws URISyntaxException, IOException, InvalidPropertyFaultMsg, RuntimeFaultFaultMsg {
-		Connection client = VMWareClientFactory.createClient();
+		VMwareClient client = VMWareClientFactory.createClient();
 		client.connect();
 
 		

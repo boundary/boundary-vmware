@@ -34,6 +34,7 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import com.boundary.metrics.vmware.VMWareClientFactory;
 import com.boundary.metrics.vmware.client.metrics.Measurement;
 import com.boundary.metrics.vmware.client.metrics.Metric;
 import com.boundary.metrics.vmware.poller.MetricDefinition;
@@ -161,6 +162,7 @@ public class VMwareClientTest {
 		
 		for (Map.Entry<String,ManagedObjectReference> mor : managedObjects.entrySet()) {
 			ManagedObjectReference ref = mor.getValue();
+			System.out.println(ref.getValue());
 			assertEquals("Check mor type","VirtualMachine",ref.getType());
 		}
 	}
@@ -217,8 +219,7 @@ public class VMwareClientTest {
 		 .setDisplayName("CPU Average Utilization");
 		metrics.put("cpu.usage.AVERAGE",m.build());
 		String vmName = "RHEL-TestVM01";
-		GetMOREF search = new GetMOREF(vmClient);
-		ManagedObjectReference mor = search.vmByVMname(vmName,vmClient.getPropertyCollector());
+		ManagedObjectReference mor = vmClient.getVMByName(vmName);
 		DateTime end = vmClient.getTimeAtEndPoint();
 		DateTime start = end.minusSeconds(20);
 		
@@ -242,6 +243,9 @@ public class VMwareClientTest {
 				for (int x = 0; x < metricValues.size(); x++) {
 					PerfMetricIntSeries metricReading = (PerfMetricIntSeries) metricValues.get(x);
 					System.out.println(metricReading.getValue().size());
+					for (Long v : metricReading.getValue()) {
+						System.out.println(v);
+					}
 				}
 			}
 			else {
@@ -257,6 +261,9 @@ public class VMwareClientTest {
 		m.setMetric("SYSTEM_CPU_USAGE_AVERAGE")
 		 .setDisplayName("CPU Average Utilization");
 		metrics.put("cpu.usage.AVERAGE",m.build());
+		Map<String,Map<String,MetricDefinition>> lMetrics = new HashMap<String,Map<String,MetricDefinition>>();
+		lMetrics.put("VirtualMachine", metrics);
+		
 		String vmName = "RHEL-TestVM01";
 		GetMOREF search = new GetMOREF(vmClient);
 		ManagedObjectReference mor = search.vmByVMname(vmName,vmClient.getPropertyCollector());
@@ -265,28 +272,45 @@ public class VMwareClientTest {
 		
 		PerformanceCounterCollector counterCollector = new PerformanceCounterCollector(vmClient);
 		PerformanceCounterMetadata perfCounterMetadata = counterCollector.fetchPerformanceCounters();
-		List<PerfMetricId> perfMetricIds = perfCounterMetadata.getPerformanceMetricIds(metrics);
-		List<PerfEntityMetricBase> entities = vmClient.getStats(mor,new Integer(20),start,end,perfMetricIds);
-		assertNotNull("Check entities",entities);
-		assertTrue("Check entities size", entities.size() > 0);
+		VMWareMetadata metadata = new VMWareMetadata(perfCounterMetadata,lMetrics);
 		
-		for (PerfEntityMetricBase p :entities) {
-			if (p instanceof PerfEntityMetric) {
-				PerfEntityMetric entity = (PerfEntityMetric)p;
-				List<PerfSampleInfo> info = entity.getSampleInfo();
-				List<PerfMetricSeries> metricValues = entity.getValue();
-				
-				for (PerfSampleInfo i : info) {
-					System.out.println(TimeUtils.toDateTime(i.getTimestamp()));
-				}
+		System.out.println(mor.getValue());
+		List<Measurement> measurements = vmClient.getMeasurements(mor,mor.getValue(),1,new Integer(20),start,end,metadata);
+		assertNotNull("Check entities",measurements);
+		assertTrue("Check entities size", measurements.size() > 0);
+		
+		for (Measurement measure : measurements) {
+			System.out.println("MEASURE: " + measure);
+		}
+	}
+	
+	@Test
+	public void testGetMultipleMeasurements() throws InvalidPropertyFaultMsg, RuntimeFaultFaultMsg {
+		Map<String,MetricDefinition> metrics = new HashMap<String,MetricDefinition>();
+		MetricDefinitionBuilder m = new MetricDefinitionBuilder();
+		m.setMetric("SYSTEM_CPU_USAGE_AVERAGE")
+		 .setDisplayName("CPU Average Utilization");
+		metrics.put("cpu.usage.AVERAGE",m.build());
+		Map<String,Map<String,MetricDefinition>> lMetrics = new HashMap<String,Map<String,MetricDefinition>>();
+		lMetrics.put("VirtualMachine", metrics);
+		
+		PerformanceCounterCollector counterCollector = new PerformanceCounterCollector(vmClient);
+		PerformanceCounterMetadata perfCounterMetadata = counterCollector.fetchPerformanceCounters();
+		VMWareMetadata metadata = new VMWareMetadata(perfCounterMetadata,lMetrics);
+		
+		Map<String, ManagedObjectReference> mors = vmClient.getManagedObjects("VirtualMachine");
+		
+		for (Map.Entry<String, ManagedObjectReference> entity : mors.entrySet()) {
+			ManagedObjectReference mor = entity.getValue();
+			DateTime end = vmClient.getTimeAtEndPoint();
+			DateTime start = end.minusSeconds(20);
 
-				for (int x = 0; x < metricValues.size(); x++) {
-					PerfMetricIntSeries metricReading = (PerfMetricIntSeries) metricValues.get(x);
-					System.out.println(metricReading.getValue().size());
-				}
-			}
-			else {
-				fail("Not instance of PerfEntityMetric");
+			List<Measurement> measurements = vmClient.getMeasurements(mor,mor.getValue(), 1, new Integer(20), start, end, metadata);
+			assertNotNull("Check measurements", measurements);
+			//assertTrue("Check measurements size", measurements.size() > 0);
+
+			for (Measurement measure : measurements) {
+				System.out.println(measure);
 			}
 		}
 	}
