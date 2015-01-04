@@ -103,6 +103,6 @@ public class MORCatalogFactoryTest {
 	public void testValidate() {
 		MORCatalog inventory = MORCatalogFactory.create(TEST_CATALOG_FILE);
 		
-		assertTrue("Check validate",inventory.isValid());
+		assertTrue("Check validate",inventory.isValid(true));
 	}
 }

@@ -3,32 +3,121 @@
 	[
 		{
 			"defaultAggregate": "AVG",
-			"defaultResolutionMS": 0,
+			"defaultResolutionMS": 20000,
 			"description": "CPU Average Utilization",
 			"displayName": "CPU Average Utilization",
 			"displayNameShort": "CPU Avg Util",
 			"metric": "SYSTEM_CPU_USAGE_AVERAGE",
-			"unit": "number"
+			"unit": "PERCENT"
+		},
+
+		{
+			"defaultAggregate": "MIN",
+			"defaultResolutionMS": 20000,
+			"description": "CPU Usage Minimum",
+			"displayName": "CPU Usage Minimum",
+			"displayNameShort": "CPU Usage Min",
+			"metric": "SYSTEM_CPU_USAGE_MINIMUM",
+			"unit": "PERCENT"
+		},
+		{
+			"defaultAggregate": "MAX",
+			"defaultResolutionMS": 20000,
+			"description": "CPU Usage Maximum",
+			"displayName": "CPU Usage Maximum",
+			"displayNameShort": "CPU Usage Max",
+			"metric": "SYSTEM_CPU_USAGE_MAXIMUM",
+			"unit": "PERCENT"
 		},
 
 		{
 			"defaultAggregate": "SUM",
-			"defaultResolutionMS": 0,
-			"description": "RabbitMQ - Disk Free",
-			"displayName": "RabbitMQ - Disk Free",
-			"displayNameShort": "RMQ - Disk Free",
-			"metric": "RABBITMQ_DISK_FREE",
-			"unit": "number"
+			"defaultResolutionMS": 20000,
+			"description": "CPU Idle Sum",
+			"displayName": "CPU Idle Sum",
+			"displayNameShort": "CPU Idle Sum",
+			"metric": "SYSTEM_CPU_IDLE_SUM",
+			"unit": "NUMBER"
+		},
+
+		{
+			"defaultAggregate": "MAX",
+			"defaultResolutionMS": 20000,
+			"description": "Memory Maximum Active",
+			"displayName": "Memory Maximum Active",
+			"displayNameShort": "Mem Max Act",
+			"metric": "SYSTEM_MEMORY_ACTIVE_MAXIMUM",
+			"unit": "NUMBER"
+		},
+
+		{
+			"defaultAggregate": "MAX",
+			"defaultResolutionMS": 20000,
+			"description": "Memory Consumed Average",
+			"displayName": "Memory Consumed Average",
+			"displayNameShort": "Mem Cons Ave",
+			"metric": "SYSTEM_MEMORY_CONSUMED_AVERAGE",
+			"unit": "NUMBER"
+		},
+
+		{
+			"defaultAggregate": "MAX",
+			"defaultResolutionMS": 20000,
+			"description": "Memory Swap Used Maximum",
+			"displayName": "Memory Swap Used Maximum",
+			"displayNameShort": "Mem Swap Max",
+			"metric": "SYSTEM_MEMORY_SWAP_USED_MAXIMUM",
+			"unit": "NUMBER"
+		},
+
+		{
+			"defaultAggregate": "AVG",
+			"defaultResolutionMS": 20000,
+			"description": "Disk Read Average",
+			"displayName": "Disk Read Average",
+			"displayNameShort": "Disk Read Ave",
+			"metric": "SYSTEM_DISK_READ_AVERAGE",
+			"unit": "NUMBER"
+		},
+
+		{
+			"defaultAggregate": "AVG",
+			"defaultResolutionMS": 20000,
+			"description": "Disk Write Average",
+			"displayName": "Disk Write Average",
+			"displayNameShort": "Disk Read Ave",
+			"metric": "SYSTEM_DISK_WRITE_AVERAGE",
+			"unit": "NUMBER"
 		},
 
 		{
 			"defaultAggregate": "SUM",
-			"defaultResolutionMS": 0,
-			"description": "RabbitMQ - Disk Free",
-			"displayName": "RabbitMQ - Disk Free",
-			"displayNameShort": "RMQ - Disk Free",
-			"metric": "RABBITMQ_DISK_FREE",
-			"unit": "number"
+			"defaultResolutionMS": 20000,
+			"description": "Disk Capacity Sum",
+			"displayName": "Disk Capacity Sum",
+			"displayNameShort": "Disk Cap Sum",
+			"metric": "SYSTEM_DISK_CAPACITY_SUM",
+			"unit": "NUMBER"
+		},
+
+		{
+			"defaultAggregate": "SUM",
+			"defaultResolutionMS": 20000,
+			"description": "Disk Provisioned Sum",
+			"displayName": "Disk Provisioned Sum",
+			"displayNameShort": "Disk Prov Sum",
+			"metric": "SYSTEM_DISK_PROVISIONED_SUM",
+			"unit": "NUMBER"
+		},
+
+		{
+			"defaultAggregate": "SUM",
+			"defaultResolutionMS": 20000,
+			"description": "Disk Used Sum",
+			"displayName": "Disk Used Sum",
+			"displayNameShort": "Disk Used Sum",
+			"metric": "SYSTEM_DISK_USED_SUM",
+			"unit": "NUMBER"
 		}
 	],
 
@@ -39,42 +128,32 @@
 			"counters": 
 			[
 				{
-					"counter": "cpu.usage.average",
+					"name": "cpu.usage.average",
 					"metric": "SYSTEM_CPU_USAGE_AVERAGE"
 				},
 
 				{
-					"counter": "cpu.usage.MINIMUM",
-					"metric": "SYSTEM_CPU_USAGE_MINIMUM"
+					"name": "cpu.usage.MAXIMUM",
+					"metric": "SYSTEM_CPU_USAGE_MAXIMUM"
 				},
 
 				{
-					"counter": "cpu.idle.SUMMATION",
-					"metric": "SYSTEM_CPU_IDLE_TOTAL"
-				},
-
-				{
-					"counter": "mem.active.MAXIMUM",
+					"name": "mem.active.MAXIMUM",
 					"metric": "SYSTEM_MEMORY_ACTIVE_MAXIMUM"
 				},
 
 				{
-					"counter": "mem.consumed.AVERAGE",
+					"name": "mem.consumed.AVERAGE",
 					"metric": "SYSTEM_MEMORY_CONSUMED_AVERAGE"
 				},
 
 				{
-					"counter": "mem.consumed.AVERAGE",
-					"metric": "SYSTEM_MEMORY_CONSUMED_AVERAGE"
-				},
-
-				{
-					"counter": "disk.read.AVERAGE",
+					"name": "disk.read.AVERAGE",
 					"metric": "SYSTEM_DISK_READ_AVERAGE"
 				},
 
 				{
-					"counter": "disk.write.AVERAGE",
+					"name": "disk.write.AVERAGE",
 					"metric": "SYSTEM_DISK_WRITE_AVERAGE"
 				}
 			]
@@ -85,38 +164,33 @@
 			"counters": 
 			[
 				{
-					"counter": "cpu.usage.AVERAGE",
+					"name": "cpu.usage.AVERAGE",
 					"metric": "SYSTEM_CPU_USAGE_AVERAGE"
 				},
 
 				{
-					"counter": "cpu.usage.MINIMUM",
+					"name": "cpu.usage.MINIMUM",
 					"metric": "SYSTEM_CPU_USAGE_MINIMUM"
 				},
 
 				{
-					"counter": "cpu.usage.IDLE",
-					"metric": "SYSTEM_CPU_USAGE_IDLE"
+					"name": "cpu.idle.SUMMATION",
+					"metric": "SYSTEM_CPU_IDLE_SUM"
 				},
 
 				{
-					"counterName": "mem.active.MAXIMUM",
+					"name": "mem.active.MAXIMUM",
 					"metric": "SYSTEM_MEMORY_ACTIVE_MAXIMUM"
 				},
 
 				{
-					"counterName": "mem.active.MAXIMUM",
-					"metric": "SYSTEM_MEMORY_ACTIVE_MAXIMUM"
-				},
-
-				{
-					"counterName": "mem.consumed.AVERAGE",
+					"name": "mem.consumed.AVERAGE",
 					"metric": "SYSTEM_MEMORY_CONSUMED_AVERAGE"
 				},
 
 				{
-					"counterName": "mem.swapused.AVERAGE",
-					"metric": "SYSTEM_MEMORY_CONSUMED_AVERAGE"
+					"name": "mem.swapused.MAXIMUM",
+					"metric": "SYSTEM_MEMORY_SWAP_USED_MAXIMUM"
 				}
 			]
 		},
@@ -126,18 +200,18 @@
 			"counters": 
 			[
 				{
-					"counter": "disk.capacity.SUM",
+					"name": "disk.capacity.SUM",
 					"metric": "SYSTEM_DISK_CAPACITY_SUM"
 				},
 
 				{
-					"counter": "disk.provisioned.SUM",
+					"name": "disk.provisioned.SUM",
 					"metric": "SYSTEM_DISK_PROVISIONED_SUM"
 				},
 
 				{
-					"counter": "disk.used.SUM",
-					"metric": "SYSTEM_DISK_PROVISIONED_SUM"
+					"name": "disk.used.SUM",
+					"metric": "SYSTEM_DISK_USED_SUM"
 				}
 			]
 		}
