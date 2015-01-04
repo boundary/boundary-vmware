@@ -13,12 +13,12 @@ client:
   retries: 3
   gzipEnabledForRequests: false
 meterManagerClient:
-  apiKey: 6OThKB6oaF4TkCXPFIWxoHuLzX1
-  orgId: ChMBk5Ou9QBdDPaTai0rfUbZ8bC
+  apiKey:  <your api key>
+  orgId: <your org id> 
   baseUri: https://api.boundary.com/
 metricsClient:
   baseUri: https://metrics-api.boundary.com/
-  apiKey: chmbk5ou9qbddpatai0rfubz8bc@metrics.boundary.com:api.4476f18389-16
+  apiKey: <metric api key> 
 # Logging settings.
 logging:
   # The default level of all loggers. Can be OFF, ERROR, WARN, INFO, DEBUG, TRACE, or ALL.
@@ -28,11 +28,12 @@ logging:
     # Overrides the level of com.example.dw.<package name or class> 
     # and sets it to DEBUG.
     #"org.apache.http.wire": DEBUG
-    com.boundary: TRACE
-orgId: ChMBk5Ou9QBdDPaTai0rfUbZ8bC
+    com.boundary: INFO
+orgId: <your org id>
 monitoredEntities:
     # The following can configuration can be repeated for other instances
-    - uri: https://172.17.19.100/sdk/vimService
-      username:  mgmt.sccloudpoc.net\sa-pf01-boundary_lab1ch
-      password: Bound$01
+    - uri: https://<your host>/sdk/vimService
+      username:  <your user name>
+      password: <your password>
       name: target
+      catalog: src/main/resources/virtual-machines.json
