@@ -1,7 +1,10 @@
 package com.boundary.metrics.vmware.poller;
 
+import static com.boundary.metrics.vmware.VMWareClientFactory.DEFAULT_PROPERTY_FILE;
 import static org.junit.Assert.*;
+import static org.junit.Assume.assumeTrue;
 
+import java.io.File;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -29,6 +32,8 @@ public class PerformanceCounterQueryTest {
 
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
+		File file = new File("src/test/resources/" + DEFAULT_PROPERTY_FILE);
+		assumeTrue(file.exists());
 	}
 
 	@AfterClass
