@@ -84,10 +84,10 @@ public class VMwareClientTest {
 		// tests. The configuration file has credentials so we
 		// are not able to include in our repository.
 		
-		File propertiesFile = new File(Resources.getResource(CLIENT_PROPERTY_FILE).toURI());
+		File propertiesFile = new File("src/test/resources/" + CLIENT_PROPERTY_FILE);
 		assumeTrue(propertiesFile.exists());
 		
-		File managedObjectsFile = new File(Resources.getResource(MANAGED_OBJECTS_FILE).toURI());
+		File managedObjectsFile = new File("src/test/resources/" + MANAGED_OBJECTS_FILE);
 		assumeTrue(managedObjectsFile.exists());
 	}
 

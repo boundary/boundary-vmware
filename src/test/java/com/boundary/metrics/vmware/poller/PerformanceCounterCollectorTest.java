@@ -13,7 +13,9 @@
 // limitations under the License.
 package com.boundary.metrics.vmware.poller;
 
-import static org.junit.Assert.*;
+import static com.boundary.metrics.vmware.VMWareClientFactory.DEFAULT_PROPERTY_FILE;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assume.assumeTrue;
 
 import java.io.File;
@@ -33,9 +35,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.boundary.metrics.vmware.VMWareClientFactory;
-import com.boundary.metrics.vmware.client.metrics.Metric;
 import com.google.common.io.Resources;
-import com.vmware.connection.Connection;
 import com.vmware.vim25.InvalidPropertyFaultMsg;
 import com.vmware.vim25.PerfCounterInfo;
 import com.vmware.vim25.PerfMetricId;
@@ -44,27 +44,25 @@ import com.vmware.vim25.RuntimeFaultFaultMsg;
 public class PerformanceCounterCollectorTest {
 	
 	private final static String PERFORMANCE_COUNTER_PROPERTIES="vmware-performance-counters.properties";
-	private static Properties performanceCounters = null;
+	private Properties performanceCounters = null;
 
 	@BeforeClass
 	public static void setUpBeforeClass() {
-		try {
-			File propertiesFile = new File(Resources.getResource(PERFORMANCE_COUNTER_PROPERTIES).toURI());
-			Reader reader = new FileReader(propertiesFile);
-			performanceCounters = new Properties();
-			performanceCounters.load(reader);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+		File file = new File("src/test/resources/" + DEFAULT_PROPERTY_FILE);
+		assumeTrue(file.exists());
 	}
 
 	@AfterClass
 	public static void tearDownAfterClass() throws Exception {
-		performanceCounters = null;
 	}
 
 	@Before
 	public void setUp() throws Exception {
+
+		File propertiesFile = new File(Resources.getResource(PERFORMANCE_COUNTER_PROPERTIES).toURI());
+		Reader reader = new FileReader(propertiesFile);
+		performanceCounters = new Properties();
+		performanceCounters.load(reader);
 	}
 
 	@After

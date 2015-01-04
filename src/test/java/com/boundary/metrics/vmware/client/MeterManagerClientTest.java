@@ -32,6 +32,7 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import static com.boundary.metrics.vmware.VMWareTestUtils.*;
 import com.boundary.metrics.vmware.VMWareTestUtils;
 import com.boundary.metrics.vmware.VMwarePerfAdapterConfiguration;
 import com.boundary.metrics.vmware.client.client.meter.manager.MeterManagerClient;
@@ -50,7 +51,7 @@ public class MeterManagerClientTest {
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
 		
-		File propertiesFile = new File(Resources.getResource(CLIENT_PROPERTY_FILE).toURI());
+		File propertiesFile = new File("src/test/resources/" + DEFAULT_METER_CLIENT_CONFIGURATION);
 		assumeTrue(propertiesFile.exists());
 
 	}

@@ -34,7 +34,7 @@ import com.vmware.connection.Connection;
  */
 public class VMWareClientFactory {
 	
-	private final static String DEFAULT_PROPERTY_FILE = "vmware-client.properties";
+	public final static String DEFAULT_PROPERTY_FILE = "vmware-client.properties";
 	
 	public static VMwareClient createClient() throws URISyntaxException, IOException {
 		return createClient(DEFAULT_PROPERTY_FILE);
