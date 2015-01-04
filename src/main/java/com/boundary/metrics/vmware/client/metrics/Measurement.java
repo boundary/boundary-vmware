@@ -71,8 +71,16 @@ public class Measurement {
     public DateTime getTimestamp() {
         return timestamp;
     }
+    
 
-    public static MeasurementBuilder builder() {
+    @Override
+	public String toString() {
+		return "Measurement [sourceId=" + sourceId + ", metric=" + metric
+				+ ", measurement=" + measurement + ", timestamp=" + timestamp
+				+ "]";
+	}
+
+	public static MeasurementBuilder builder() {
         return new MeasurementBuilder();
     }
 }
