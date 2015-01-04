@@ -32,7 +32,7 @@ import org.slf4j.LoggerFactory;
 
 import com.boundary.metrics.vmware.client.client.meter.manager.MeterManagerClient;
 import com.boundary.metrics.vmware.client.metrics.Measurement;
-import com.boundary.metrics.vmware.client.metrics.MetricsClient;
+import com.boundary.metrics.vmware.client.metrics.MetricClient;
 import com.boundary.metrics.vmware.util.TimeUtils;
 import com.codahale.metrics.Meter;
 import com.codahale.metrics.Metric;
@@ -157,24 +157,43 @@ public class VMwarePerfPoller implements Runnable, MetricSet {
     private final Map<String, com.boundary.metrics.vmware.client.metrics.Metric> metrics;
     private final AtomicBoolean lock = new AtomicBoolean(false);
     private final String orgId;
-    private final MetricsClient metricsClient;
+    private final MetricClient metricsClient;
     private final MeterManagerClient meterManagerClient;
 
     private final Timer pollTimer = new Timer();
     private final Meter overrunMeter = new Meter();
 
-    private Map<String, Integer> countersIdMap;
-    private Map<Integer, PerfCounterInfo> countersInfoMap;
+    private Map<String,Integer> performanceCounterMap;
+    private Map<Integer,PerfCounterInfo> performanceCounterInfoMap;
     private DateTime lastPoll;
     private Duration skew;
 
     public VMwarePerfPoller(Connection client, Map<String, com.boundary.metrics.vmware.client.metrics.Metric> metrics, String orgId,
-                            MetricsClient metricsClient, MeterManagerClient meterManagerClient) {
+                            MetricClient metricsClient, MeterManagerClient meterManagerClient) {
         this.client = checkNotNull(client);
         this.metrics = checkNotNull(metrics);
         this.meterManagerClient = meterManagerClient;
         this.orgId = orgId;
         this.metricsClient = metricsClient;
+    }
+    
+    /**
+     * Test to see if we need to update our metrics to be collected.
+     * 
+     * This currently just looks for maps on the instance but in the future
+     * the need to update will come from an API call to the integration that indicates
+     * which metrics to collect
+     * 
+     * @return {@link boolean} true, update metric map, false no update needed
+     */
+    private boolean updateMetricsToCollect() {
+    	boolean update = false;
+    	
+    	 if (this.performanceCounterMap == null || performanceCounterInfoMap == null) {
+    		 update = true;
+         }
+         
+    	return update;
     }
 
     /**
@@ -191,14 +210,15 @@ public class VMwarePerfPoller implements Runnable, MetricSet {
             	// We can call connect() and it handles its connection state by connecting if needed
                 client.connect();
                 
-                // If we do not have the metrics we are going to collect then
-                // fetch them
-                if (countersIdMap == null || countersInfoMap == null) {
-                    fetchAvailableMetrics();
+                // Check to see if we need to update which meterics we need
+                // to collect from the end point
+                if (updateMetricsToCollect()) {
+                	this.fetchAvailableMetrics();
                 }
-                
+               
                 // Collect the metrics
-                fetchPerfData();
+                collectPerformanceData();
+                
             } catch (Throwable e) {
                 LOG.error("Encountered unexpected error while polling for performance data", e);
             } finally {
@@ -220,48 +240,54 @@ public class VMwarePerfPoller implements Runnable, MetricSet {
      * @throws RuntimeFaultFaultMsg thrown if any kind of runtime error
      */
     public void fetchAvailableMetrics() throws InvalidPropertyFaultMsg, RuntimeFaultFaultMsg {
-        ImmutableMap.Builder<String, Integer> countersIdMap = ImmutableMap.builder();
-        ImmutableMap.Builder<Integer, PerfCounterInfo> countersInfoMap = ImmutableMap.builder();
+    	
+        ImmutableMap.Builder<String, Integer> performanceCounterMapBuilder = ImmutableMap.builder();
+        ImmutableMap.Builder<Integer, PerfCounterInfo> performanceCounterInfoMapBuilder = ImmutableMap.builder();
 
         // Get the PerformanceManager object which is used to get metrics from counters
         ManagedObjectReference pm = client.getServiceContent().getPerfManager();
 
-        ObjectSpec oSpec = new ObjectSpec();
-        oSpec.setObj(pm);
+        ObjectSpec objectSpec = new ObjectSpec();
+        objectSpec.setObj(pm);
 
-        PropertySpec pSpec = new PropertySpec();
-        pSpec.setType("PerformanceManager");
-        pSpec.getPathSet().add("perfCounter");
+        PropertySpec propertySpec = new PropertySpec();
+        propertySpec.setType("PerformanceManager");
+        propertySpec.getPathSet().add("perfCounter");
 
-        PropertyFilterSpec fSpec = new PropertyFilterSpec();
-        fSpec.getObjectSet().add(oSpec);
-        fSpec.getPropSet().add(pSpec);
+        PropertyFilterSpec filterSpec = new PropertyFilterSpec();
+        filterSpec.getObjectSet().add(objectSpec);
+        filterSpec.getPropSet().add(propertySpec);
 
-        RetrieveOptions ro = new RetrieveOptions();
-        RetrieveResult retrieveResult = client.getVimPort().retrievePropertiesEx(client.getServiceContent().getPropertyCollector(), ImmutableList.of(fSpec), ro);
-
+        RetrieveOptions retrieveOptions = new RetrieveOptions();
+        RetrieveResult retrieveResult = client.getVimPort().retrievePropertiesEx(
+        		client.getServiceContent().getPropertyCollector(),
+        		ImmutableList.of(filterSpec),retrieveOptions);
+        
         for (ObjectContent oc : retrieveResult.getObjects()) {
             if (oc.getPropSet() != null) {
                 for (DynamicProperty dp : oc.getPropSet()) {
                     List<PerfCounterInfo> perfCounters = ((ArrayOfPerfCounterInfo)dp.getVal()).getPerfCounterInfo();
                     if (perfCounters != null) {
-                        for (PerfCounterInfo perfCounter : perfCounters) {
-                            int counterId = perfCounter.getKey();
-                            countersIdMap.put(toFullName(perfCounter), counterId);
-                            countersInfoMap.put(counterId, perfCounter);
+                        for (PerfCounterInfo performanceCounterInfo : perfCounters) {
+                            int counterId = performanceCounterInfo.getKey();
+                            performanceCounterMapBuilder.put(toFullName(performanceCounterInfo), counterId);
+                            performanceCounterInfoMapBuilder.put(counterId, performanceCounterInfo);
                         }
                     }
                 }
             }
         }
 
-        this.countersIdMap = countersIdMap.build();
-        this.countersInfoMap = countersInfoMap.build();
+        this.performanceCounterMap = performanceCounterMapBuilder.build();
+        this.performanceCounterInfoMap = performanceCounterInfoMapBuilder.build();
 
+        /**
+         * Get the units for the metrics to be created
+         */
         for (String counterName : metrics.keySet()) {
-            if (this.countersIdMap.containsKey(counterName)) {
+            if (this.performanceCounterMap.containsKey(counterName)) {
                 // Ensure metric is created in HLM
-                String vUnit = this.countersInfoMap.get(this.countersIdMap.get(counterName)).getUnitInfo().getKey();
+                String vUnit = this.performanceCounterInfoMap.get(this.performanceCounterMap.get(counterName)).getUnitInfo().getKey();
                 String hlmUnit = "number";
                 if (vUnit.equalsIgnoreCase("kiloBytes")) {
                     hlmUnit = "bytecount";
@@ -274,9 +300,9 @@ public class VMwarePerfPoller implements Runnable, MetricSet {
             }
         }
         LOG.info("Found {} metrics on VMware host {}: {}",
-        		this.countersIdMap.size(), client.getHost(),client.getName());
-        for (String counter: this.countersIdMap.keySet()) {
-        	LOG.info("counter: {}", counter);
+        		this.performanceCounterMap.size(), client.getHost(),client.getName());
+        for (String counter: this.performanceCounterMap.keySet()) {
+        	LOG.debug("counter: {}", counter);
         }
     }
 
@@ -289,7 +315,7 @@ public class VMwarePerfPoller implements Runnable, MetricSet {
      * @throws RuntimeFaultFaultMsg Runtime error
      * @throws SOAPFaultException WebServer error
      */
-    public void fetchPerfData() throws MalformedURLException, RemoteException,
+    public void collectPerformanceData() throws MalformedURLException, RemoteException,
             InvalidPropertyFaultMsg, RuntimeFaultFaultMsg, SOAPFaultException {
     	
         ManagedObjectReference root = client.getServiceContent().getRootFolder();
@@ -306,19 +332,27 @@ public class VMwarePerfPoller implements Runnable, MetricSet {
             lastPoll = now.minusSeconds(20);
         }
 
-        // Holder for all our newly founded measurements
+        // Holder for all our newly found measurements
         // TODO set an upper size limit on measurements list
         List<Measurement> measurements = Lists.newArrayList();
 
         /*
-        * Create the list of PerfMetricIds, one for each counter.
+        * A {@link PerfMetricId} consistents of the performance counter and
+        * the instance it applies to.
+        * 
+        * In our particulary case we are requesting for all of the instances
+        * associated with the performance counter.
+        * 
+        * Will this work when we have a mix of VirtualMachine, HostSystem, and DataSource
+        * managed objects.
+        * 
         */
         List<PerfMetricId> perfMetricIds = Lists.newArrayList();
         for (String counterName : metrics.keySet()) {
-            if (countersIdMap.containsKey(counterName)) {
+            if (this.performanceCounterMap.containsKey(counterName)) {
                 PerfMetricId metricId = new PerfMetricId();
                 /* Get the ID for this counter. */
-                metricId.setCounterId(countersIdMap.get(counterName));
+                metricId.setCounterId(this.performanceCounterMap.get(counterName));
                 metricId.setInstance("*");
                 perfMetricIds.add(metricId);
             }
@@ -338,7 +372,7 @@ public class VMwarePerfPoller implements Runnable, MetricSet {
             PerfQuerySpec querySpec = new PerfQuerySpec();
             querySpec.setEntity(mor);
             querySpec.setIntervalId(20);
-            querySpec.setFormat("normal"); // normal or csv
+            querySpec.setFormat("normal");
             querySpec.setStartTime(TimeUtils.toXMLGregorianCalendar(lastPoll));
             querySpec.setEndTime(TimeUtils.toXMLGregorianCalendar(now));
             querySpec.getMetricId().addAll(perfMetricIds);
@@ -361,7 +395,7 @@ public class VMwarePerfPoller implements Runnable, MetricSet {
 
                     for (int x = 0; x < metricValues.size(); x++) {
                         PerfMetricIntSeries metricReading = (PerfMetricIntSeries) metricValues.get(x);
-                        PerfCounterInfo metricInfo = countersInfoMap.get(metricReading.getId().getCounterId());
+                        PerfCounterInfo metricInfo = performanceCounterInfoMap.get(metricReading.getId().getCounterId());
                         String metricFullName = toFullName.apply(metricInfo);
                         if (!sampleInfos.isEmpty()) {
                             PerfSampleInfo sampleInfo = sampleInfos.get(0);
@@ -377,7 +411,7 @@ public class VMwarePerfPoller implements Runnable, MetricSet {
                             }
 
                             // Prefix the VM name with the name from the monitored entity configuration, we can form unique names that way
-                            int obsDomainId = meterManagerClient.createOrGetMeterMetadata(orgId, client.getName() + "-" + entityName).getObservationDomainId();
+                            int obsDomainId = meterManagerClient.createOrGetMeterMetadata(client.getName() + "-" + entityName).getObservationDomainId();
 
                             if (metricInfo.getUnitInfo().getKey().equalsIgnoreCase("kiloBytes")) {
                                 sampleValue = (long)sampleValue * 1024; // Convert KB to Bytes

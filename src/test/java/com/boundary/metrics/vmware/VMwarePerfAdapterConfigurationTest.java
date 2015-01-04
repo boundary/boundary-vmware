@@ -96,6 +96,7 @@ public class VMwarePerfAdapterConfigurationTest {
 		assertEquals("Check size: getMonitoriedEntities()",1,entities.size());
 		MonitoredEntity entity = entities.get(0);
 		assertEquals("check getName()","foobar",entity.getName());
+		assertEquals("check getCatalog()","catalog.json",entity.getCatalog());
 	}
 	
 	

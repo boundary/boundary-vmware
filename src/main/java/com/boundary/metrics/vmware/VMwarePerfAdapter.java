@@ -26,7 +26,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.boundary.metrics.vmware.client.client.meter.manager.MeterManagerClient;
-import com.boundary.metrics.vmware.client.metrics.MetricsClient;
+import com.boundary.metrics.vmware.client.metrics.MetricClient;
 import com.boundary.metrics.vmware.poller.MonitoredEntity;
 import com.boundary.metrics.vmware.poller.VMwareClient;
 import com.boundary.metrics.vmware.poller.VMwarePerfPoller;
@@ -83,7 +83,7 @@ public class VMwarePerfAdapter extends Application<VMwarePerfAdapterConfiguratio
         final MeterManagerClient meterManagerClient = configuration.getMeterManagerClient().build(httpClient);
         
         // The metrics client is responsible interacting with the HLM (Host Level Metrics) API
-        final MetricsClient metricsClient = configuration.getMetricsClient().build(httpClient);
+        final MetricClient metricsClient = configuration.getMetricsClient().build(httpClient);
         environment.jersey().register(new VMWarePerfPollerMonitor());
         
         LOG.info("Collecting metrics from {} endpoints",configuration.getMonitoredEntities().size());

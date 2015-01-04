@@ -14,28 +14,41 @@
 
 package com.boundary.metrics.vmware.client;
 
-import static org.junit.Assert.*;
-import static org.junit.Assume.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+import static org.junit.Assume.assumeTrue;
 
 import java.io.File;
-import java.io.FileReader;
-import java.io.Reader;
-import java.net.URI;
+import java.io.IOException;
 import java.net.URISyntaxException;
+import java.util.HashMap;
 import java.util.List;
-import java.util.Properties;
+import java.util.Map;
 
+import org.joda.time.DateTime;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import com.boundary.metrics.vmware.VMWareClientFactory;
+import com.boundary.metrics.vmware.client.metrics.Measurement;
+import com.boundary.metrics.vmware.client.metrics.Metric;
+import com.boundary.metrics.vmware.poller.MetricDefinition;
+import com.boundary.metrics.vmware.poller.MetricDefinitionBuilder;
+import com.boundary.metrics.vmware.poller.PerformanceCounterCollector;
+import com.boundary.metrics.vmware.poller.PerformanceCounterMetadata;
+import com.boundary.metrics.vmware.poller.PerformanceCounterQuery;
+import com.boundary.metrics.vmware.poller.VMWareMetadata;
 import com.boundary.metrics.vmware.poller.VMwareClient;
-import com.google.common.base.Joiner;
+import com.boundary.metrics.vmware.util.TimeUtils;
 import com.google.common.collect.ImmutableList;
 import com.google.common.io.Resources;
 import com.vmware.connection.Connection;
+import com.vmware.connection.helpers.GetMOREF;
 import com.vmware.vim25.ArrayOfPerfCounterInfo;
 import com.vmware.vim25.DynamicProperty;
 import com.vmware.vim25.InvalidPropertyFaultMsg;
@@ -43,6 +56,12 @@ import com.vmware.vim25.ManagedObjectReference;
 import com.vmware.vim25.ObjectContent;
 import com.vmware.vim25.ObjectSpec;
 import com.vmware.vim25.PerfCounterInfo;
+import com.vmware.vim25.PerfEntityMetric;
+import com.vmware.vim25.PerfEntityMetricBase;
+import com.vmware.vim25.PerfMetricId;
+import com.vmware.vim25.PerfMetricIntSeries;
+import com.vmware.vim25.PerfMetricSeries;
+import com.vmware.vim25.PerfSampleInfo;
 import com.vmware.vim25.PropertyFilterSpec;
 import com.vmware.vim25.PropertySpec;
 import com.vmware.vim25.RetrieveOptions;
@@ -54,64 +73,61 @@ import com.vmware.vim25.VimService;
 
 public class VMwareClientTest {
 
-	private Connection vmClient;
-
-	private static Properties clientProperties;
-
-	private final static String URL = "com.boundary.metrics.vmware.client.url";
-	private final static String USER = "com.boundary.metrics.vmware.client.user";
-	private final static String PASSWORD = "com.boundary.metrics.vmware.client.password";
-
-	private static String url;
-	private static String user;
-	private static String password;
+	private VMwareClient vmClient;
+	
+	private final static String CLIENT_PROPERTY_FILE = "vmware-client.properties";
+	private final static String MANAGED_OBJECTS_FILE = "managed-objects.json";
 
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
 		// If our configuration file is missing that do not run
 		// tests. The configuration file has credentials so we
 		// are not able to include in our repository.
-		String propertyFile = "vmware-client.properties";
-		Joiner propertyFileJoin = Joiner.on("//");
-		String propertyFilePath = propertyFileJoin.join("src/test/resources",propertyFile);
-		assumeTrue(new File(propertyFilePath).exists());
 		
-		File propertiesFile = new File(Resources.getResource(propertyFile).toURI());
+		File propertiesFile = new File("src/test/resources/" + CLIENT_PROPERTY_FILE);
 		assumeTrue(propertiesFile.exists());
-		Reader reader = new FileReader(propertiesFile);
-		clientProperties = new Properties();
-		clientProperties.load(reader);
-		url = clientProperties.getProperty(URL);
-		user = clientProperties.getProperty(USER);
-		password = clientProperties.getProperty(PASSWORD);
-
+		
+		File managedObjectsFile = new File("src/test/resources/" + MANAGED_OBJECTS_FILE);
+		assumeTrue(managedObjectsFile.exists());
 	}
 
 	@AfterClass
 	public static void tearDownAfterClass() throws Exception {
-		clientProperties = null;
 	}
 
 	@Before
 	public void setUp() throws Exception {
-		vmClient = new VMwareClient(new URI(url), user, password,this.getClass().toString());
+		vmClient = VMWareClientFactory.createClient(CLIENT_PROPERTY_FILE);
 		vmClient.connect();
 	}
 
 	@After
 	public void tearDown() throws Exception {
+		vmClient.disconnect();
 	}
 
 	@Test
-	public void testPropertiesLoad() {
-		assertNotNull(clientProperties);
-	}
-
-	@Test
-	public void testClientConnection() throws URISyntaxException {
-		Connection client = new VMwareClient(new URI(url),user,password,this.getClass().toString());
+	public void testClientConnection() throws URISyntaxException, IOException {
+		Connection client =  VMWareClientFactory.createClient(CLIENT_PROPERTY_FILE);
 
 		client.connect();
+		client.disconnect();
+	}
+	
+	@Test
+	public void testMultipleConnection() throws URISyntaxException, IOException {
+		Connection client =  VMWareClientFactory.createClient(CLIENT_PROPERTY_FILE);
+		client.connect();
+		client.connect();
+		client.disconnect();
+	}
+	
+	@Test
+	public void testMultipleDisconnect() throws URISyntaxException, IOException {
+		Connection client =  VMWareClientFactory.createClient(CLIENT_PROPERTY_FILE);
+		client.connect();
+		client.disconnect();
+		client.disconnect();
 	}
 
 	@Test
@@ -125,8 +141,6 @@ public class VMwareClientTest {
 		ServiceContent content = vmClient.getServiceContent();
 		ManagedObjectReference performanceManager = content.getPerfManager();
 		assertNotNull(performanceManager);
-
-		System.out.println(performanceManager.getClass().toString());
 	}
 
 	@Test
@@ -140,6 +154,24 @@ public class VMwareClientTest {
 		VimService vimService = vmClient.getVimService();
 		assertNotNull(vimService);
 	}
+	
+	@Test
+	public void testGetManagedObjects() throws RuntimeFaultFaultMsg, InvalidPropertyFaultMsg {
+		
+		Map<String, ManagedObjectReference> managedObjects = vmClient.getManagedObjects("VirtualMachine");
+		
+		for (Map.Entry<String,ManagedObjectReference> mor : managedObjects.entrySet()) {
+			ManagedObjectReference ref = mor.getValue();
+			System.out.println(ref.getValue());
+			assertEquals("Check mor type","VirtualMachine",ref.getType());
+		}
+	}
+	
+	@Test
+	public void testGetVMByName() throws InvalidPropertyFaultMsg, RuntimeFaultFaultMsg {
+		ManagedObjectReference mor = vmClient.getVMByName("RHEL-TestVM01");
+		assertNotNull("Check for null MOR",mor);
+	}
 
 	@Test
 	public void testGetPerformanceManagerDescription() throws InvalidPropertyFaultMsg, RuntimeFaultFaultMsg {
@@ -152,12 +184,14 @@ public class VMwareClientTest {
 		pSpec.setType("PerformanceManager");
 		pSpec.getPathSet().add("perfCounter");
 
-		PropertyFilterSpec fSpec = new PropertyFilterSpec();
-		fSpec.getObjectSet().add(oSpec);
-		fSpec.getPropSet().add(pSpec);
+		PropertyFilterSpec propertyFilter = new PropertyFilterSpec();
+		propertyFilter.getObjectSet().add(oSpec);
+		propertyFilter.getPropSet().add(pSpec);
 		
-        RetrieveOptions ro = new RetrieveOptions();
-        RetrieveResult retrieveResult = vmClient.getVimPort().retrievePropertiesEx(vmClient.getServiceContent().getPropertyCollector(), ImmutableList.of(fSpec), ro);
+        RetrieveOptions retriveOptions = new RetrieveOptions();
+        RetrieveResult retrieveResult = vmClient.getVimPort().retrievePropertiesEx(
+        		vmClient.getServiceContent().getPropertyCollector(),
+        		ImmutableList.of(propertyFilter), retriveOptions);
 
         for (ObjectContent oc : retrieveResult.getObjects()) {
             if (oc.getPropSet() != null) {
@@ -168,12 +202,116 @@ public class VMwareClientTest {
                         	System.out.println("id: " + Integer.toString(perfCounter.getKey()));
                         	System.out.println("groupInfo: " + perfCounter.getGroupInfo().getKey());
                         	System.out.println("nameInfo: " + perfCounter.getNameInfo().getKey());
-                        	System.out.println("nameInfo: " + perfCounter.getRollupType().toString().toUpperCase());
+                        	System.out.println("RollupType: " + perfCounter.getRollupType().toString().toUpperCase());
                         }
                     }
                 }
             }
-        }
+        }        
 
+	}
+	
+	@Test
+	public void testGetStats() throws InvalidPropertyFaultMsg, RuntimeFaultFaultMsg {
+		Map<String,MetricDefinition> metrics = new HashMap<String,MetricDefinition>();
+		MetricDefinitionBuilder m = new MetricDefinitionBuilder();
+		m.setMetric("SYSTEM_CPU_USAGE_AVERAGE")
+		 .setDisplayName("CPU Average Utilization");
+		metrics.put("cpu.usage.AVERAGE",m.build());
+		String vmName = "RHEL-TestVM01";
+		ManagedObjectReference mor = vmClient.getVMByName(vmName);
+		DateTime end = vmClient.getTimeAtEndPoint();
+		DateTime start = end.minusSeconds(20);
+		
+		PerformanceCounterCollector counterCollector = new PerformanceCounterCollector(vmClient);
+		PerformanceCounterMetadata perfCounterMetadata = counterCollector.fetchPerformanceCounters();
+		List<PerfMetricId> perfMetricIds = perfCounterMetadata.getPerformanceMetricIds(metrics);
+		List<PerfEntityMetricBase> entities = vmClient.getStats(mor,new Integer(20),start,end,perfMetricIds);
+		assertNotNull("Check entities",entities);
+		assertTrue("Check entities size", entities.size() > 0);
+		
+		for (PerfEntityMetricBase p :entities) {
+			if (p instanceof PerfEntityMetric) {
+				PerfEntityMetric entity = (PerfEntityMetric)p;
+				List<PerfSampleInfo> info = entity.getSampleInfo();
+				List<PerfMetricSeries> metricValues = entity.getValue();
+				
+				for (PerfSampleInfo i : info) {
+					System.out.println(TimeUtils.toDateTime(i.getTimestamp()));
+				}
+
+				for (int x = 0; x < metricValues.size(); x++) {
+					PerfMetricIntSeries metricReading = (PerfMetricIntSeries) metricValues.get(x);
+					System.out.println(metricReading.getValue().size());
+					for (Long v : metricReading.getValue()) {
+						System.out.println(v);
+					}
+				}
+			}
+			else {
+				fail("Not instance of PerfEntityMetric");
+			}
+		}
+	}
+	
+	@Test
+	public void testGetMeasurements() throws InvalidPropertyFaultMsg, RuntimeFaultFaultMsg {
+		Map<String,MetricDefinition> metrics = new HashMap<String,MetricDefinition>();
+		MetricDefinitionBuilder m = new MetricDefinitionBuilder();
+		m.setMetric("SYSTEM_CPU_USAGE_AVERAGE")
+		 .setDisplayName("CPU Average Utilization");
+		metrics.put("cpu.usage.AVERAGE",m.build());
+		Map<String,Map<String,MetricDefinition>> lMetrics = new HashMap<String,Map<String,MetricDefinition>>();
+		lMetrics.put("VirtualMachine", metrics);
+		
+		String vmName = "RHEL-TestVM01";
+		GetMOREF search = new GetMOREF(vmClient);
+		ManagedObjectReference mor = search.vmByVMname(vmName,vmClient.getPropertyCollector());
+		DateTime end = vmClient.getTimeAtEndPoint();
+		DateTime start = end.minusSeconds(20);
+		
+		PerformanceCounterCollector counterCollector = new PerformanceCounterCollector(vmClient);
+		PerformanceCounterMetadata perfCounterMetadata = counterCollector.fetchPerformanceCounters();
+		VMWareMetadata metadata = new VMWareMetadata(perfCounterMetadata,lMetrics);
+		
+		System.out.println(mor.getValue());
+		List<Measurement> measurements = vmClient.getMeasurements(mor,mor.getValue(),1,new Integer(20),start,end,metadata);
+		assertNotNull("Check entities",measurements);
+		assertTrue("Check entities size", measurements.size() > 0);
+		
+		for (Measurement measure : measurements) {
+			System.out.println("MEASURE: " + measure);
+		}
+	}
+	
+	@Test
+	public void testGetMultipleMeasurements() throws InvalidPropertyFaultMsg, RuntimeFaultFaultMsg {
+		Map<String,MetricDefinition> metrics = new HashMap<String,MetricDefinition>();
+		MetricDefinitionBuilder m = new MetricDefinitionBuilder();
+		m.setMetric("SYSTEM_CPU_USAGE_AVERAGE")
+		 .setDisplayName("CPU Average Utilization");
+		metrics.put("cpu.usage.AVERAGE",m.build());
+		Map<String,Map<String,MetricDefinition>> lMetrics = new HashMap<String,Map<String,MetricDefinition>>();
+		lMetrics.put("VirtualMachine", metrics);
+		
+		PerformanceCounterCollector counterCollector = new PerformanceCounterCollector(vmClient);
+		PerformanceCounterMetadata perfCounterMetadata = counterCollector.fetchPerformanceCounters();
+		VMWareMetadata metadata = new VMWareMetadata(perfCounterMetadata,lMetrics);
+		
+		Map<String, ManagedObjectReference> mors = vmClient.getManagedObjects("VirtualMachine");
+		
+		for (Map.Entry<String, ManagedObjectReference> entity : mors.entrySet()) {
+			ManagedObjectReference mor = entity.getValue();
+			DateTime end = vmClient.getTimeAtEndPoint();
+			DateTime start = end.minusSeconds(20);
+
+			List<Measurement> measurements = vmClient.getMeasurements(mor,mor.getValue(), 1, new Integer(20), start, end, metadata);
+			assertNotNull("Check measurements", measurements);
+			//assertTrue("Check measurements size", measurements.size() > 0);
+
+			for (Measurement measure : measurements) {
+				System.out.println(measure);
+			}
+		}
 	}
 }

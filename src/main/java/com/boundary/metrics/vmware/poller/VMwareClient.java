@@ -14,24 +14,51 @@
 
 package com.boundary.metrics.vmware.poller;
 
-import com.boundary.metrics.vmware.util.TimeUtils;
-import com.google.common.base.Throwables;
-import com.vmware.connection.Connection;
-import com.vmware.vim25.*;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URL;
+import java.security.cert.CertificateException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
+import javax.net.ssl.HostnameVerifier;
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLSession;
+import javax.net.ssl.SSLSessionContext;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509TrustManager;
+import javax.xml.ws.BindingProvider;
+import javax.xml.ws.handler.MessageContext;
 
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.net.ssl.*;
-import javax.xml.ws.BindingProvider;
-import javax.xml.ws.handler.MessageContext;
-
-import java.net.MalformedURLException;
-import java.net.URI;
-import java.net.URL;
-import java.security.cert.CertificateException;
-import java.util.Map;
+import com.boundary.metrics.vmware.client.metrics.Measurement;
+import com.boundary.metrics.vmware.util.TimeUtils;
+import com.google.common.base.Throwables;
+import com.google.common.collect.FluentIterable;
+import com.google.common.collect.ImmutableList;
+import com.vmware.connection.Connection;
+import com.vmware.connection.helpers.GetMOREF;
+import com.vmware.vim25.AboutInfo;
+import com.vmware.vim25.InvalidPropertyFaultMsg;
+import com.vmware.vim25.ManagedObjectReference;
+import com.vmware.vim25.PerfCounterInfo;
+import com.vmware.vim25.PerfEntityMetric;
+import com.vmware.vim25.PerfEntityMetricBase;
+import com.vmware.vim25.PerfMetricId;
+import com.vmware.vim25.PerfMetricIntSeries;
+import com.vmware.vim25.PerfMetricSeries;
+import com.vmware.vim25.PerfQuerySpec;
+import com.vmware.vim25.PerfSampleInfo;
+import com.vmware.vim25.RuntimeFaultFaultMsg;
+import com.vmware.vim25.ServiceContent;
+import com.vmware.vim25.UserSession;
+import com.vmware.vim25.VimPortType;
+import com.vmware.vim25.VimService;
 
 /**
  * VMware Connection with no SSL validation
@@ -48,14 +75,22 @@ public class VMwareClient implements Connection {
     private VimPortType vimPort;
     private UserSession userSession;
     private ServiceContent serviceContent;
-    private ManagedObjectReference SVC_INST_REF;
+    private ManagedObjectReference SERVICE_INSTANCE_REFERENCE;
     @SuppressWarnings("rawtypes")
     private Map headers;
 
 
-
-    public VMwareClient(URI url, String username, String password,String name) {
-        this.uri = url;
+    /**
+     * Creates a vSphere client connection provided the end point
+     * and authentication tokens (username and password).
+     * 
+     * @param url {@link URI} Web service end point.
+     * @param username {@link String} user to authenticate with
+     * @param password {@link String} password to use for authentication
+     * @param name {@link String} Name of end point for logging and tagging
+     */
+    public VMwareClient(URI uri, String username, String password,String name) {
+        this.uri = uri;
         this.username = username;
         this.password = password;
         this.name = name;
@@ -136,13 +171,25 @@ public class VMwareClient implements Connection {
         return headers;
     }
 
+    /**
+     * Returns a reference to the "ServiceInstance" managed object
+     * of the connected end point.
+     * 
+     * @return {@link ManagedObjectReference}
+     */
     @Override
     public ManagedObjectReference getServiceInstanceReference() {
-        return SVC_INST_REF;
+        return SERVICE_INSTANCE_REFERENCE;
     }
 
+    /**
+     * Invokes a connection to the Web Service end point using the provide
+     * credentials.
+     * 
+     */
     @Override
     public Connection connect() {
+    	LOG.debug("Monitored entity {} is connecting.",getName());
         if (!isConnected()) {
             try {
                 // Variables of the following types for access to the API methods
@@ -151,7 +198,7 @@ public class VMwareClient implements Connection {
                 // -- VimService for access to the vSphere Web service
                 // -- VimPortType for access to methods
                 // -- ServiceContent for access to managed object services
-                SVC_INST_REF = new ManagedObjectReference();
+            	SERVICE_INSTANCE_REFERENCE = new ManagedObjectReference();
 
                 // Declare a host name verifier that will automatically enable
                 // the connection. The host name verifier is invoked during
@@ -181,8 +228,8 @@ public class VMwareClient implements Connection {
                 HttpsURLConnection.setDefaultHostnameVerifier(hv);
 
                 // Set up the manufactured managed object reference for the ServiceInstance
-                SVC_INST_REF.setType("ServiceInstance");
-                SVC_INST_REF.setValue("ServiceInstance");
+                SERVICE_INSTANCE_REFERENCE.setType("ServiceInstance");
+                SERVICE_INSTANCE_REFERENCE.setValue("ServiceInstance");
 
                 // Create a VimService object to obtain a VimPort binding provider.
                 // The BindingProvider provides access to the protocol fields
@@ -201,7 +248,7 @@ public class VMwareClient implements Connection {
                 ctxt.put(BindingProvider.SESSION_MAINTAIN_PROPERTY, true);
 
                 // Retrieve the ServiceContent object and login
-                serviceContent = vimPort.retrieveServiceContent(SVC_INST_REF);
+                serviceContent = vimPort.retrieveServiceContent(SERVICE_INSTANCE_REFERENCE);
                 headers = (Map) ((BindingProvider) vimPort).getResponseContext().get(
                                 MessageContext.HTTP_RESPONSE_HEADERS);
                 userSession = vimPort.login(serviceContent.getSessionManager(),
@@ -217,23 +264,48 @@ public class VMwareClient implements Connection {
                 LOG.error("Unable to connect to " + getHost(), e);
             }
         }
+        
         return this;
     }
 
+    /**
+     * State of the connection to the end point which is either: true (connected) or false (note connected)
+     * 
+     * @return {@link boolean} connection state
+     */
     @Override
     public boolean isConnected() {
+    	boolean  result = false;
+    	
+    	// If our userSession is null it indicates we never had successfull connection
+    	// so we can reliably return false
         if (userSession == null) {
             LOG.info("UserSession is null, disconnected");
-            return false;
+            result = false;
         }
-        DateTime startTime = TimeUtils.toDateTime(userSession.getLastActiveTime());
-        return startTime.plusMinutes(30).isBeforeNow();
+        else {
+        	DateTime startTime = TimeUtils.toDateTime(userSession.getLastActiveTime());
+        	DateTime currentTime = new DateTime();
+        	DateTime endTime = startTime.plusMinutes(30);
+        	result = endTime.isBeforeNow();
+        	LOG.info("Testing for a stale connection: startTime: {}, endTime: {}, currentTime: {}, stale: {}",
+        			startTime,endTime,currentTime,result);
+        }
+        
+        return result;
     }
 
+    /**
+     * Disconnect from the end point.
+     * 
+     */
     @Override
     public Connection disconnect() {
+    	LOG.debug("Monitored entity {} is disconnectiong",getName());
         try {
-            vimPort.logout(serviceContent.getSessionManager());
+        	if (vimPort != null) {
+        		vimPort.logout(serviceContent.getSessionManager());
+        	}
         } catch (RuntimeFaultFaultMsg e) {
             throw Throwables.propagate(e);
         } finally {
@@ -246,6 +318,12 @@ public class VMwareClient implements Connection {
         return this;
     }
 
+    /**
+     * Returns the web service end point {@link URL}
+     * associated with this client.
+     * 
+     * @return {@link URL}
+     */
     @Override
     public URL getURL() {
         try {
@@ -254,10 +332,168 @@ public class VMwareClient implements Connection {
             throw Throwables.propagate(e);
         }
     }
+    
+    /**
+     * Returns the current time at the vSphere end point
+     * 
+     * @return {@link DateTime}
+     * @throws RuntimeFaultFaultMsg
+     */
+    public DateTime getTimeAtEndPoint() throws RuntimeFaultFaultMsg {
+		return TimeUtils.toDateTime(getVimPort().currentTime(getServiceInstanceReference()));
+	}
+    
+    /**
+     * Convenience function to get a reference to the property collector.
+     * 
+     * @return {@link ManagedObjectReference}
+     */
+    public ManagedObjectReference getPropertyCollector() {
+    	return this.getServiceContent().getPropertyCollector();
+    }
+    
+	private Measurement extractMeasurements(String entityName,
+			int obsDomainId, PerfEntityMetricBase perfStats,
+			VMWareMetadata metadata) {
+		Measurement measurement = null;
+		PerfEntityMetric entityStats = (PerfEntityMetric) perfStats;
+		List<PerfMetricSeries> metricValues = entityStats.getValue();
+		List<PerfSampleInfo> sampleInfos = entityStats.getSampleInfo();
 
-    // Authentication is handled by using a TrustManager and supplying
-    // a host name verifier method. (The host name verifier is declared
-    // in the main function.)
+		for (int x = 0; x < metricValues.size(); x++) {
+			PerfMetricIntSeries metricReading = (PerfMetricIntSeries) metricValues.get(x);
+			PerfCounterInfo metricInfo = metadata.getInfoMap().get(metricReading.getId().getCounterId());
+			String metricFullName = PerformanceCounterMetadata.toFullName(metricInfo);
+			if (!sampleInfos.isEmpty()) {
+				PerfSampleInfo sampleInfo = sampleInfos.get(0);
+				DateTime sampleTime = TimeUtils.toDateTime(sampleInfo.getTimestamp());
+				Number sampleValue = metricReading.getValue().iterator().next();
+
+				// if (skew != null) {
+				// sampleTime =
+				// sampleTime.plusSeconds((int)skew.getStandardSeconds());
+				// }
+
+				if (metricReading.getValue().size() > 1) {
+					LOG.warn("Metric {} has more than one value, only using the first",metricFullName);
+				}
+				// Scale data based on the metric
+				sampleValue = PerformanceCounterMetadata.computeValue(metricInfo,sampleValue);
+				String name = metadata.getMetricName(metricFullName);
+				if (name != null) {
+					measurement = Measurement.builder()
+							.setMetric(name)
+							.setSourceId(obsDomainId)
+							.setTimestamp(sampleTime)
+							.setMeasurement(sampleValue).build();
+
+					LOG.info("{} @ {} = {} {}", metricFullName, sampleTime,
+							sampleValue,metricInfo.getUnitInfo().getKey());
+				} else {
+					LOG.warn("Skipping collection of metric: {}",metricFullName);
+			    }
+			} else {
+				LOG.warn("Didn't receive any samples when polling for {} on {}",metricFullName,this.getName());
+			}
+		}
+
+		return measurement;
+	}
+    /**
+     * Query vSphere for values of performance metrics
+     * 
+     * @param querySpec
+     * @return {@link List} List of {@link PerfEntityMetricBase}
+     * @throws RuntimeFaultFaultMsg Any runtime issue
+     */
+    public List<PerfEntityMetricBase> getStats(ManagedObjectReference mor,
+    		Integer intervalId,DateTime start,DateTime end,
+    		List<PerfMetricId> perfMetricIds) throws RuntimeFaultFaultMsg {
+    	
+    	LOG.debug("interval: {}, start: {}, end: {}",intervalId,start,end);
+    	
+		/*
+		 * Create the query specification for queryPerf().
+		 */
+		PerfQuerySpec querySpec = new PerfQuerySpec();
+		querySpec.setEntity(mor);
+		querySpec.setIntervalId(intervalId);
+		querySpec.setFormat("normal");
+		querySpec.setStartTime(TimeUtils.toXMLGregorianCalendar(start));
+		querySpec.setEndTime(TimeUtils.toXMLGregorianCalendar(end));
+		querySpec.getMetricId().addAll(perfMetricIds);
+
+		LOG.info("MOR: {}-{}, Interval: {}, Format: {}, MetricIds: {}, Start: {}, End: {}",
+				mor.getType(),
+				mor.getValue(),
+				querySpec.getIntervalId(),
+				querySpec.getFormat(),
+				FluentIterable.from(perfMetricIds).transform(PerformanceCounterMetadata.toStringFunction),
+				start, end);
+    	return this.getVimPort().queryPerf(this.getServiceContent().getPerfManager(),ImmutableList.of(querySpec));
+    }
+
+	public List<Measurement> getMeasurements(ManagedObjectReference mor,
+			String entityName, int obsDomainId, Integer intervalId, DateTime start,
+			DateTime end, VMWareMetadata metadata) throws RuntimeFaultFaultMsg {
+		
+		List<Measurement> measurements = new ArrayList<Measurement>();
+
+		List<PerfMetricId> perfMetricIds = metadata.getPerfMetrics(mor.getType());
+		LOG.debug("Getting stats for {} performance metric(s)",perfMetricIds.size());
+		if (LOG.isDebugEnabled()) {
+			for (PerfMetricId id : perfMetricIds) {
+				LOG.debug("{}",PerformanceCounterMetadata.toString(id));
+			}
+		}
+		List<PerfEntityMetricBase> retrievedStats = getStats(mor,intervalId,start,end,perfMetricIds);
+		LOG.debug("Retrieved {} stats",retrievedStats.size());
+
+		/*
+		 * Cycle through the PerfEntityMetricBase objects. Each object contains
+		 * a set of statistics for a single ManagedEntity.
+		 */
+		for (PerfEntityMetricBase perfStat : retrievedStats) {
+			
+			if (perfStat instanceof PerfEntityMetric) {
+				LOG.debug("perfStat: {}",perfStat.getEntity().getValue());
+				Measurement measurement = extractMeasurements(entityName,obsDomainId,perfStat, metadata);
+				measurements.add(measurement);
+			} else {
+				LOG.error("Unrecognized performance entry type received: {}, ignoring",
+						perfStat.getClass().getName());
+			}
+		}
+		return measurements;
+	}
+    
+    /**
+     * Query vSphere to get list of managed objects by their type
+     *  
+     * @param managedObjectType type of the managed object to look up
+     * @return {@link Map}
+     * @throws RuntimeFaultFaultMsg Runtime error occurred
+     * @throws InvalidPropertyFaultMsg Invalid property
+     */
+    public Map<String,ManagedObjectReference> getManagedObjects(String managedObjectType) throws RuntimeFaultFaultMsg, InvalidPropertyFaultMsg {
+        GetMOREF getMOREFs = new GetMOREF(this);
+        ManagedObjectReference root = this.getServiceContent().getRootFolder();
+        Map<String,ManagedObjectReference> entities = getMOREFs.inFolderByType(root,managedObjectType);
+        return entities;
+	}
+    
+    public ManagedObjectReference getVMByName(String vmName) throws InvalidPropertyFaultMsg, RuntimeFaultFaultMsg {
+    	ManagedObjectReference mor = null;
+		GetMOREF search = new GetMOREF(this);
+		
+		mor = search.vmByVMname(vmName,this.getPropertyCollector());
+		return mor;
+    }
+    /**
+	 * Authentication is handled by using a TrustManager and supplying
+     * a host name verifier method. (The host name verifier is declared
+     * in the main function.)
+     */
     private static class TrustAllTrustManager implements TrustManager, X509TrustManager {
 
         @Override

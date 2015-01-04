@@ -14,6 +14,22 @@
 
 package com.boundary.metrics.vmware.client.metrics;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
+import java.net.URI;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
+
+import javax.ws.rs.core.HttpHeaders;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+
+import org.joda.time.DateTime;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.google.common.base.Charsets;
 import com.google.common.base.Joiner;
 import com.google.common.base.Optional;
@@ -26,30 +42,15 @@ import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.WebResource;
 import com.sun.jersey.api.client.async.TypeListener;
 import com.sun.jersey.core.util.Base64;
-import org.joda.time.DateTime;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.core.HttpHeaders;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import java.net.URI;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
-
-import static com.google.common.base.Preconditions.checkNotNull;
-
-public class MetricsClient {
+public class MetricClient {
 
     private final WebResource baseResource;
     private final AsyncWebResource asyncWebResource;
     private final String authentication;
 
     private static final Joiner PATH_JOINER = Joiner.on('/');
-    private static final Logger LOG = LoggerFactory.getLogger(MetricsClient.class);
+    private static final Logger LOG = LoggerFactory.getLogger(MetricClient.class);
 
     /**
      * Constructor
@@ -57,7 +58,7 @@ public class MetricsClient {
      * @param baseUrl URI to make REST call
      * @param authentication authentication string
      */
-    public MetricsClient(Client client, URI baseUrl, String authentication) {
+    public MetricClient(Client client, URI baseUrl, String authentication) {
         checkNotNull(client);
         checkNotNull(baseUrl);
         this.baseResource = client.resource(baseUrl);
@@ -66,7 +67,7 @@ public class MetricsClient {
     }
 
     /**
-     * Creates or updates a metric if the metric alrady exists
+     * Creates or updates a metric if the metric already exists
      * 
      * @param metricName Boundary metric identifier
      * @param unit Boundary metric unit

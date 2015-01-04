@@ -26,7 +26,7 @@ import javax.validation.constraints.NotNull;
 import org.hibernate.validator.constraints.NotEmpty;
 
 import com.boundary.metrics.vmware.client.client.meter.manager.MeterManagerClient;
-import com.boundary.metrics.vmware.client.metrics.MetricsClient;
+import com.boundary.metrics.vmware.client.metrics.MetricClient;
 import com.boundary.metrics.vmware.poller.MonitoredEntity;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.sun.jersey.api.client.Client;
@@ -40,19 +40,29 @@ public class VMwarePerfAdapterConfiguration extends Configuration {
         @NotNull
         @JsonProperty
         private URI baseUri = URI.create("https://api.boundary.com");
+        
+        @NotEmpty
+        @JsonProperty
+        private String orgId;
 
         @NotEmpty
         @JsonProperty
         private String apiKey;
 
-        public URI getBaseUri() { return baseUri; }
+        public URI getBaseUri() {
+        	return baseUri;
+        }
+        
+        public String getOrgId() {
+        	return orgId;
+        }
 
         public String getApiKey() {
             return apiKey;
         }
 
         public MeterManagerClient build(Client httpClient) {
-            return new MeterManagerClient(httpClient, getBaseUri(), getApiKey());
+            return new MeterManagerClient(httpClient, getBaseUri(),getOrgId(),getApiKey());
         }
     }
 
@@ -71,8 +81,8 @@ public class VMwarePerfAdapterConfiguration extends Configuration {
             return apiKey;
         }
 
-        public MetricsClient build(Client httpClient) {
-            return new MetricsClient(httpClient, getBaseUri(), apiKey);
+        public MetricClient build(Client httpClient) {
+            return new MetricClient(httpClient, getBaseUri(), apiKey);
         }
     }
 
