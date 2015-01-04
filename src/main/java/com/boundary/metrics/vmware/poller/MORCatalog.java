@@ -68,7 +68,7 @@ public class MORCatalog {
 	 * 
 	 * @return {@link boolean}
 	 */
-	public boolean isValid() {
+	public boolean isValid(boolean quiet) {
 		boolean valid = true;
 		
 		Map<String,MetricDefinition> definitionMap = new HashMap<String,MetricDefinition>();
@@ -81,9 +81,10 @@ public class MORCatalog {
 			for (PerformanceCounterEntry counter : entry.getCounters()) {
 				MetricDefinition definition = definitionMap.get(counter.getMetric());
 				if (definition == null) {
-					LOG.debug("No metric definition for {}",counter.getMetric());
+					if (quiet == false) {
+						System.err.printf("No metric definition for %s\n",counter.getMetric());
+					}
 					valid = false;
-					break;
 				}
 			}
 		}
