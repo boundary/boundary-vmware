@@ -49,7 +49,10 @@ public class MeterManagerClientTest {
 
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
-		client = VMWareTestUtils.getMeterClient();
+		
+		File propertiesFile = new File(Resources.getResource(CLIENT_PROPERTY_FILE).toURI());
+		assumeTrue(propertiesFile.exists());
+
 	}
 
 	@AfterClass
@@ -58,10 +61,12 @@ public class MeterManagerClientTest {
 
 	@Before
 	public void setUp() throws Exception {
+		client = VMWareTestUtils.getMeterClient();
 	}
 
 	@After
 	public void tearDown() throws Exception {
+		client = null;
 	}
 
 	@Test

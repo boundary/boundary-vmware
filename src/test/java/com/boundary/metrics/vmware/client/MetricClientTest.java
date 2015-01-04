@@ -31,11 +31,12 @@ import org.junit.Test;
 
 import com.boundary.metrics.vmware.client.metrics.MetricClient;
 import com.google.common.io.Resources;
-import com.sun.jersey.api.client.Client;
+import static com.boundary.metrics.vmware.VMWareTestUtils.*;
 
 public class MetricClientTest {
 
 	private static final String CLIENT_PROPERTY_FILE = "metric-client.properties";
+	private static File propertiesFile;
 	private MetricClient metricClient;
 
 	@BeforeClass
@@ -44,8 +45,9 @@ public class MetricClientTest {
 		// tests. The configuration file has credentials so we
 		// are not able to include in our repository.
 		
-		File propertiesFile = new File(Resources.getResource(CLIENT_PROPERTY_FILE).toURI());
+		propertiesFile = new File("src/test/resources/" + CLIENT_PROPERTY_FILE);
 		assumeTrue(propertiesFile.exists());
+		
 	}
 
 	@AfterClass
@@ -66,27 +68,5 @@ public class MetricClientTest {
 	public void testMetricClient() throws URISyntaxException, IOException {
 		MetricClient client = MetricClientFactory.createClient();
 		assertNotNull("check client",client);
-
 	}
-
-	@Ignore
-	@Test
-	public void testCreateMetric() {
-		Random number = new Random();
-		
-		metricClient.createMetric("BOUNDARY_" + Integer.toString(number.nextInt()),"number");
-	}
-
-	@Ignore
-	@Test
-	public void testAddMeasurementsIntMapOfStringNumberOptionalOfDateTime() {
-		fail("Not yet implemented");
-	}
-
-	@Ignore
-	@Test
-	public void testAddMeasurementsListOfMeasurement() {
-		fail("Not yet implemented");
-	}
-
 }
