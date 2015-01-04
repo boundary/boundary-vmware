@@ -64,24 +64,8 @@ public class MetricCollectionJob {
 		return metadata.getNameMap();
 	}
 
-//	public Map<String,Metric> getMetrics() {
-//		return metadata.getMetrics();
-//	}
-
-	public VMwareClient getVMWareClient() {
-		return this.vmwareClient;
-	}
-
 	public Map<Integer, PerfCounterInfo> getInfoMap() {
 		return metadata.getInfoMap();
-	}
-
-	public MeterManagerClient getMeterClient() {
-		return this.meterClient;
-	}
-
-	public MetricClient getMetricsClient() {
-		return this.metricsClient;
 	}
 
 	public VMWareMetadata getMetadata() {

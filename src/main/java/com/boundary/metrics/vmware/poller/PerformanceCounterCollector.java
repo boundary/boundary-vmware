@@ -17,6 +17,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.boundary.metrics.vmware.client.metrics.Metric;
 import com.google.common.collect.ImmutableList;
 import com.vmware.connection.Connection;
@@ -39,8 +42,11 @@ import com.vmware.vim25.RuntimeFaultFaultMsg;
  *
  */
 public class PerformanceCounterCollector {
+	
+    private static final Logger LOG = LoggerFactory.getLogger(PerformanceCounterCollector.class);
 
-	Connection vmClient;
+
+	private VMwareClient vmClient;
 
 	/**
 	 * Constructs a {@link PerformanceCounter} instance. It is assummed that the {@link Connection} that
@@ -48,7 +54,7 @@ public class PerformanceCounterCollector {
 	 * 
 	 * @param vmClient
 	 */
-	public PerformanceCounterCollector(Connection vmClient) {
+	public PerformanceCounterCollector(VMwareClient vmClient) {
 		this.vmClient = vmClient;
 	}
 
@@ -91,8 +97,9 @@ public class PerformanceCounterCollector {
 				for (DynamicProperty dp : oc.getPropSet()) {
 					List<PerfCounterInfo> perfCounters = ((ArrayOfPerfCounterInfo) dp.getVal()).getPerfCounterInfo();
 					if (perfCounters != null) {
-						for (PerfCounterInfo performanceCounterInfo : perfCounters) {
-							metadata.put(performanceCounterInfo);
+						for (PerfCounterInfo pcInfo : perfCounters) {
+							LOG.debug("CounterId => {}, Name=> {}",pcInfo.getKey(),PerformanceCounterMetadata.toFullName(pcInfo));
+							metadata.put(pcInfo);
 						}
 					}
 				}
