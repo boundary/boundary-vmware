@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package com.boundary.metrics.vmware.client;
+package com.boundary.metrics.vmware;
 
 import static org.junit.Assume.assumeTrue;
 
