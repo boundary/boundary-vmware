@@ -51,7 +51,8 @@ public class VMWareMetricCollector implements Runnable, MetricSet {
 	
     private static final Logger LOG = LoggerFactory.getLogger(VMWareMetricCollector.class);
         
-    private DateTime lastPoll;
+    private DateTime lastPoll = null;
+    private DateTime now = null;
     private Duration skew;
     
     private final AtomicBoolean lock = new AtomicBoolean(false);
@@ -94,7 +95,7 @@ public class VMWareMetricCollector implements Runnable, MetricSet {
 
 		// 'now' according to the server
 
-		DateTime now = vmwClient.getTimeAtEndPoint();
+
 
 //		Duration serverSkew = new Duration(now, new DateTime());
 //		if (serverSkew.isLongerThan(Duration.standardSeconds(1))
@@ -104,9 +105,13 @@ public class VMWareMetricCollector implements Runnable, MetricSet {
 //					job.getHost(), serverSkew.getStandardSeconds());
 //			skew = serverSkew;
 //		}
+		// Initialize our polling interval
 		if (lastPoll == null) {
+			now = vmwClient.getTimeAtEndPoint();
 			lastPoll = now.minusSeconds(20);
 		}
+		
+		LOG.info("Collecting metrics from: {}, to: {}",lastPoll,now);
 
 		// Our catalog consists of managed object types along with their
 		// associated performance counters and boundary metric identifiers
@@ -114,8 +119,10 @@ public class VMWareMetricCollector implements Runnable, MetricSet {
 
 		for (MORCatalogEntry entry : catalog.getCatalog()) {
 
+			LOG.info("Fetching managed objects of type: {}",entry.getType());
 			Map<String, ManagedObjectReference> entities = vmwClient.getManagedObjects(entry.getType());
 
+			LOG.info("Collecting metrics for {} managed objects",entities.size());
 			for (Map.Entry<String, ManagedObjectReference> entity : entities.entrySet()) {
 				ManagedObjectReference mor = entity.getValue();
 				String entityName = entity.getKey();
@@ -123,6 +130,7 @@ public class VMWareMetricCollector implements Runnable, MetricSet {
 				// Prefix the VM name with the name from the monitored entity
 				// configuration, we can form unique names that way
 				String meterName = vmwClient.getName() + "-" + entityName;
+				LOG.info("Create or Get meter id for: {}",meterName);
 				int obsDomainId = meterClient.createOrGetMeterMetadata(meterName).getObservationDomainId();
 				
 				List<Measurement> measurements = vmwClient.getMeasurements(mor,entityName,obsDomainId,20,lastPoll,now,job.getMetadata());
@@ -131,12 +139,13 @@ public class VMWareMetricCollector implements Runnable, MetricSet {
 				if (!measurements.isEmpty()) {
 					metricClient.addMeasurements(measurements);
 				} else {
-					LOG.warn("No measurements collected in last poll for {}",vmwClient.getName());
+					LOG.warn("No measurements collected in last poll for managed object: {}",entityName);
 				}
 			}
-			// Reset lastPoll time
-			lastPoll = now;
 		}
+		// Increment interval
+		lastPoll = now;
+		now = now.plusSeconds(20);
 	}
 
 
