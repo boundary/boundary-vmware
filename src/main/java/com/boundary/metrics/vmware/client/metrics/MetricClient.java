@@ -127,6 +127,11 @@ public class MetricClient {
      * @param measurements Metrics measurements
      */
     public void addMeasurements(List<Measurement> measurements) {
+    	if (LOG.isDebugEnabled()) {
+    		for (Measurement m : measurements) {
+    			LOG.debug(m.toString());
+    		}
+    	}
         sendMeasurements(FluentIterable.from(measurements)
                 .transform(MetricUtils.toBulkEntry())
                 .toList());
@@ -147,6 +152,7 @@ public class MetricClient {
                             ClientResponse response = f.get();
                             String entity = response.getEntity(String.class);
                             response.close();
+                            LOG.debug("HTTPS Result: {}",response.getStatus());
                             if (Response.Status.OK.getStatusCode() != response.getStatus()) {
                                 LOG.error("Unexpected response adding measurements: {} - {}", response.getStatusInfo(), entity);
                                 throw new RuntimeException(entity);
