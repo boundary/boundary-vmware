@@ -440,14 +440,14 @@ public class VMwareClient implements Connection {
 		List<Measurement> measurements = new ArrayList<Measurement>();
 
 		List<PerfMetricId> perfMetricIds = metadata.getPerfMetrics(mor.getType());
-		LOG.debug("Getting stats for {} performance metric(s)",perfMetricIds.size());
+		LOG.info("Getting {} performance metric(s) for {}",perfMetricIds.size(),entityName);
 		if (LOG.isDebugEnabled()) {
 			for (PerfMetricId id : perfMetricIds) {
 				LOG.debug("{}",PerformanceCounterMetadata.toString(id));
 			}
 		}
 		List<PerfEntityMetricBase> retrievedStats = getStats(mor,intervalId,start,end,perfMetricIds);
-		LOG.debug("Retrieved {} stats",retrievedStats.size());
+		LOG.info("Retrieved {} performance metrics from {}",retrievedStats.size(),entityName);
 
 		/*
 		 * Cycle through the PerfEntityMetricBase objects. Each object contains

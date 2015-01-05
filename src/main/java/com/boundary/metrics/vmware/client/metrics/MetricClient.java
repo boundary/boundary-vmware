@@ -30,6 +30,7 @@ import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.boundary.metrics.vmware.poller.MetricDefinition;
 import com.google.common.base.Charsets;
 import com.google.common.base.Joiner;
 import com.google.common.base.Optional;
@@ -79,6 +80,30 @@ public class MetricClient {
                 .entity(metricRequest, MediaType.APPLICATION_JSON_TYPE)
                 .put(ClientResponse.class);
         response.close();
+    }
+    
+    /**
+     * Calls the Boundary APIs to create a metric definition from {@link MetricDefinition}
+     * 
+     * @param definition Instance of {@MetricDefinition} which describes a metric to be created or updated
+     */
+    public void createUpdateMetric(MetricDefinition definition) {
+    	ClientResponse response = baseResource.path(PATH_JOINER.join("v1", "metrics", definition.getMetric()))
+                .header(HttpHeaders.AUTHORIZATION, "Basic " + new String(Base64.encode(authentication), Charsets.US_ASCII))
+                .entity(definition, MediaType.APPLICATION_JSON_TYPE)
+                .put(ClientResponse.class);
+        response.close();
+    }
+    
+    /**
+     * Calls the Boundary APIs to create/update a list of metric definitions {@link MetricDefinition}
+     * @param metricDefinitions
+     */
+    public void createUpdateMetrics(List<MetricDefinition> metricDefinitions) {
+    	
+    	for (MetricDefinition definition : metricDefinitions) {
+    		createUpdateMetric(definition);
+    	}
     }
 
     /**
