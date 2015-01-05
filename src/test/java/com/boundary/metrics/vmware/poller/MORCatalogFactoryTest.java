@@ -70,6 +70,18 @@ public class MORCatalogFactoryTest {
 		MORCatalog inventory = MORCatalogFactory.create(TEST_CATALOG_FILE);
 		
 		assertEquals("check definitions",7,inventory.getDefinitions().size());
+		
+		List<MetricDefinition> definitions = inventory.getDefinitions();
+		
+		for (MetricDefinition definition : definitions) {
+			
+			switch(definition.getMetric()) {
+			case "SYSTEM_CPU_USAGE_AVERAGE":
+				assertEquals("Check unit",MetricUnit.percent,definition.getUnit());
+				break;
+			}
+			
+		}
 	}
 	
 	@Test
@@ -84,13 +96,13 @@ public class MORCatalogFactoryTest {
 		assertEquals("check VirtualMachine definition for cpu.usage.AVERAGE","SYSTEM_CPU_USAGE_AVERAGE",virtualMachine.get("cpu.usage.AVERAGE").getMetric());
 		assertNotNull("check VirtualMachine for cpu.usage.MINIMUM",virtualMachine.get("cpu.usage.MINIMUM"));
 		assertEquals("check VirtualMachine definition for cpu.usage.MINIMUM","SYSTEM_CPU_USAGE_MINIMUM",virtualMachine.get("cpu.usage.MINIMUM").getMetric());
-		assertNotNull("check VirtualMachine for cpu.idle.SUMMATION",virtualMachine.get("cpu.idle.SUMMATION"));
-		assertEquals("check VirtualMachine definition for cpu.idle.SUMMATION","SYSTEM_CPU_IDLE_TOTAL",virtualMachine.get("cpu.idle.SUMMATION").getMetric());
+		assertNotNull("check VirtualMachine for cpu.usage.MAXIMUM",virtualMachine.get("cpu.usage.MAXIMUM"));
+		assertEquals("check VirtualMachine definition for cpu.usage.MAXIMUM","SYSTEM_CPU_USAGE_MAXIMUM",virtualMachine.get("cpu.usage.MAXIMUM").getMetric());
 
 		Map<String, MetricDefinition> hostSystem = metrics.get("HostSystem");
 		assertNotNull("check HostSystem for cpu.usage.AVERAGE",hostSystem.get("cpu.usage.AVERAGE"));
 		assertNotNull("check HostSystem for cpu.usage.MINIMUM",hostSystem.get("cpu.usage.MINIMUM"));
-		assertNotNull("check HostSystem for cpu.usage.IDLE",hostSystem.get("cpu.usage.IDLE"));
+		assertNotNull("check HostSystem for cpu.usage.MAXIMUM",hostSystem.get("cpu.usage.MAXIMUM"));
 
 		Map<String, MetricDefinition> datastore = metrics.get("Datastore");
 		assertNotNull("check Datastore for disk.capacity.SUM",datastore.get("disk.capacity.SUM"));

@@ -14,8 +14,8 @@
 
 package com.boundary.metrics.vmware.client;
 
-import static com.boundary.metrics.vmware.poller.MetricAggregates.AVG;
-import static com.boundary.metrics.vmware.poller.MetricUnit.NUMBER;
+import static com.boundary.metrics.vmware.poller.MetricAggregates.avg;
+import static com.boundary.metrics.vmware.poller.MetricUnit.number;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assume.assumeTrue;
 
@@ -83,9 +83,9 @@ public class MetricClientTest {
 		       .setDisplayName("System Foo")
 		       .setDisplayNameShort("Foo")
 		       .setDescription("Foo")
-		       .setUnit(NUMBER)
+		       .setUnit(number)
 		       .setDefaultResolutionMS(20000)
-		       .setDefaultAggregate(AVG);
+		       .setDefaultAggregate(avg);
 		MetricDefinition definition = builder.build();
 		metricClient.createUpdateMetric(definition);
 	}
@@ -98,25 +98,25 @@ public class MetricClientTest {
 		       .setDisplayName("JDG One")
 		       .setDisplayNameShort("JDG 1")
 		       .setDescription("JDG one metric")
-		       .setUnit(NUMBER)
+		       .setUnit(number)
 		       .setDefaultResolutionMS(20000)
-		       .setDefaultAggregate(AVG);
+		       .setDefaultAggregate(avg);
 		metrics.add(builder.build());
 		builder.setMetric("JDG_TWO")
 	       .setDisplayName("JDG Two")
 	       .setDisplayNameShort("JDG 2")
 	       .setDescription("JDG two metric")
-	       .setUnit(NUMBER)
+	       .setUnit(number)
 	       .setDefaultResolutionMS(20000)
-	       .setDefaultAggregate(AVG);
+	       .setDefaultAggregate(avg);
 		metrics.add(builder.build());
 		builder.setMetric("JDG_THREE")
 	       .setDisplayName("JDG Three")
 	       .setDisplayNameShort("JDG 3")
 	       .setDescription("JDG three metric")
-	       .setUnit(NUMBER)
+	       .setUnit(number)
 	       .setDefaultResolutionMS(20000)
-	       .setDefaultAggregate(AVG);
+	       .setDefaultAggregate(avg);
 		metrics.add(builder.build());
 		
 		metricClient.createUpdateMetrics(metrics);
@@ -133,7 +133,7 @@ public class MetricClientTest {
 			builder.setMetric("SYSTEM_CPU_USAGE_AVERAGE")
 		       .setSourceId(100)
 		       .setMeasurement(0.53)
-		       .setTimestamp(new DateTime());
+		       .setTimestamp(DateTime.now());
 			measurements.add(builder.build());
 			metricClient.addMeasurements(measurements);
 			Thread.sleep(1000);

@@ -2,69 +2,69 @@
 	"definitions": 
 	[
 		{
-			"defaultAggregate": "AVG",
+			"defaultAggregate": "avg",
 			"defaultResolutionMS": 0,
 			"description": "CPU Average Utilization",
 			"displayName": "CPU Average Utilization",
 			"displayNameShort": "CPU Avg Util",
 			"metric": "SYSTEM_CPU_USAGE_AVERAGE",
-			"unit": "NUMBER"
+			"unit": "percent"
 		},
 
 		{
-			"defaultAggregate": "SUM",
+			"defaultAggregate": "min",
 			"defaultResolutionMS": 0,
 			"description": "CPU Minimum Utilization",
 			"displayName": "CPU Minimum Utilization",
 			"displayNameShort": "CPU Min Util",
 			"metric": "SYSTEM_CPU_USAGE_MINIMUM",
-			"unit": "NUMBER"
+			"unit": "percent"
 		},
 
 		{
-			"defaultAggregate": "SUM",
+			"defaultAggregate": "max",
 			"defaultResolutionMS": 0,
-			"description": "CPU Idle Total",
-			"displayName": "CPU Idle Total",
-			"displayNameShort": "CPU Idle Total",
-			"metric": "SYSTEM_CPU_IDLE_TOTAL",
-			"unit": "NUMBER"
+			"description": "CPU Maximum Utilization",
+			"displayName": "CPU Maximum Utilization",
+			"displayNameShort": "CPU Max Util",
+			"metric": "SYSTEM_CPU_USAGE_MAXIMUM",
+			"unit": "percent"
 		},
 		{
-			"defaultAggregate": "SUM",
+			"defaultAggregate": "sum",
 			"defaultResolutionMS": 0,
 			"description": "CPU Useage Idle",
 			"displayName": "CPU Useage Idle",
 			"displayNameShort": "CPU Use I",
 			"metric": "SYSTEM_CPU_USAGE_IDLE",
-			"unit": "NUMBER"
+			"unit": "number"
 		},
 		{
-			"defaultAggregate": "SUM",
+			"defaultAggregate": "sum",
 			"defaultResolutionMS": 0,
 			"description": "Disk Capacity Total",
 			"displayName": "Disk Capacity Total",
 			"displayNameShort": "Disk Cap Tot",
 			"metric": "SYSTEM_DISK_CAPACITY_SUM",
-			"unit": "NUMBER"
+			"unit": "number"
 		},
 		{
-			"defaultAggregate": "SUM",
+			"defaultAggregate": "sum",
 			"defaultResolutionMS": 0,
 			"description": "Disk Provisioned Total",
 			"displayName": "Disk Provisioned Total",
 			"displayNameShort": "Disk Prov Tot",
 			"metric": "SYSTEM_DISK_PROVISIONED_SUM",
-			"unit": "NUMBER"
+			"unit": "number"
 		},
 		{
-			"defaultAggregate": "SUM",
+			"defaultAggregate": "sum",
 			"defaultResolutionMS": 0,
 			"description": "Disk Used Total",
 			"displayName": "Disk Used Total",
 			"displayNameShort": "Disk Used Tot",
 			"metric": "SYSTEM_DISK_USED_SUM",
-			"unit": "NUMBER"
+			"unit": "number"
 		}
 	],
 
@@ -83,10 +83,9 @@
 					"name": "cpu.usage.MINIMUM",
 					"metric": "SYSTEM_CPU_USAGE_MINIMUM"
 				},
-
 				{
-					"name": "cpu.idle.SUMMATION",
-					"metric": "SYSTEM_CPU_IDLE_TOTAL"
+					"name": "cpu.usage.MAXIMUM",
+					"metric": "SYSTEM_CPU_USAGE_MAXIMUM"
 				}
 			]
 		},
@@ -104,10 +103,9 @@
 					"name": "cpu.usage.MINIMUM",
 					"metric": "SYSTEM_CPU_USAGE_MINIMUM"
 				},
-
 				{
-					"name": "cpu.usage.IDLE",
-					"metric": "SYSTEM_CPU_USAGE_IDLE"
+					"name": "cpu.usage.MAXIMUM",
+					"metric": "SYSTEM_CPU_USAGE_MAXIMUM"
 				}
 			]
 		},
