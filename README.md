@@ -29,7 +29,11 @@ Building
 
 Configuration
 -------------
-The integration requires a single [YAML](http://en.wikipedia.org/wiki/YAML) configuration file. You can use the example.yml file in the distribution as a starting point, which is located in the sub-directory `src/main/resources/example.yml`.
+Configuration consists of:
+- A [YAML](http://en.wikipedia.org/wiki/YAML) configuration file which is used for the general configuration of the application. (You can use the example.yml file in the distribution as a starting point, which is located in the sub-directory `src/main/resources/example.yml`.
+- A [JSON](http://en.wikipedia.org/wiki/JSON) configuration file which contains information on which metrics to collect from which kind of managed objects. A default coniguration is located in `src/main/resources/collection-catalog.json`.
+
+### General Configuration
 
 ```yaml
 # Boundary Integration to VMWare configuration
@@ -69,6 +73,79 @@ monitoredEntities:
       username: <user>
       password: <password>
       name: <name>
+      catalog: <path to catalog file>
+```
+
+### Collection Configuration
+The configuration file consists of two sections:
+- definitions - This section contains the Boundary metric definitions
+- catalog - This section consists of the managed object types to collect metrics from along with the specific metrics to collect and their mapping to Boundary metrics
+
+An excerpt of the default configuration file is shown below.
+
+```json
+{
+	"definitions": 
+	[
+		{
+			"defaultAggregate": "AVG",
+			"defaultResolutionMS": 20000,
+			"description": "CPU Average Utilization",
+			"displayName": "CPU Average Utilization",
+			"displayNameShort": "CPU Avg Util",
+			"metric": "SYSTEM_CPU_USAGE_AVERAGE",
+			"unit": "PERCENT"
+		},
+
+...
+	],
+
+	"catalog": 
+	[
+		{
+			"type": "VirtualMachine",
+			"counters": 
+			[
+				{
+					"name": "cpu.usage.average",
+					"metric": "SYSTEM_CPU_USAGE_AVERAGE"
+				},
+
+				{
+					"name": "cpu.usage.MAXIMUM",
+					"metric": "SYSTEM_CPU_USAGE_MAXIMUM"
+				},
+
+...
+			]
+		},
+
+		{
+			"type": "HostSystem",
+			"counters": 
+			[
+				{
+					"name": "cpu.usage.AVERAGE",
+					"metric": "SYSTEM_CPU_USAGE_AVERAGE"
+				},
+...
+			]
+		},
+
+		{
+			"type": "Datastore",
+			"counters": 
+			[
+				{
+					"name": "disk.capacity.SUM",
+					"metric": "SYSTEM_DISK_CAPACITY_SUM"
+				},
+...s
+			]
+		}
+	]
+}
+
 ```
 
 Starting
