@@ -23,8 +23,8 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
+import java.util.Random;
 
 import org.joda.time.DateTime;
 import org.junit.After;
@@ -129,10 +129,12 @@ public class MetricClientTest {
 		
 		
 		for (int i = 10 ; i > 0 ; i--) {
+			Random random = new Random();
+			Number randomNumber = (random.nextInt(100 - 0) + 0)/100.0;
 			measurements.clear();
 			builder.setMetric("SYSTEM_CPU_USAGE_AVERAGE")
 		       .setSourceId(100)
-		       .setMeasurement(0.53)
+		       .setMeasurement(randomNumber)
 		       .setTimestamp(DateTime.now());
 			measurements.add(builder.build());
 			metricClient.addMeasurements(measurements);
