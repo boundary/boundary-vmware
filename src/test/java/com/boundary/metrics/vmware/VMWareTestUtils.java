@@ -68,10 +68,6 @@ public class VMWareTestUtils {
 	private final static String METER_CLIENT_ORG_ID = "com.boundary.metrics.meter.client.orgid";
 	private final static String METER_CLIENT_API_KEY = "com.boundary.metrics.meter.client.apikey";
 
-	private final static String METRIC_CLIENT_BASE_URL = "com.boundary.metrics.metric.client.baseuri";
-	private final static String METRIC_CLIENT_AUTH = "com.boundary.metrics.metric.client.auth";
-
-
 	private static Properties clientProperties;
 	private static Environment environment;
 	private static VMwarePerfAdapterConfiguration configuration;
@@ -166,38 +162,7 @@ public class VMWareTestUtils {
 		}
 		return client;
 	}
-	
-	public static MetricClient getMetricClient() throws Exception {
-		MetricClient client = null;
 		
-		File propertiesFile = new File(Resources.getResource(DEFAULT_METRIC_CLIENT_CONFIGURATION).toURI());
-		checkArgument(propertiesFile.exists());
-		Reader reader = new FileReader(propertiesFile);
-		Properties clientProperties = new Properties();
-		clientProperties.load(reader);
-		String baseUri = clientProperties.getProperty(METRIC_CLIENT_BASE_URL);
-		System.out.println(baseUri);
-		String auth = clientProperties.getProperty(METRIC_CLIENT_AUTH);
-		
-		checkArgument(!Strings.isNullOrEmpty(baseUri));
-        checkArgument(!Strings.isNullOrEmpty(auth));
-
-
-		ObjectMapper mapper = new ObjectMapper();
-		MetricRegistry registry = new MetricRegistry();
-		environment = new Environment("test", mapper, null, registry, ClassLoader.getSystemClassLoader());
-		String configFile = "vmware-adapter-test.yml";
-		configuration = VMWareTestUtils.getConfiguration(configFile);
-		Client httpClient = new JerseyClientBuilder(environment)
-        .using(configuration.getClient())
-        .build("http-client");
-
-		URI uri = new URI(baseUri);
-		client = new MetricClient(httpClient,uri,auth);
-
-		return client;
-	}
-	
 	/**
 	 * Helper method to generate {@link PerfCounterInfo} instances
 	 * 
