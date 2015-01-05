@@ -128,7 +128,7 @@
 			"counters": 
 			[
 				{
-					"name": "cpu.usage.average",
+					"name": "cpu.usage.AVERAGE",
 					"metric": "SYSTEM_CPU_USAGE_AVERAGE"
 				},
 
