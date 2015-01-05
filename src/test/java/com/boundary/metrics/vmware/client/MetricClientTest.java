@@ -14,24 +14,26 @@
 
 package com.boundary.metrics.vmware.client;
 
-import static org.junit.Assert.*;
+import static com.boundary.metrics.vmware.poller.MetricAggregates.AVG;
+import static com.boundary.metrics.vmware.poller.MetricUnit.NUMBER;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assume.assumeTrue;
 
 import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.util.Random;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import com.boundary.metrics.vmware.client.metrics.MetricClient;
-import com.google.common.io.Resources;
-import static com.boundary.metrics.vmware.VMWareTestUtils.*;
+import com.boundary.metrics.vmware.poller.MetricDefinition;
+import com.boundary.metrics.vmware.poller.MetricDefinitionBuilder;
 
 public class MetricClientTest {
 
@@ -68,5 +70,51 @@ public class MetricClientTest {
 	public void testMetricClient() throws URISyntaxException, IOException {
 		MetricClient client = MetricClientFactory.createClient();
 		assertNotNull("check client",client);
+	}
+	
+	@Test
+	public void testMetricCreateUpdate() {
+		MetricDefinitionBuilder builder = new MetricDefinitionBuilder();
+		builder.setMetric("SYSTEM_FOO")
+		       .setDisplayName("System Foo")
+		       .setDisplayNameShort("Foo")
+		       .setDescription("Foo")
+		       .setUnit(NUMBER)
+		       .setDefaultResolutionMS(20000)
+		       .setDefaultAggregate(AVG);
+		MetricDefinition definition = builder.build();
+		metricClient.createUpdateMetric(definition);
+	}
+	
+	@Test
+	public void testMetricCreateUpdateFromList() {
+		MetricDefinitionBuilder builder = new MetricDefinitionBuilder();
+		List<MetricDefinition> metrics = new ArrayList<MetricDefinition>();
+		builder.setMetric("JDG_ONE")
+		       .setDisplayName("JDG One")
+		       .setDisplayNameShort("JDG 1")
+		       .setDescription("JDG one metric")
+		       .setUnit(NUMBER)
+		       .setDefaultResolutionMS(20000)
+		       .setDefaultAggregate(AVG);
+		metrics.add(builder.build());
+		builder.setMetric("JDG_TWO")
+	       .setDisplayName("JDG Two")
+	       .setDisplayNameShort("JDG 2")
+	       .setDescription("JDG two metric")
+	       .setUnit(NUMBER)
+	       .setDefaultResolutionMS(20000)
+	       .setDefaultAggregate(AVG);
+		metrics.add(builder.build());
+		builder.setMetric("JDG_THREE")
+	       .setDisplayName("JDG Three")
+	       .setDisplayNameShort("JDG 3")
+	       .setDescription("JDG three metric")
+	       .setUnit(NUMBER)
+	       .setDefaultResolutionMS(20000)
+	       .setDefaultAggregate(AVG);
+		metrics.add(builder.build());
+		
+		metricClient.createUpdateMetrics(metrics);
 	}
 }
