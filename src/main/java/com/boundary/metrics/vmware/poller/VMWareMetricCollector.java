@@ -226,6 +226,9 @@ public class VMWareMetricCollector implements Runnable, MetricSet {
 		LOG.debug("Update metadata from {}",configuration.getCatalog());
 		MORCatalog catalog = MORCatalogFactory.create(new File(configuration.getCatalog()));
 		
+		// Update or create metric definitions
+		metricClient.createUpdateMetrics(catalog.getDefinitions());
+		
 		PerformanceCounterCollector collector = new PerformanceCounterCollector(vmwClient);
 		PerformanceCounterMetadata perfCounterMetadata = collector.fetchPerformanceCounters();
 		Map<String, Map<String, MetricDefinition>> metrics = catalog.getMetrics();
