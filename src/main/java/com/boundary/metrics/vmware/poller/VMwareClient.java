@@ -352,10 +352,9 @@ public class VMwareClient implements Connection {
     	return this.getServiceContent().getPropertyCollector();
     }
     
-	private Measurement extractMeasurements(String entityName,
+	private void extractMeasurements(List<Measurement> measurements,String entityName,
 			int obsDomainId, PerfEntityMetricBase perfStats,
 			VMWareMetadata metadata) {
-		Measurement measurement = null;
 		PerfEntityMetric entityStats = (PerfEntityMetric) perfStats;
 		List<PerfMetricSeries> metricValues = entityStats.getValue();
 		List<PerfSampleInfo> sampleInfos = entityStats.getSampleInfo();
@@ -381,11 +380,12 @@ public class VMwareClient implements Connection {
 				sampleValue = PerformanceCounterMetadata.computeValue(metricInfo,sampleValue);
 				String name = metadata.getMetricName(metricFullName);
 				if (name != null) {
-					measurement = Measurement.builder()
+					Measurement measurement = Measurement.builder()
 							.setMetric(name)
 							.setSourceId(obsDomainId)
 							.setTimestamp(sampleTime)
 							.setMeasurement(sampleValue).build();
+					measurements.add(measurement);
 
 					LOG.info("{} @ {} = {} {}", metricFullName, sampleTime,
 							sampleValue,metricInfo.getUnitInfo().getKey());
@@ -396,8 +396,6 @@ public class VMwareClient implements Connection {
 				LOG.warn("Didn't receive any samples when polling for {} on {}",metricFullName,this.getName());
 			}
 		}
-
-		return measurement;
 	}
     /**
      * Query vSphere for values of performance metrics
@@ -457,8 +455,8 @@ public class VMwareClient implements Connection {
 			
 			if (perfStat instanceof PerfEntityMetric) {
 				LOG.debug("perfStat: {}",perfStat.getEntity().getValue());
-				Measurement measurement = extractMeasurements(entityName,obsDomainId,perfStat, metadata);
-				measurements.add(measurement);
+				extractMeasurements(measurements,entityName,obsDomainId,perfStat,metadata);
+
 			} else {
 				LOG.error("Unrecognized performance entry type received: {}, ignoring",
 						perfStat.getClass().getName());
