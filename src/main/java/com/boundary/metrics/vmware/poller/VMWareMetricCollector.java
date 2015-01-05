@@ -134,6 +134,7 @@ public class VMWareMetricCollector implements Runnable, MetricSet {
 				int obsDomainId = meterClient.createOrGetMeterMetadata(meterName).getObservationDomainId();
 				
 				List<Measurement> measurements = vmwClient.getMeasurements(mor,entityName,obsDomainId,20,lastPoll,now,job.getMetadata());
+				LOG.debug("{} measurements for managed object {}",measurements.size(), entityName);
 
 				// Send metrics
 				if (!measurements.isEmpty()) {
