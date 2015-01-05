@@ -14,8 +14,8 @@
 
 package com.boundary.metrics.vmware.client;
 
-import static com.boundary.metrics.vmware.poller.MetricAggregates.AVG;
-import static com.boundary.metrics.vmware.poller.MetricUnit.NUMBER;
+import static com.boundary.metrics.vmware.poller.MetricAggregates.avg;
+import static com.boundary.metrics.vmware.poller.MetricUnit.number;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assume.assumeTrue;
 
@@ -23,14 +23,18 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
+import org.joda.time.DateTime;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import com.boundary.metrics.vmware.client.metrics.Measurement;
+import com.boundary.metrics.vmware.client.metrics.MeasurementBuilder;
 import com.boundary.metrics.vmware.client.metrics.MetricClient;
 import com.boundary.metrics.vmware.poller.MetricDefinition;
 import com.boundary.metrics.vmware.poller.MetricDefinitionBuilder;
@@ -79,9 +83,9 @@ public class MetricClientTest {
 		       .setDisplayName("System Foo")
 		       .setDisplayNameShort("Foo")
 		       .setDescription("Foo")
-		       .setUnit(NUMBER)
+		       .setUnit(number)
 		       .setDefaultResolutionMS(20000)
-		       .setDefaultAggregate(AVG);
+		       .setDefaultAggregate(avg);
 		MetricDefinition definition = builder.build();
 		metricClient.createUpdateMetric(definition);
 	}
@@ -94,27 +98,45 @@ public class MetricClientTest {
 		       .setDisplayName("JDG One")
 		       .setDisplayNameShort("JDG 1")
 		       .setDescription("JDG one metric")
-		       .setUnit(NUMBER)
+		       .setUnit(number)
 		       .setDefaultResolutionMS(20000)
-		       .setDefaultAggregate(AVG);
+		       .setDefaultAggregate(avg);
 		metrics.add(builder.build());
 		builder.setMetric("JDG_TWO")
 	       .setDisplayName("JDG Two")
 	       .setDisplayNameShort("JDG 2")
 	       .setDescription("JDG two metric")
-	       .setUnit(NUMBER)
+	       .setUnit(number)
 	       .setDefaultResolutionMS(20000)
-	       .setDefaultAggregate(AVG);
+	       .setDefaultAggregate(avg);
 		metrics.add(builder.build());
 		builder.setMetric("JDG_THREE")
 	       .setDisplayName("JDG Three")
 	       .setDisplayNameShort("JDG 3")
 	       .setDescription("JDG three metric")
-	       .setUnit(NUMBER)
+	       .setUnit(number)
 	       .setDefaultResolutionMS(20000)
-	       .setDefaultAggregate(AVG);
+	       .setDefaultAggregate(avg);
 		metrics.add(builder.build());
 		
 		metricClient.createUpdateMetrics(metrics);
+	}
+	
+	@Test
+	public void testSendMeasurement() throws InterruptedException {
+		List<Measurement> measurements = new ArrayList<Measurement>();
+		MeasurementBuilder builder = new MeasurementBuilder();
+		
+		
+		for (int i = 10 ; i > 0 ; i--) {
+			measurements.clear();
+			builder.setMetric("SYSTEM_CPU_USAGE_AVERAGE")
+		       .setSourceId(100)
+		       .setMeasurement(0.53)
+		       .setTimestamp(DateTime.now());
+			measurements.add(builder.build());
+			metricClient.addMeasurements(measurements);
+			Thread.sleep(1000);
+		}
 	}
 }
