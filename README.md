@@ -140,7 +140,7 @@ An excerpt of the default configuration file is shown below.
 					"name": "disk.capacity.SUM",
 					"metric": "SYSTEM_DISK_CAPACITY_SUM"
 				},
-...s
+...
 			]
 		}
 	]
