@@ -95,9 +95,7 @@ An excerpt of the default configuration file is shown below.
 			"displayNameShort": "CPU Avg Util",
 			"metric": "SYSTEM_CPU_USAGE_AVERAGE",
 			"unit": "PERCENT"
-		},
-
-...
+		}
 	],
 
 	"catalog": 
@@ -114,9 +112,7 @@ An excerpt of the default configuration file is shown below.
 				{
 					"name": "cpu.usage.MAXIMUM",
 					"metric": "SYSTEM_CPU_USAGE_MAXIMUM"
-				},
-
-...
+				}
 			]
 		},
 
@@ -127,8 +123,7 @@ An excerpt of the default configuration file is shown below.
 				{
 					"name": "cpu.usage.AVERAGE",
 					"metric": "SYSTEM_CPU_USAGE_AVERAGE"
-				},
-...
+				}
 			]
 		},
 
@@ -139,8 +134,7 @@ An excerpt of the default configuration file is shown below.
 				{
 					"name": "disk.capacity.SUM",
 					"metric": "SYSTEM_DISK_CAPACITY_SUM"
-				},
-...
+				}
 			]
 		}
 	]
