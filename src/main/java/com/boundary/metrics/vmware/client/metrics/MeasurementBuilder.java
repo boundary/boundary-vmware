@@ -24,8 +24,7 @@ public class MeasurementBuilder {
 	/**
 	 * Constructor
 	 */
-    MeasurementBuilder() { 
-    	
+    public MeasurementBuilder() { 
     }
 
     private int sourceId;
