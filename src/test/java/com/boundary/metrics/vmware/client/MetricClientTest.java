@@ -23,14 +23,18 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
+import org.joda.time.DateTime;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import com.boundary.metrics.vmware.client.metrics.Measurement;
+import com.boundary.metrics.vmware.client.metrics.MeasurementBuilder;
 import com.boundary.metrics.vmware.client.metrics.MetricClient;
 import com.boundary.metrics.vmware.poller.MetricDefinition;
 import com.boundary.metrics.vmware.poller.MetricDefinitionBuilder;
@@ -116,5 +120,23 @@ public class MetricClientTest {
 		metrics.add(builder.build());
 		
 		metricClient.createUpdateMetrics(metrics);
+	}
+	
+	@Test
+	public void testSendMeasurement() throws InterruptedException {
+		List<Measurement> measurements = new ArrayList<Measurement>();
+		MeasurementBuilder builder = new MeasurementBuilder();
+		
+		
+		for (int i = 10 ; i > 0 ; i--) {
+			measurements.clear();
+			builder.setMetric("SYSTEM_CPU_USAGE_AVERAGE")
+		       .setSourceId(100)
+		       .setMeasurement(0.53)
+		       .setTimestamp(new DateTime());
+			measurements.add(builder.build());
+			metricClient.addMeasurements(measurements);
+			Thread.sleep(1000);
+		}
 	}
 }
