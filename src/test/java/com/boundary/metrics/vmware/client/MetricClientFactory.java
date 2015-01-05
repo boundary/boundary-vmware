@@ -38,7 +38,7 @@ public class MetricClientFactory {
 	}
 	
 	public static MetricClient createClient(String propertyFile) throws URISyntaxException, IOException {
-		final String URL = "com.boundary.metrics.metric.client.url";
+		final String URL = "com.boundary.metrics.metric.client.baseuri";
 		final String AUTH = "com.boundary.metrics.metric.client.auth";
 
 		File propertiesFile = new File(Resources.getResource(propertyFile).toURI());
