@@ -15,6 +15,9 @@
 package com.boundary.metrics.vmware.poller;
 
 import static org.junit.Assert.*;
+import static org.junit.Assume.assumeTrue;
+
+import java.io.File;
 
 import org.junit.After;
 import org.junit.AfterClass;
@@ -23,10 +26,15 @@ import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
 
+import com.boundary.metrics.vmware.VMWareTestUtils;
+import com.boundary.metrics.vmware.client.metrics.MetricClient;
+
 public class MetricCreatorTest {
 
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
+		File propertiesFile = new File("src/test/resources/" + VMWareTestUtils.DEFAULT_METRIC_CLIENT_CONFIGURATION);
+		assumeTrue(propertiesFile.exists());
 	}
 
 	@AfterClass
@@ -41,11 +49,10 @@ public class MetricCreatorTest {
 	public void tearDown() throws Exception {
 	}
 
-	@Ignore
 	@Test
-	public void testCreateMetricDefinitions() {
-		
-		fail("Not yet implemented");
+	public void testCreateMetricDefinitions() throws Exception {
+		MetricClient client = VMWareTestUtils.getMetricClient();
+		assertNotNull("Check metric client",client);
 	}
 
 }
