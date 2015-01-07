@@ -387,6 +387,16 @@ public class VMwareClient implements Connection {
 							.setMeasurement(sampleValue).build();
 					measurements.add(measurement);
 
+					// add dummy measurement since Enterprise Boundary as of yet
+					// does not extend the lines in the dashboard graphs
+					Measurement dummyMeasurement = Measurement.builder()
+                            .setMetric(name)
+                            .setSourceId(obsDomainId)
+                            .setTimestamp(sampleTime.minusSeconds(10))
+                            .setMeasurement(sampleValue)
+                            .build();
+					measurements.add(dummyMeasurement);
+
 					LOG.info("{} @ {} = {} {}", metricFullName, sampleTime,
 							sampleValue,metricInfo.getUnitInfo().getKey());
 				} else {
