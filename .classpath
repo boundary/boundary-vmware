@@ -36,7 +36,7 @@
   <classpathentry kind="var" path="M2_REPO/commons-lang/commons-lang/2.6/commons-lang-2.6.jar"/>
   <classpathentry kind="var" path="M2_REPO/io/dropwizard/dropwizard-logging/0.7.1/dropwizard-logging-0.7.1.jar"/>
   <classpathentry kind="var" path="M2_REPO/com/codahale/metrics/metrics-logback/3.0.2/metrics-logback-3.0.2.jar"/>
-  <classpathentry kind="var" path="M2_REPO/com/codahale/metrics/metrics-core/3.0.2/metrics-core-3.0.2.jar" sourcepath="M2_REPO/com/codahale/metrics/metrics-core/3.0.2/metrics-core-3.0.2-sources.jar"/>
+  <classpathentry kind="var" path="M2_REPO/com/codahale/metrics/metrics-core/3.0.2/metrics-core-3.0.2.jar"/>
   <classpathentry kind="var" path="M2_REPO/org/slf4j/jul-to-slf4j/1.7.6/jul-to-slf4j-1.7.6.jar"/>
   <classpathentry kind="var" path="M2_REPO/org/slf4j/log4j-over-slf4j/1.7.6/log4j-over-slf4j-1.7.6.jar"/>
   <classpathentry kind="var" path="M2_REPO/org/slf4j/jcl-over-slf4j/1.7.6/jcl-over-slf4j-1.7.6.jar"/>
