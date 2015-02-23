@@ -33,7 +33,6 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import com.boundary.metrics.vmware.VMwarePerfAdapterConfiguration.MeterManagerConfiguration;
 import com.boundary.metrics.vmware.VMwarePerfAdapterConfiguration.MetricClientConfiguration;
 import com.boundary.metrics.vmware.poller.MonitoredEntity;
 import com.fasterxml.jackson.core.JsonParseException;
@@ -98,8 +97,6 @@ public class VMwarePerfAdapterConfigurationTest {
 		assertEquals("check getName()","foobar",entity.getName());
 		assertEquals("check getCatalog()","catalog.json",entity.getCatalog());
 	}
-	
-	
 
 	@Test
 	public void testGetClient() {
@@ -110,16 +107,6 @@ public class VMwarePerfAdapterConfigurationTest {
 		assertEquals("Check getBaseUri()","https://metrics-api.somewhere.com/",client.getBaseUri().toString());
 	}
 	
-	
-
-	@Test
-	public void testGetMeterManagerClient() {
-		MeterManagerConfiguration client = configuration.getMeterManagerClient();
-		assertNotNull("Check for not null: getMeterManagerClient()",client);
-		assertEquals("Check getApiKey()","6OThKB6oaF4TkCXPFIWxoHuLzX1",client.getApiKey());
-		assertEquals("Check getBaseUri()","https://api.somewhere.com/",client.getBaseUri().toString());
-	}
-
 	@Test
 	public void testGetMetricsClient() {
 		JerseyClientConfiguration client = configuration.getClient();
@@ -129,10 +116,5 @@ public class VMwarePerfAdapterConfigurationTest {
 		assertEquals("Check getTimeout()","10 seconds",client.getTimeout().toString());
 		assertEquals("Check getConnectionTimeout()","10 seconds",client.getConnectionTimeout().toString());
 		assertFalse("Check isGzipEnabledForRequests()",client.isGzipEnabledForRequests());
-	}
-
-	@Test
-	public void testGetOrgId() {
-		assertEquals("Check getOrgId()","GvADl8Iv3ApEDeTswh1fCzUy4cA",configuration.getOrgId());
 	}
 }
