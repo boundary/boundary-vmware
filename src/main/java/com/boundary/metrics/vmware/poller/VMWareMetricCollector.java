@@ -24,20 +24,16 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import javax.xml.ws.soap.SOAPFaultException;
 
 import org.joda.time.DateTime;
-import org.joda.time.Duration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.boundary.metrics.vmware.client.client.meter.manager.MeterManagerClient;
 import com.boundary.metrics.vmware.client.metrics.Measurement;
-import com.boundary.metrics.vmware.client.metrics.Metric;
 import com.boundary.metrics.vmware.client.metrics.MetricClient;
 import com.codahale.metrics.Meter;
 import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.MetricSet;
 import com.codahale.metrics.Timer;
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Lists;
 import com.vmware.vim25.InvalidPropertyFaultMsg;
 import com.vmware.vim25.ManagedObjectReference;
 import com.vmware.vim25.RuntimeFaultFaultMsg;
@@ -53,7 +49,6 @@ public class VMWareMetricCollector implements Runnable, MetricSet {
         
     private DateTime lastPoll = null;
     private DateTime now = null;
-    private Duration skew;
     
     private final AtomicBoolean lock = new AtomicBoolean(false);
     
@@ -65,18 +60,13 @@ public class VMWareMetricCollector implements Runnable, MetricSet {
 
 	private VMwareClient vmwClient;
 	private MetricClient metricClient;
-	private MeterManagerClient meterClient;
 	private MonitoredEntity configuration;
     
-    public VMWareMetricCollector(VMwareClient vmwClient,
-    		MetricClient metricClient,
-    		MeterManagerClient meterClient,
-    		MonitoredEntity configuration) {
+    public VMWareMetricCollector(VMwareClient vmwClient,MetricClient metricClient,MonitoredEntity configuration) {
     	
     	this.job = null;
     	this.vmwClient = vmwClient;
     	this.metricClient = metricClient;
-    	this.meterClient = meterClient;
     	this.configuration = configuration;
     }
 	
@@ -93,18 +83,6 @@ public class VMWareMetricCollector implements Runnable, MetricSet {
 			throws MalformedURLException, RemoteException,
 			InvalidPropertyFaultMsg, RuntimeFaultFaultMsg, SOAPFaultException {
 
-		// 'now' according to the server
-
-
-
-//		Duration serverSkew = new Duration(now, new DateTime());
-//		if (serverSkew.isLongerThan(Duration.standardSeconds(1))
-//				&& (skew == null || skew.getStandardSeconds() != serverSkew
-//						.getStandardSeconds())) {
-//			LOG.warn("Server {} and local time skewed by {} seconds",
-//					job.getHost(), serverSkew.getStandardSeconds());
-//			skew = serverSkew;
-//		}
 		// Initialize our polling interval
 		if (lastPoll == null) {
 			now = vmwClient.getTimeAtEndPoint();
@@ -119,6 +97,7 @@ public class VMWareMetricCollector implements Runnable, MetricSet {
 
 		for (MORCatalogEntry entry : catalog.getCatalog()) {
 
+			// Collects the managed objects of the given type
 			LOG.info("Fetching managed objects of type: {}",entry.getType());
 			Map<String, ManagedObjectReference> entities = vmwClient.getManagedObjects(entry.getType());
 
@@ -127,13 +106,11 @@ public class VMWareMetricCollector implements Runnable, MetricSet {
 				ManagedObjectReference mor = entity.getValue();
 				String entityName = entity.getKey();
 
-				// Prefix the VM name with the name from the monitored entity
-				// configuration, we can form unique names that way
-				String meterName = vmwClient.getName() + "-" + entityName;
-				LOG.info("Create or Get meter id for: {}",meterName);
-				int obsDomainId = meterClient.createOrGetMeterMetadata(meterName).getObservationDomainId();
+				// Prefix the managed object name with performance metric to get unique names
+				String source = vmwClient.getName() + "-" + entityName;
+				LOG.info("Collecting metrics for \"{}\"",source);
 				
-				List<Measurement> measurements = vmwClient.getMeasurements(mor,entityName,obsDomainId,20,lastPoll,now,job.getMetadata());
+				List<Measurement> measurements = vmwClient.getMeasurements(mor,entityName,source,20,lastPoll,now,job.getMetadata());
 				LOG.debug("{} measurements for managed object {}",measurements.size(), entityName);
 
 				// Send metrics
@@ -226,7 +203,7 @@ public class VMWareMetricCollector implements Runnable, MetricSet {
 	}
 
 	/**
-	 * Fetches all of the required metdata before collection begins.
+	 * Fetches all of the required metadata before collection begins.
 	 * 
 	 * @throws RuntimeFaultFaultMsg vSphere runtime error {@link RuntimeFaultFaultMsg}
 	 * @throws InvalidPropertyFaultMsg Incorrect property error {@link InvalidPropertyFaultMsg}
@@ -243,6 +220,6 @@ public class VMWareMetricCollector implements Runnable, MetricSet {
 		PerformanceCounterMetadata perfCounterMetadata = collector.fetchPerformanceCounters();
 		Map<String, Map<String, MetricDefinition>> metrics = catalog.getMetrics();
     	VMWareMetadata metadata = new VMWareMetadata(perfCounterMetadata,metrics);
-		this.job = new MetricCollectionJob(metadata,vmwClient,metricClient,meterClient,catalog);
+		this.job = new MetricCollectionJob(metadata,vmwClient,metricClient,catalog);
 	}
 }

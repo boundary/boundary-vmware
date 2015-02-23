@@ -25,7 +25,6 @@ import javax.validation.constraints.NotNull;
 
 import org.hibernate.validator.constraints.NotEmpty;
 
-import com.boundary.metrics.vmware.client.client.meter.manager.MeterManagerClient;
 import com.boundary.metrics.vmware.client.metrics.MetricClient;
 import com.boundary.metrics.vmware.poller.MonitoredEntity;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -36,40 +35,10 @@ import com.sun.jersey.api.client.Client;
  */
 public class VMwarePerfAdapterConfiguration extends Configuration {
 
-    static class MeterManagerConfiguration {
-        @NotNull
-        @JsonProperty
-        private URI baseUri = URI.create("https://api.boundary.com");
-        
-        @NotEmpty
-        @JsonProperty
-        private String orgId;
-
-        @NotEmpty
-        @JsonProperty
-        private String apiKey;
-
-        public URI getBaseUri() {
-        	return baseUri;
-        }
-        
-        public String getOrgId() {
-        	return orgId;
-        }
-
-        public String getApiKey() {
-            return apiKey;
-        }
-
-        public MeterManagerClient build(Client httpClient) {
-            return new MeterManagerClient(httpClient, getBaseUri(),getOrgId(),getApiKey());
-        }
-    }
-
     static class MetricClientConfiguration {
         @NotNull
         @JsonProperty
-        private URI baseUri = URI.create("https://metrics-api.boundary.com");
+        private URI baseUri = URI.create("https://premium-api.boundary.com");
 
         public URI getBaseUri() { return baseUri; }
 
@@ -113,20 +82,6 @@ public class VMwarePerfAdapterConfiguration extends Configuration {
     @JsonProperty
     @Valid
     @NotNull
-    private MeterManagerConfiguration meterManagerClient = new MeterManagerConfiguration();
-
-    /**
-     * Returns the meter manager configuration
-     * 
-     * @return {@link MeterManagerConfiguration}
-     */
-    public MeterManagerConfiguration getMeterManagerClient() {
-        return meterManagerClient;
-    }
-
-    @JsonProperty
-    @Valid
-    @NotNull
     private MetricClientConfiguration metricsClient = new MetricClientConfiguration();
     
     /**
@@ -135,17 +90,5 @@ public class VMwarePerfAdapterConfiguration extends Configuration {
      */
     public MetricClientConfiguration getMetricsClient() {
         return metricsClient;
-    }
-
-    @JsonProperty
-    @NotEmpty
-    private String orgId;
-
-    /**
-     * Returns the Boundary organization id associated with the metric client
-     * @return {@link String}
-     */
-    public String getOrgId() {
-        return orgId;
     }
 }

@@ -162,7 +162,6 @@ public class VMwareClientTest {
 		
 		for (Map.Entry<String,ManagedObjectReference> mor : managedObjects.entrySet()) {
 			ManagedObjectReference ref = mor.getValue();
-			System.out.println(ref.getValue());
 			assertEquals("Check mor type","VirtualMachine",ref.getType());
 		}
 	}
@@ -275,7 +274,7 @@ public class VMwareClientTest {
 		VMWareMetadata metadata = new VMWareMetadata(perfCounterMetadata,lMetrics);
 		
 		System.out.println(mor.getValue());
-		List<Measurement> measurements = vmClient.getMeasurements(mor,mor.getValue(),1,new Integer(20),start,end,metadata);
+		List<Measurement> measurements = vmClient.getMeasurements(mor,mor.getValue(),"VMWare",new Integer(20),start,end,metadata);
 		assertNotNull("Check entities",measurements);
 		assertTrue("Check entities size", measurements.size() > 0);
 		
@@ -305,7 +304,7 @@ public class VMwareClientTest {
 			DateTime end = vmClient.getTimeAtEndPoint();
 			DateTime start = end.minusSeconds(20);
 
-			List<Measurement> measurements = vmClient.getMeasurements(mor,mor.getValue(), 1, new Integer(20), start, end, metadata);
+			List<Measurement> measurements = vmClient.getMeasurements(mor,mor.getValue(),"VMWare", new Integer(20), start, end, metadata);
 			assertNotNull("Check measurements", measurements);
 			//assertTrue("Check measurements size", measurements.size() > 0);
 

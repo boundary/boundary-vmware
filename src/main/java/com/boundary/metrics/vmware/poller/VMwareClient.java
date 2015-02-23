@@ -277,7 +277,7 @@ public class VMwareClient implements Connection {
     public boolean isConnected() {
     	boolean  result = false;
     	
-    	// If our userSession is null it indicates we never had successfull connection
+    	// If our userSession is null it indicates we never had successful connection
     	// so we can reliably return false
         if (userSession == null) {
             LOG.info("UserSession is null, disconnected");
@@ -353,8 +353,7 @@ public class VMwareClient implements Connection {
     }
     
 	private void extractMeasurements(List<Measurement> measurements,String entityName,
-			int obsDomainId, PerfEntityMetricBase perfStats,
-			VMWareMetadata metadata) {
+			String source, PerfEntityMetricBase perfStats,VMWareMetadata metadata) {
 		PerfEntityMetric entityStats = (PerfEntityMetric) perfStats;
 		List<PerfMetricSeries> metricValues = entityStats.getValue();
 		List<PerfSampleInfo> sampleInfos = entityStats.getSampleInfo();
@@ -382,11 +381,10 @@ public class VMwareClient implements Connection {
 				if (name != null) {
 					Measurement measurement = Measurement.builder()
 							.setMetric(name)
-							.setSourceId(obsDomainId)
+							.setSource(source)
 							.setTimestamp(sampleTime)
 							.setMeasurement(sampleValue).build();
 					measurements.add(measurement);
-
 					LOG.info("{} @ {} = {} {}", metricFullName, sampleTime,
 							sampleValue,metricInfo.getUnitInfo().getKey());
 				} else {
@@ -432,7 +430,7 @@ public class VMwareClient implements Connection {
     }
 
 	public List<Measurement> getMeasurements(ManagedObjectReference mor,
-			String entityName, int obsDomainId, Integer intervalId, DateTime start,
+			String entityName, String source, Integer intervalId, DateTime start,
 			DateTime end, VMWareMetadata metadata) throws RuntimeFaultFaultMsg {
 		
 		List<Measurement> measurements = new ArrayList<Measurement>();
@@ -455,7 +453,7 @@ public class VMwareClient implements Connection {
 			
 			if (perfStat instanceof PerfEntityMetric) {
 				LOG.debug("perfStat: {}",perfStat.getEntity().getValue());
-				extractMeasurements(measurements,entityName,obsDomainId,perfStat,metadata);
+				extractMeasurements(measurements,entityName,source,perfStat,metadata);
 
 			} else {
 				LOG.error("Unrecognized performance entry type received: {}, ignoring",

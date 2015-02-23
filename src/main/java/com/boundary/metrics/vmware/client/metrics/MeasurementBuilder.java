@@ -27,18 +27,18 @@ public class MeasurementBuilder {
     public MeasurementBuilder() { 
     }
 
-    private int sourceId;
+    private String source;
     private String metric;
     private Number measurement;
     private DateTime timestamp;
 
     /**
      * 
-     * @param sourceId
+     * @param source origin of the metric
      * @return {@link MeasurementBuilder}
      */
-    public MeasurementBuilder setSourceId(int sourceId) {
-        this.sourceId = sourceId;
+    public MeasurementBuilder setSource(String source) {
+        this.source = source;
         return this;
     }
 
@@ -79,6 +79,6 @@ public class MeasurementBuilder {
      * @return {@link Measurement}
      */
     public Measurement build() {
-        return new Measurement(sourceId, metric, measurement, timestamp);
+        return new Measurement(this.source,this.metric,this.measurement,this.timestamp);
     }
 }

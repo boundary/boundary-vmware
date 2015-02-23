@@ -133,7 +133,7 @@ public class MetricClientTest {
 			Number randomNumber = (random.nextInt(100 - 0) + 0)/100.0;
 			measurements.clear();
 			builder.setMetric("SYSTEM_CPU_USAGE_AVERAGE")
-		       .setSourceId(100)
+		       .setSource("VMWare")
 		       .setMeasurement(randomNumber)
 		       .setTimestamp(DateTime.now());
 			measurements.add(builder.build());

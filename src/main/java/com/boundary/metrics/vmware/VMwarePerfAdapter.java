@@ -25,15 +25,12 @@ import java.util.concurrent.TimeUnit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.boundary.metrics.vmware.client.client.meter.manager.MeterManagerClient;
 import com.boundary.metrics.vmware.client.metrics.MetricClient;
 import com.boundary.metrics.vmware.poller.MonitoredEntity;
 import com.boundary.metrics.vmware.poller.VMWareMetricCollector;
 import com.boundary.metrics.vmware.poller.VMwareClient;
-import com.boundary.metrics.vmware.poller.VMwarePerfPoller;
 import com.boundary.metrics.vmware.resource.VMWarePerfPollerMonitor;
 import com.sun.jersey.api.client.Client;
-import com.vmware.connection.Connection;
 
 /**
  * Main class that drives the VMWare integration.
@@ -78,11 +75,7 @@ public class VMwarePerfAdapter extends Application<VMwarePerfAdapterConfiguratio
         final Client httpClient = new JerseyClientBuilder(environment)
                 .using(configuration.getClient())
                 .build("http-client");
-        
-        // The meter manager client is responsible for interacting with the meter API to create new nodes so that
-        // metrics can be be displayed.
-        final MeterManagerClient meterManagerClient = configuration.getMeterManagerClient().build(httpClient);
-        
+                
         // The metrics client is responsible interacting with the HLM (Host Level Metrics) API
         final MetricClient metricsClient = configuration.getMetricsClient().build(httpClient);
         environment.jersey().register(new VMWarePerfPollerMonitor());
@@ -90,14 +83,13 @@ public class VMwarePerfAdapter extends Application<VMwarePerfAdapterConfiguratio
         LOG.info("Collecting metrics from {} endpoints",configuration.getMonitoredEntities().size());
 
         // Each of the MonitoredEntity's represent and end point where we can collect metrics from since the VMWare Infrastructure SDK/API
-        // is symetric with respect connection to vCenter or ESXi server.
+        // is symmetric with respect connection to vCenter or ESXi server.
         for (MonitoredEntity entity : configuration.getMonitoredEntities()) {
         	// For each monitored entity we create a client and poller, and then pass to our scheduler
         	// to be processed by individual threads at the polling interval
         	LOG.info("Configure client and poller for: {}",entity.getName());
         	VMwareClient connection = new VMwareClient(entity.getUri(),entity.getUsername(),entity.getPassword(),entity.getName());
-            //VMwarePerfPoller poller = new VMwarePerfPoller(connection, entity.getMetrics(), configuration.getOrgId(), metricsClient, meterManagerClient);
-            VMWareMetricCollector collector = new VMWareMetricCollector(connection, metricsClient, meterManagerClient,entity);
+            VMWareMetricCollector collector = new VMWareMetricCollector(connection, metricsClient,entity);
             scheduler.scheduleAtFixedRate(collector, 0, 20, TimeUnit.SECONDS);
             environment.metrics().registerAll(collector);
         }

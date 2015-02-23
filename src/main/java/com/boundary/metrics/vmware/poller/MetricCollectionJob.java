@@ -16,16 +16,9 @@ package com.boundary.metrics.vmware.poller;
 
 import java.util.Map;
 
-import org.joda.time.DateTime;
-
 import com.boundary.metrics.vmware.client.client.meter.manager.MeterManagerClient;
-import com.boundary.metrics.vmware.client.metrics.Metric;
 import com.boundary.metrics.vmware.client.metrics.MetricClient;
-import com.boundary.metrics.vmware.util.TimeUtils;
-import com.vmware.connection.Connection;
-import com.vmware.vim25.ManagedObjectReference;
 import com.vmware.vim25.PerfCounterInfo;
-import com.vmware.vim25.RuntimeFaultFaultMsg;
 
 /**
  * Encapsulates all the necessary resources to collect metrics from
@@ -37,7 +30,6 @@ public class MetricCollectionJob {
 	private final VMWareMetadata metadata;
 	private final VMwareClient vmwareClient;
 	private final MetricClient metricsClient;
-	private final MeterManagerClient meterClient;
 	private final MORCatalog morCatalog;
 	
 	/**
@@ -48,11 +40,10 @@ public class MetricCollectionJob {
 	 * @param meterManagerClient {@link MeterManagerClient} Handles meter API connection to Boundary
 	 */
 	public MetricCollectionJob(VMWareMetadata metadata,VMwareClient vmwareClient,
-			MetricClient metricsClient,MeterManagerClient meterClient,MORCatalog morCatalog) {
+			MetricClient metricsClient,MORCatalog morCatalog) {
 		this.metadata = metadata;
 		this.vmwareClient = vmwareClient;
 		this.metricsClient = metricsClient;
-		this.meterClient = meterClient;
 		this.morCatalog = morCatalog;
 	}
 

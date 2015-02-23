@@ -1,7 +1,9 @@
 package com.boundary.metrics.vmware.poller;
 
 import static com.boundary.metrics.vmware.VMWareClientFactory.DEFAULT_PROPERTY_FILE;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assume.assumeTrue;
 
 import java.io.File;
@@ -17,14 +19,11 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.boundary.metrics.vmware.VMWareTestUtils;
-import com.boundary.metrics.vmware.client.client.meter.manager.MeterManagerClient;
 import com.boundary.metrics.vmware.client.metrics.Measurement;
-import com.boundary.metrics.vmware.client.metrics.Metric;
 import com.vmware.connection.helpers.GetMOREF;
 import com.vmware.vim25.InvalidPropertyFaultMsg;
 import com.vmware.vim25.ManagedObjectReference;
 import com.vmware.vim25.RuntimeFaultFaultMsg;
-import com.vmware.connection.helpers.GetMOREF;
 
 public class PerformanceCounterQueryTest {
 	
@@ -40,22 +39,18 @@ public class PerformanceCounterQueryTest {
 	public static void tearDownAfterClass() throws Exception {
 	}
 
-	private MeterManagerClient meterClient;
 	private VMwareClient vmClient;
 
 	@Before
 	public void setUp() throws Exception {
 		vmClient = VMWareTestUtils.getVMWareConnection(VMWARE_CLIENT_CONFIG_FILE);
 		vmClient.connect();
-		meterClient = VMWareTestUtils.getMeterClient();
-		
 	}
 
 	@After
 	public void tearDown() throws Exception {
 		vmClient.disconnect();
 		vmClient = null;
-		meterClient = null;
 	}
 	
 	@Test
@@ -95,7 +90,7 @@ public class PerformanceCounterQueryTest {
 		PerformanceCounterCollector counterCollector = new PerformanceCounterCollector(vmClient);
 		PerformanceCounterMetadata perfCounterMetadata = counterCollector.fetchPerformanceCounters();
 		VMWareMetadata metadata = new VMWareMetadata(perfCounterMetadata,metrics);
-		PerformanceCounterQuery query = new PerformanceCounterQuery(vmClient,meterClient,metadata);
+		PerformanceCounterQuery query = new PerformanceCounterQuery(vmClient,metadata);
 		
         DateTime end = vmClient.getTimeAtEndPoint();
         DateTime start = end.minusSeconds(20);
