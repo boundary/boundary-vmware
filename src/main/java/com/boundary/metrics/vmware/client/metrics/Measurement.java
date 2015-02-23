@@ -17,7 +17,6 @@ package com.boundary.metrics.vmware.client.metrics;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import javax.annotation.concurrent.Immutable;
-import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 
 import org.hibernate.validator.constraints.NotEmpty;
@@ -33,9 +32,9 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 @Immutable
 public class Measurement {
 
-    @Min(0)
+    @NotEmpty
     @JsonProperty("source")
-    private final Integer sourceId;
+    private final String source;
 
     @JsonProperty
     @NotEmpty
@@ -49,19 +48,19 @@ public class Measurement {
     @JsonFormat(shape = JsonFormat.Shape.NUMBER)
     private final DateTime timestamp;
 
-    public Measurement(Integer sourceId, String metric, Number measurement, DateTime timestamp) {
-        this.sourceId = checkNotNull(sourceId);
+    public Measurement(String source, String metric, Number measurement, DateTime timestamp) {
+        this.source = checkNotNull(source);
         this.metric = checkNotNull(metric);
         this.measurement = checkNotNull(measurement);
         this.timestamp = checkNotNull(timestamp);
     }
 
-    public int getSourceId() {
-        return sourceId;
+    public String getSource() {
+        return this.source;
     }
 
     public String getMetric() {
-        return metric;
+        return this.metric;
     }
 
     public Number getMeasurement() {
@@ -73,11 +72,19 @@ public class Measurement {
     }
     
 
-    @Override
+	@Override
 	public String toString() {
-		return "Measurement [sourceId=" + sourceId + ", metric=" + metric
-				+ ", measurement=" + measurement + ", timestamp=" + timestamp
-				+ "]";
+		StringBuilder builder = new StringBuilder();
+		builder.append("Measurement [source=");
+		builder.append(source);
+		builder.append(", metric=");
+		builder.append(metric);
+		builder.append(", measurement=");
+		builder.append(measurement);
+		builder.append(", timestamp=");
+		builder.append(timestamp);
+		builder.append("]");
+		return builder.toString();
 	}
 
 	public static MeasurementBuilder builder() {

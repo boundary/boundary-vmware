@@ -340,7 +340,7 @@ public class VMwarePerfPoller implements Runnable, MetricSet {
         * A {@link PerfMetricId} consistents of the performance counter and
         * the instance it applies to.
         * 
-        * In our particulary case we are requesting for all of the instances
+        * In our particular case we are requesting for all of the instances
         * associated with the performance counter.
         * 
         * Will this work when we have a mix of VirtualMachine, HostSystem, and DataSource
@@ -410,8 +410,7 @@ public class VMwarePerfPoller implements Runnable, MetricSet {
                                 LOG.warn("Metric {} has more than one value, only using the first", metricFullName);
                             }
 
-                            // Prefix the VM name with the name from the monitored entity configuration, we can form unique names that way
-                            int obsDomainId = meterManagerClient.createOrGetMeterMetadata(client.getName() + "-" + entityName).getObservationDomainId();
+                         	String source = client.getName() + "-" + entityName;
 
                             if (metricInfo.getUnitInfo().getKey().equalsIgnoreCase("kiloBytes")) {
                                 sampleValue = (long)sampleValue * 1024; // Convert KB to Bytes
@@ -423,20 +422,11 @@ public class VMwarePerfPoller implements Runnable, MetricSet {
                             if (name != null) {
                             Measurement measurement = Measurement.builder()
                                     .setMetric(name)
-                                    .setSourceId(obsDomainId)
+                                    .setSource(source)
                                     .setTimestamp(sampleTime)
                                     .setMeasurement(sampleValue)
                                     .build();
-
-                            Measurement dummyMeasurement = Measurement.builder()
-                                    .setMetric(name)
-                                    .setSourceId(obsDomainId)
-                                    .setTimestamp(sampleTime.minusSeconds(10))
-                                    .setMeasurement(sampleValue)
-                                    .build();
-
                             measurements.add(measurement);
-                            measurements.add(dummyMeasurement); // Fill in enough data so HLM graph can stream
 
                             LOG.info("{} @ {} = {} {}", metricFullName, sampleTime,
                                     sampleValue, metricInfo.getUnitInfo().getKey());

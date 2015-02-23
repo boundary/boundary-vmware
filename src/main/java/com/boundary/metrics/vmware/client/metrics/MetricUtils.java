@@ -49,7 +49,7 @@ public class MetricUtils {
                 LOG.warn("Tried to convert null measurement to bulk entry");
                 return null;
             } else {
-                List<Object> bulkEntry = ImmutableList.<Object>of(String.valueOf(input.getSourceId()), input.getMetric(),
+                List<Object> bulkEntry = ImmutableList.<Object>of(String.valueOf(input.getSource()), input.getMetric(),
                         input.getMeasurement(), input.getTimestamp().getMillis());
                 if (bulkEntry.size() != 4) {
                     LOG.error("Bulk entry invalid: {}", bulkEntry);
