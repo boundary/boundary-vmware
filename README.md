@@ -89,7 +89,7 @@ An excerpt of the default configuration file is shown below.
 			"description": "CPU Average Utilization",
 			"displayName": "CPU Average Utilization",
 			"displayNameShort": "CPU Avg Util",
-			"metric": "SYSTEM_CPU_USAGE_AVERAGE",
+			"metric": "VMWARE_SYSTEM_CPU_USAGE_AVERAGE",
 			"unit": "PERCENT"
 		}
 	],
