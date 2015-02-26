@@ -102,12 +102,12 @@ An excerpt of the default configuration file is shown below.
 			[
 				{
 					"name": "cpu.usage.average",
-					"metric": "SYSTEM_CPU_USAGE_AVERAGE"
+					"metric": "VMWARE_SYSTEM_CPU_USAGE_AVERAGE"
 				},
 
 				{
 					"name": "cpu.usage.MAXIMUM",
-					"metric": "SYSTEM_CPU_USAGE_MAXIMUM"
+					"metric": "VMWARE_SYSTEM_CPU_USAGE_MAXIMUM"
 				}
 			]
 		},
@@ -118,7 +118,7 @@ An excerpt of the default configuration file is shown below.
 			[
 				{
 					"name": "cpu.usage.AVERAGE",
-					"metric": "SYSTEM_CPU_USAGE_AVERAGE"
+					"metric": "VMWARE_SYSTEM_CPU_USAGE_AVERAGE"
 				}
 			]
 		},
@@ -129,7 +129,7 @@ An excerpt of the default configuration file is shown below.
 			[
 				{
 					"name": "disk.capacity.SUM",
-					"metric": "SYSTEM_DISK_CAPACITY_SUM"
+					"metric": "VMWARE_SYSTEM_DISK_CAPACITY_SUM"
 				}
 			]
 		}
