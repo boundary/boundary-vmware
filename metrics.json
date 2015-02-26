@@ -7,9 +7,9 @@
 			"description": "CPU Average Utilization",
 			"displayName": "CPU Average Utilization",
 			"displayNameShort": "CPU Avg Util",
-			"name": "SYSTEM_CPU_USAGE_AVERAGE",
+			"name": "VMWARE_SYSTEM_CPU_USAGE_AVERAGE",
 			"unit": "percent",
-"isDisabled": 0
+                        "isDisabled": 0
 		},
 
 		{
@@ -18,9 +18,9 @@
 			"description": "CPU Usage Minimum",
 			"displayName": "CPU Usage Minimum",
 			"displayNameShort": "CPU Usage Min",
-			"name": "SYSTEM_CPU_USAGE_MINIMUM",
+			"name": "VMWARE_SYSTEM_CPU_USAGE_MINIMUM",
 			"unit": "percent",
-"isDisabled": 0
+                        "isDisabled": 0
 		},
 		{
 			"defaultAggregate": "max",
@@ -28,9 +28,9 @@
 			"description": "CPU Usage Maximum",
 			"displayName": "CPU Usage Maximum",
 			"displayNameShort": "CPU Usage Max",
-			"name": "SYSTEM_CPU_USAGE_MAXIMUM",
+			"name": "VMWARE_SYSTEM_CPU_USAGE_MAXIMUM",
 			"unit": "percent",
-"isDisabled": 0
+                        "isDisabled": 0
 		},
 
 		{
@@ -39,9 +39,9 @@
 			"description": "CPU Idle Sum",
 			"displayName": "CPU Idle Sum",
 			"displayNameShort": "CPU Idle Sum",
-			"name": "SYSTEM_CPU_IDLE_SUM",
+			"name": "VMWARE_SYSTEM_CPU_IDLE_SUM",
 			"unit": "number",
-"isDisabled": 0
+                        "isDisabled": 0
 		},
 
 		{
@@ -50,9 +50,9 @@
 			"description": "Memory Maximum Active",
 			"displayName": "Memory Maximum Active",
 			"displayNameShort": "Mem Max Act",
-			"name": "SYSTEM_MEMORY_ACTIVE_MAXIMUM",
+			"name": "VMWARE_SYSTEM_MEMORY_ACTIVE_MAXIMUM",
 			"unit": "number",
-"isDisabled": 0
+                        "isDisabled": 0
 		},
 
 		{
@@ -61,9 +61,9 @@
 			"description": "Memory Consumed Average",
 			"displayName": "Memory Consumed Average",
 			"displayNameShort": "Mem Cons Ave",
-			"name": "SYSTEM_MEMORY_CONSUMED_AVERAGE",
+			"name": "VMWARE_SYSTEM_MEMORY_CONSUMED_AVERAGE",
 			"unit": "number",
-"isDisabled": 0
+                        "isDisabled": 0
 		},
 
 		{
@@ -72,9 +72,9 @@
 			"description": "Memory Swap Used Maximum",
 			"displayName": "Memory Swap Used Maximum",
 			"displayNameShort": "Mem Swap Max",
-			"name": "SYSTEM_MEMORY_SWAP_USED_MAXIMUM",
+			"name": "VMWARE_SYSTEM_MEMORY_SWAP_USED_MAXIMUM",
 			"unit": "number",
-"isDisabled": 0
+                        "isDisabled": 0
 		},
 
 		{
@@ -83,9 +83,9 @@
 			"description": "Disk Read Average",
 			"displayName": "Disk Read Average",
 			"displayNameShort": "Disk Read Ave",
-			"name": "SYSTEM_DISK_READ_AVERAGE",
+			"name": "VMWARE_SYSTEM_DISK_READ_AVERAGE",
 			"unit": "number",
-"isDisabled": 0
+                        "isDisabled": 0
 		},
 
 		{
@@ -94,9 +94,9 @@
 			"description": "Disk Write Average",
 			"displayName": "Disk Write Average",
 			"displayNameShort": "Disk Read Ave",
-			"name": "SYSTEM_DISK_WRITE_AVERAGE",
+			"name": "VMWARE_SYSTEM_DISK_WRITE_AVERAGE",
 			"unit": "number",
-"isDisabled": 0
+                        "isDisabled": 0
 		},
 
 		{
@@ -105,9 +105,9 @@
 			"description": "Disk Capacity Sum",
 			"displayName": "Disk Capacity Sum",
 			"displayNameShort": "Disk Cap Sum",
-			"name": "SYSTEM_DISK_CAPACITY_SUM",
+			"name": "VMWARE_SYSTEM_DISK_CAPACITY_SUM",
 			"unit": "number",
-"isDisabled": 0
+                        "isDisabled": 0
 		},
 
 		{
@@ -116,9 +116,9 @@
 			"description": "Disk Provisioned Sum",
 			"displayName": "Disk Provisioned Sum",
 			"displayNameShort": "Disk Prov Sum",
-			"name": "SYSTEM_DISK_PROVISIONED_SUM",
+			"name": "VMWARE_SYSTEM_DISK_PROVISIONED_SUM",
 			"unit": "number",
-"isDisabled": 0
+                        "isDisabled": 0
 		},
 
 		{
@@ -127,9 +127,9 @@
 			"description": "Disk Used Sum",
 			"displayName": "Disk Used Sum",
 			"displayNameShort": "Disk Used Sum",
-			"name": "SYSTEM_DISK_USED_SUM",
+			"name": "VMWARE_SYSTEM_DISK_USED_SUM",
 			"unit": "number",
-"isDisabled": 0
+                        "isDisabled": 0
 		}
 	]
 }
