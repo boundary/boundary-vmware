@@ -50,12 +50,9 @@ client:
   connectionTimeout: 10s
   retries: 3
   gzipEnabledForRequests: false
-meterManagerClient:
-  apiKey: <boundary enterprise api key>
-  baseUri: https://api.boundary.com/
 metricsClient:
-  baseUri: https://metrics-api.boundary.com/
-  apiKey: <boundary enterprise metrics api key>
+  baseUri: <Boundary API host e.g. for premimum-api.boundary.com>
+  apiKey: <Email and API token e.g. someuser@mydomain.com:api.a6df22c660-2105>
 # Logging settings.
 logging:
   # The default level of all loggers. Can be OFF, ERROR, WARN, INFO, DEBUG, TRACE, or ALL.
@@ -66,7 +63,6 @@ logging:
     # and sets it to DEBUG.
     #"org.apache.http.wire": DEBUG
     com.boundary: TRACE
-orgId:
 monitoredEntities:
     # The following can configuration can be repeated for other instances
     - uri: https://<esx host or vcenter host>/sdk/vimService
@@ -78,14 +74,14 @@ monitoredEntities:
 
 ### Collection Configuration
 The configuration file consists of two sections:
-- definitions - This section contains the Boundary metric definitions
-- catalog - This section consists of the managed object types to collect metrics from along with the specific metrics to collect and their mapping to Boundary metrics
+- `definitions` - This section contains the Boundary metric definitions
+- `catalog` - This section consists of the vSphere managed object types and the performance counters to collect. The Boundary metric name is paired with the performance counter to be collected. Every boundary metric name must have a corresponding entry in the `definitions` for the performance metric to be displayed in a dashboard.
 
 An excerpt of the default configuration file is shown below.
 
 ```json
 {
-	"definitions": 
+	"definitions":
 	[
 		{
 			"defaultAggregate": "AVG",
@@ -98,11 +94,11 @@ An excerpt of the default configuration file is shown below.
 		}
 	],
 
-	"catalog": 
+	"catalog":
 	[
 		{
 			"type": "VirtualMachine",
-			"counters": 
+			"counters":
 			[
 				{
 					"name": "cpu.usage.average",
@@ -118,7 +114,7 @@ An excerpt of the default configuration file is shown below.
 
 		{
 			"type": "HostSystem",
-			"counters": 
+			"counters":
 			[
 				{
 					"name": "cpu.usage.AVERAGE",
@@ -129,7 +125,7 @@ An excerpt of the default configuration file is shown below.
 
 		{
 			"type": "Datastore",
-			"counters": 
+			"counters":
 			[
 				{
 					"name": "disk.capacity.SUM",
@@ -145,7 +141,7 @@ An excerpt of the default configuration file is shown below.
 Starting
 --------
 
-1. To star the integration run the following:
+1. To start the integration run the following:
 ```
 $ java -jar target/vmware-metrics-collector-1.0.0.jar server src/main/resources/example.yml
 ```
