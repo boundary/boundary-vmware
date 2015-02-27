@@ -22,7 +22,7 @@ Building
      
 2. Run the following maven command:
      ```bash
-    $ mvn install
+    $ mvn install -DskipTests
      ```
      
 3. After the build runs successfully you are able to run the integration.
@@ -76,6 +76,8 @@ monitoredEntities:
 The configuration file consists of two sections:
 - `definitions` - This section contains the Boundary metric definitions
 - `catalog` - This section consists of the vSphere managed object types and the performance counters to collect. The Boundary metric name is paired with the performance counter to be collected. Every boundary metric name must have a corresponding entry in the `definitions` for the performance metric to be displayed in a dashboard.
+
+NOTE: There is an assumption that the metric definitions as referenced below have already been created.
 
 An excerpt of the default configuration file is shown below.
 
