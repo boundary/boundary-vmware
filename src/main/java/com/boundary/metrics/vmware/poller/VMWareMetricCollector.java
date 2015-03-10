@@ -210,16 +210,36 @@ public class VMWareMetricCollector implements Runnable, MetricSet {
 	 */
 	private void updateMetadata() throws InvalidPropertyFaultMsg, RuntimeFaultFaultMsg {
 		
-		LOG.debug("Update metadata from {}",configuration.getCatalog());
+		LOG.info("{}: Load catalog from {}",
+				vmwClient.getName(),configuration.getCatalog());
 		MORCatalog catalog = MORCatalogFactory.create(new File(configuration.getCatalog()));
+		LOG.info("{}: Catalog loaded with {} metric definitions and {} performance counters",
+				vmwClient.getName(),
+				catalog.getDefinitions().size(),
+				catalog.getMetrics().size());
 		
 		// Update or create metric definitions
-		metricClient.createUpdateMetrics(catalog.getDefinitions());
+		List<MetricDefinition> definitions = catalog.getDefinitions();
+		LOG.info("{}: Create or update {} metric definitions",
+				vmwClient.getName(),
+				definitions.size());
+		//metricClient.createUpdateMetrics(definitions);
+		LOG.info("{}: Completed creation or update of metric definitions",
+				vmwClient.getName());
 		
 		PerformanceCounterCollector collector = new PerformanceCounterCollector(vmwClient);
+		
+		LOG.info("{}: Fetching performance counters",vmwClient.getName());
 		PerformanceCounterMetadata perfCounterMetadata = collector.fetchPerformanceCounters();
+		LOG.info("{}: Fetched {} performance counters",vmwClient.getName(),
+				perfCounterMetadata.getInfoMap().size());
+		
 		Map<String, Map<String, MetricDefinition>> metrics = catalog.getMetrics();
+		LOG.info("{}: Catalog configured to collect {} metrics",vmwClient.getName(),metrics.size());
     	VMWareMetadata metadata = new VMWareMetadata(perfCounterMetadata,metrics);
+    	
+    	// Metric collection job contains all the metadata and clients need to collect data
+    	// from the vSphere performance counters
 		this.job = new MetricCollectionJob(metadata,vmwClient,metricClient,catalog);
 	}
 }

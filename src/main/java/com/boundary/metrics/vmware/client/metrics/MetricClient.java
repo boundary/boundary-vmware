@@ -88,10 +88,13 @@ public class MetricClient {
      * @param definition Instance of {@MetricDefinition} which describes a metric to be created or updated
      */
     public void createUpdateMetric(MetricDefinition definition) {
-    	ClientResponse response = baseResource.path(PATH_JOINER.join("v1", "metrics", definition.getMetric()))
+    	String path = PATH_JOINER.join("v1", "metrics", definition.getMetric());
+    	WebResource base = baseResource.path(path);
+    	ClientResponse response = base
                 .header(HttpHeaders.AUTHORIZATION, "Basic " + new String(Base64.encode(authentication), Charsets.US_ASCII))
                 .entity(definition, MediaType.APPLICATION_JSON_TYPE)
                 .put(ClientResponse.class);
+    	LOG.info("Create or updating metric: {}, HTTP status code {}",base.getURI(),response.getStatus());
         response.close();
     }
     
@@ -117,7 +120,8 @@ public class MetricClient {
         List<List<Object>> payload = Lists.newArrayList();
         final long timestamp = optionalTimestamp.or(new DateTime()).getMillis();
         for (Map.Entry<String,Number> m : measurements.entrySet()) {
-            payload.add(ImmutableList.<Object>of(String.valueOf(sourceId), m.getKey(), m.getValue(), timestamp));
+        	LOG.debug("Measurement: {}, {}, {}, {}",String.valueOf(sourceId),m.getKey(),m.getValue(),timestamp);
+            payload.add(ImmutableList.<Object>of(String.valueOf(sourceId),m.getKey(),m.getValue(),timestamp));
         }
         sendMeasurements(payload);
     }
@@ -129,7 +133,7 @@ public class MetricClient {
     public void addMeasurements(List<Measurement> measurements) {
     	if (LOG.isDebugEnabled()) {
     		for (Measurement m : measurements) {
-    			LOG.debug(m.toString());
+    			LOG.debug("{} ",m.toString());
     		}
     	}
         sendMeasurements(FluentIterable.from(measurements)
