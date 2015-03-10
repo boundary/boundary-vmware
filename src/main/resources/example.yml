@@ -12,10 +12,6 @@ client:
   connectionTimeout: 10s
   retries: 3
   gzipEnabledForRequests: false
-meterManagerClient:
-  apiKey:  <your api key>
-  orgId: <your org id> 
-  baseUri: https://api.boundary.com/
 metricsClient:
   baseUri: https://metrics-api.boundary.com/
   apiKey: <metric api key> 
@@ -29,7 +25,6 @@ logging:
     # and sets it to DEBUG.
     #"org.apache.http.wire": DEBUG
     com.boundary: INFO
-orgId: <your org id>
 monitoredEntities:
     # The following can configuration can be repeated for other instances
     - uri: https://<your host>/sdk/vimService
