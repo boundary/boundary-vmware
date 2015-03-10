@@ -30,5 +30,7 @@ monitoredEntities:
     - uri: https://<your host>/sdk/vimService
       username:  <your user name>
       password: <your password>
+      # Label of the particular vSphere that this configuration is connecting to
+      # Used to prefix all managed object name for sources
       name: target
       catalog: src/main/resources/virtual-machines.json
