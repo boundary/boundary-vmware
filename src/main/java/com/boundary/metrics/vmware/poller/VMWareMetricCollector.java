@@ -138,9 +138,9 @@ public class VMWareMetricCollector implements Runnable, MetricSet {
     /**
      * Test to see if we need to update our metrics to be collected.
      * 
-     * This currently just looks for maps on the instance but in the future
-     * the need to update will come from an API call to the integration that indicates
-     * which metrics to collect
+     * This currently just looks for a null job. If the configuration every becomes
+     * dynamic then the method will need to be updated to return false when the metdata configuration
+     * has changed.
      * 
      * @return {@link boolean} true, update metric map, false no update needed
      */
