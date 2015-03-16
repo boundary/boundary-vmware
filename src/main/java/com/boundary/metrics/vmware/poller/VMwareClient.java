@@ -220,7 +220,7 @@ public class VMwareClient implements Connection {
 
                 // Initialize the contexts; the session context takes the trust manager.
                 sslsc.setSessionTimeout(0);
-                sc.init(null, trustAllCerts, null);
+                sc.init(null, trustAllCerts, new java.security.SecureRandom());
 
                 // Use the default socket factory to create the socket for the secure connection
                 HttpsURLConnection.setDefaultSSLSocketFactory(sc.getSocketFactory());
